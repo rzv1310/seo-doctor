@@ -80,9 +80,15 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={isAuthenticated ? "/dashboard" : "/login"}
-              className="bg-primary hover:bg-primary-dark text-white text-lg font-medium rounded-md px-8 py-3 transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+              className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
             >
-              {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+              <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
             </Link>
             <a
               href="#features"
@@ -163,9 +169,15 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
                 <Link
                   href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                  className="mt-auto block text-center bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
                 >
-                  {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
+                  <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">
+                    {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 </Link>
               </div>
             </div>
@@ -227,9 +239,15 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
                 <Link
                   href={isAuthenticated ? "/dashboard/services/2" : "/login"}
-                  className="mt-auto block text-center bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
                 >
-                  {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
+                  <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">
+                    {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 </Link>
               </div>
             </div>
@@ -277,9 +295,14 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                className="block text-center bg-dark-blue-lighter hover:bg-primary hover:text-white border border-border-color rounded-md py-2 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px]"
+                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
               >
-                {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
+                  {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
               </Link>
             </div>
 
@@ -321,9 +344,15 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                className="block text-center bg-primary hover:bg-primary-dark text-white rounded-md py-2 transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+                className="block text-center bg-gradient-to-r from-primary to-primary-dark text-white rounded-md py-2.5 transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
               >
-                {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
+                  {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+                <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
               </Link>
             </div>
 
@@ -361,9 +390,14 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/2" : "/login"}
-                className="block text-center bg-dark-blue-lighter hover:bg-primary hover:text-white border border-border-color rounded-md py-2 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px]"
+                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
               >
-                {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
+                  {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
               </Link>
             </div>
           </div>
@@ -460,9 +494,15 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
           </p>
           <Link
             href={isAuthenticated ? "/dashboard" : "/login"}
-            className="bg-primary hover:bg-primary-dark text-white text-lg font-medium rounded-md px-8 py-3 transition-all inline-block shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+            className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all inline-block shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
           >
-            {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </span>
+            <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
           </Link>
         </div>
       </section>
