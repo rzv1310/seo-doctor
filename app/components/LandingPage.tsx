@@ -5,31 +5,44 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
   return (
     <div className="min-h-screen bg-dark-blue flex flex-col">
       {/* Header */}
-      <header className="border-b border-border-color">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="py-6 border-b border-border-color relative overflow-hidden backdrop-blur-sm bg-dark-blue bg-opacity-90 sticky top-0 z-50">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-40"></div>
+        <div className="absolute top-0 right-0 w-1/3 h-24 bg-primary opacity-5 blur-3xl rounded-full"></div>
+        <div className="absolute bottom-0 left-0 w-1/4 h-12 bg-accent opacity-10 blur-2xl rounded-full"></div>
+        
+        <div className="container mx-auto px-6 flex justify-between items-center relative z-10">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-white relative">
-              SEO Doctor
+            <h1 className="text-2xl font-bold relative">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                SEO Doctor
+              </span>
               <span className="absolute -inset-1 bg-primary opacity-20 blur-xl rounded-full -z-10"></span>
             </h1>
           </div>
           <nav className="flex items-center gap-8">
-            <a href="#features" className="text-text-secondary hover:text-primary transition-colors">Servicii</a>
-            <a href="#pricing" className="text-text-secondary hover:text-primary transition-colors">Prețuri</a>
-            <a href="#testimonials" className="text-text-secondary hover:text-primary transition-colors">Testimoniale</a>
+            <a href="#features" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Servicii</a>
+            <a href="#pricing" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Prețuri</a>
+            <a href="#testimonials" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Testimoniale</a>
             {isAuthenticated ? (
               <Link
                 href="/dashboard"
-                className="bg-primary hover:bg-primary-dark text-white rounded-md px-4 py-2 transition-colors"
+                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2"
               >
-                Dashboard
+                <span>Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="bg-primary hover:bg-primary-dark text-white rounded-md px-4 py-2 transition-colors"
+                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2"
               >
-                Login
+                <span>Login</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </Link>
             )}
           </nav>
