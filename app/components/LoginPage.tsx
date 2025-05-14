@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ export default function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(true);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +24,8 @@ export default function LoginPage() {
     // Accept any login credentials as specified
     // In a real app, this would validate credentials against a backend
     
-    // Set a flag in localStorage to simulate authentication
-    localStorage.setItem('isAuthenticated', 'true');
+    // Use the login method from AuthContext
+    login();
     
     // Redirect to dashboard page
     router.push('/');

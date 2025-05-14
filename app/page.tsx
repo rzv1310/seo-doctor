@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import LandingPage from './components/LandingPage';
-import Dashboard from './dashboard/page';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -19,5 +18,6 @@ export default function Home() {
     return null;
   }
 
-  return isAuthenticated ? <Dashboard /> : <LandingPage />;
+  // Always show the landing page, whether authenticated or not
+  return <LandingPage isAuthenticated={isAuthenticated} />;
 }
