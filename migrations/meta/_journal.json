@@ -15,6 +15,20 @@
       "when": 1747568632229,
       "tag": "0001_cool_pyro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1747579548771,
+      "tag": "0002_neat_vision",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1747580154426,
+      "tag": "0003_closed_invaders",
+      "breakpoints": true
     }
   ]
 }

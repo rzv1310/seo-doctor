@@ -165,3 +165,33 @@ export function getAuthUser(): AuthUser | null {
     return null;
   }
 }
+
+/**
+ * Verify authentication from server-side cookies and return user ID
+ * @param cookiesObject - The cookies object from Next.js
+ * @returns The user ID if authenticated, null otherwise
+ */
+export async function verifyAuth(
+  cookiesObject: RequestCookies | cookies
+): Promise<string | null> {
+  try {
+    // Get the auth token from cookies
+    const authToken = cookiesObject.get(AUTH_COOKIE_NAME)?.value;
+    
+    if (!authToken) {
+      return null;
+    }
+    
+    // Verify and decode the token
+    const user = verifyAuthToken(authToken);
+    
+    if (!user) {
+      return null;
+    }
+    
+    return user.id;
+  } catch (error) {
+    console.error('Authentication verification error:', error);
+    return null;
+  }
+}

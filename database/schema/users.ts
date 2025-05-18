@@ -14,6 +14,11 @@ export const users = sqliteTable(
         password: text('password').notNull(), // Hashed password
         name: text('name').notNull(),
         picture: text('picture'),
+        billingName: text('billing_name'),
+        billingCompany: text('billing_company'),
+        billingVat: text('billing_vat'),
+        billingAddress: text('billing_address'),
+        billingPhone: text('billing_phone'),
         stripeCustomerId: text('stripe_customer_id'),
     },
     (users) => ([

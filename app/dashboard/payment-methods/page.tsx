@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/app/context/AuthContext';
 
 type PaymentMethod = {
   id: number;
@@ -13,6 +14,90 @@ type PaymentMethod = {
 };
 
 export default function PaymentMethodsPage() {
+  const { user } = useAuth();
+  
+  // Billing details states
+  const [billingName, setBillingName] = useState(user?.billingName || '');
+  const [billingCompany, setBillingCompany] = useState(user?.billingCompany || '');
+  const [billingVat, setBillingVat] = useState(user?.billingVat || '');
+  const [billingAddress, setBillingAddress] = useState(user?.billingAddress || '');
+  const [billingPhone, setBillingPhone] = useState(user?.billingPhone || '');
+  const [isEditingBilling, setIsEditingBilling] = useState(false);
+  const [isUpdatingBilling, setIsUpdatingBilling] = useState(false);
+  const [billingUpdateSuccess, setBillingUpdateSuccess] = useState('');
+  const [billingUpdateError, setBillingUpdateError] = useState('');
+  
+  // Update billing details when user changes
+  useEffect(() => {
+    if (user) {
+      if (user.billingName) setBillingName(user.billingName);
+      if (user.billingCompany) setBillingCompany(user.billingCompany);
+      if (user.billingVat) setBillingVat(user.billingVat);
+      if (user.billingAddress) setBillingAddress(user.billingAddress);
+      if (user.billingPhone) setBillingPhone(user.billingPhone);
+    }
+  }, [user]);
+  
+  // Handle billing details update
+  const handleBillingUpdate = async () => {
+    try {
+      // Reset states
+      setBillingUpdateError('');
+      setBillingUpdateSuccess('');
+      
+      // Validate fields
+      if (!billingName.trim() && !billingCompany.trim()) {
+        setBillingUpdateError('Numele sau compania este obligatorie');
+        return;
+      }
+      
+      if (!billingAddress.trim()) {
+        setBillingUpdateError('Adresa este obligatorie');
+        return;
+      }
+      
+      setIsUpdatingBilling(true);
+      
+      // Call API to update billing details
+      const response = await fetch('/api/auth/update-billing-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          billingName,
+          billingCompany,
+          billingVat,
+          billingAddress,
+          billingPhone,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'A apărut o eroare');
+      }
+      
+      // Success
+      setBillingUpdateSuccess('Detaliile de facturare au fost actualizate cu succes');
+      setIsEditingBilling(false);
+      
+      // Update user context
+      if (user) {
+        user.billingName = billingName;
+        user.billingCompany = billingCompany;
+        user.billingVat = billingVat;
+        user.billingAddress = billingAddress;
+        user.billingPhone = billingPhone;
+      }
+    } catch (error) {
+      setBillingUpdateError(error instanceof Error ? error.message : 'A apărut o eroare');
+    } finally {
+      setIsUpdatingBilling(false);
+    }
+  };
+  
   // Mock data for payment methods
   const initialPaymentMethods: PaymentMethod[] = [
     {
@@ -415,28 +500,201 @@ export default function PaymentMethodsPage() {
         </div>
       </div>
 
-      {/* Billing Address */}
+      {/* Billing Details */}
       <div className="dashboard-card mb-6">
-        <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Adresa de Facturare</h2>
+        <div className="p-4 border-b border-border-color flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Detalii Facturare</h2>
+          {!isEditingBilling && (
+            <button 
+              onClick={() => setIsEditingBilling(true)} 
+              className="text-primary hover:text-primary-dark transition-colors text-sm flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Editează
+            </button>
+          )}
         </div>
         <div className="p-4">
-          <div className="mb-6">
+          {billingUpdateError && (
+            <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {billingUpdateError}
+            </div>
+          )}
+          
+          {billingUpdateSuccess && (
+            <div className="bg-success/10 border border-success/30 text-success px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {billingUpdateSuccess}
+            </div>
+          )}
+          
+          {isEditingBilling ? (
             <div className="p-4 border border-border-color rounded-lg">
-              <h3 className="font-medium mb-2">Adresa de Facturare Implicită</h3>
-              <div className="text-text-secondary">
-                <p>John Doe</p>
-                <p>123 Main St</p>
-                <p>San Francisco, CA 94105</p>
-                <p>United States</p>
-              </div>
-              <div className="mt-4 flex gap-3">
-                <button className="text-primary hover:text-primary-dark transition-colors text-sm">
-                  Editează
-                </button>
+              <h3 className="font-medium mb-4">Editează Detaliile de Facturare</h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="billingName" className="block text-sm text-text-secondary mb-1">
+                      Nume persoană fizică
+                    </label>
+                    <input
+                      id="billingName"
+                      type="text"
+                      value={billingName}
+                      onChange={(e) => setBillingName(e.target.value)}
+                      placeholder="Numele și prenumele"
+                      className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="billingCompany" className="block text-sm text-text-secondary mb-1">
+                      Denumire companie
+                    </label>
+                    <input
+                      id="billingCompany"
+                      type="text"
+                      value={billingCompany}
+                      onChange={(e) => setBillingCompany(e.target.value)}
+                      placeholder="Denumirea companiei"
+                      className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="billingVat" className="block text-sm text-text-secondary mb-1">
+                    Cod fiscal / CUI
+                  </label>
+                  <input
+                    id="billingVat"
+                    type="text"
+                    value={billingVat}
+                    onChange={(e) => setBillingVat(e.target.value)}
+                    placeholder="Codul fiscal al companiei"
+                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="billingAddress" className="block text-sm text-text-secondary mb-1">
+                    Adresă <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="billingAddress"
+                    value={billingAddress}
+                    onChange={(e) => setBillingAddress(e.target.value)}
+                    placeholder="Adresa completă (stradă, număr, bloc, scară, apartament, localitate, județ, cod poștal, țară)"
+                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[100px]"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="billingPhone" className="block text-sm text-text-secondary mb-1">
+                    Telefon
+                  </label>
+                  <input
+                    id="billingPhone"
+                    type="text"
+                    value={billingPhone}
+                    onChange={(e) => setBillingPhone(e.target.value)}
+                    placeholder="Număr de telefon"
+                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setIsEditingBilling(false);
+                      setBillingName(user?.billingName || '');
+                      setBillingCompany(user?.billingCompany || '');
+                      setBillingVat(user?.billingVat || '');
+                      setBillingAddress(user?.billingAddress || '');
+                      setBillingPhone(user?.billingPhone || '');
+                      setBillingUpdateError('');
+                      setBillingUpdateSuccess('');
+                    }}
+                    className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
+                  >
+                    Anulare
+                  </button>
+                  <button
+                    onClick={handleBillingUpdate}
+                    disabled={isUpdatingBilling}
+                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
+                  >
+                    {isUpdatingBilling ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        <span>Se procesează...</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Salvează
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-4 border border-border-color rounded-lg">
+              <h3 className="font-medium mb-4">Detalii Facturare</h3>
+              <div className="space-y-3">
+                {(user?.billingName || user?.billingCompany) ? (
+                  <>
+                    {user?.billingName && (
+                      <div>
+                        <p className="text-sm text-text-secondary">Nume persoană fizică:</p>
+                        <p className="text-base">{user.billingName}</p>
+                      </div>
+                    )}
+                    
+                    {user?.billingCompany && (
+                      <div>
+                        <p className="text-sm text-text-secondary">Denumire companie:</p>
+                        <p className="text-base">{user.billingCompany}</p>
+                      </div>
+                    )}
+                    
+                    {user?.billingVat && (
+                      <div>
+                        <p className="text-sm text-text-secondary">Cod fiscal / CUI:</p>
+                        <p className="text-base">{user.billingVat}</p>
+                      </div>
+                    )}
+                    
+                    {user?.billingAddress && (
+                      <div>
+                        <p className="text-sm text-text-secondary">Adresă:</p>
+                        <p className="text-base whitespace-pre-wrap">{user.billingAddress}</p>
+                      </div>
+                    )}
+                    
+                    {user?.billingPhone && (
+                      <div>
+                        <p className="text-sm text-text-secondary">Telefon:</p>
+                        <p className="text-base">{user.billingPhone}</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-text-tertiary italic">Nu există detalii de facturare specificate</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -6,6 +6,11 @@ interface User {
   id: string;
   email: string;
   name: string;
+  billingName?: string;
+  billingCompany?: string;
+  billingVat?: string;
+  billingAddress?: string;
+  billingPhone?: string;
 }
 
 interface AuthContextType {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { db } from '@/database';
+import db from '@/database';
 import { users } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { verifyAuth } from '@/app/utils/auth';
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify current password
-    const passwordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    const passwordValid = await bcrypt.compare(currentPassword, user.password);
     
     if (!passwordValid) {
       return NextResponse.json({ message: 'Parola actuală este incorectă' }, { status: 400 });
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     
     // Update password in database
     await db.update(users)
-      .set({ passwordHash: newPasswordHash })
+      .set({ password: newPasswordHash })
       .where(eq(users.id, userId));
     
     return NextResponse.json({ message: 'Parola a fost actualizată cu succes' });
