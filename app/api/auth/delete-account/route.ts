@@ -8,7 +8,8 @@ import { verifyAuth, verifyPassword } from '@/utils/auth';
 export async function DELETE(request: NextRequest) {
   try {
     // Verify authentication
-    const userId = await verifyAuth(cookies());
+    const cookieStore = cookies();
+    const userId = await verifyAuth(cookieStore);
 
     if (!userId) {
       return NextResponse.json({ message: 'Neautentificat' }, { status: 401 });
@@ -40,7 +41,7 @@ export async function DELETE(request: NextRequest) {
     await db.delete(users).where(eq(users.id, userId));
 
     // Clear auth cookie
-    cookies().delete('minidash_auth');
+    cookieStore.delete('minidash_auth');
 
     return NextResponse.json({ message: 'Contul a fost șters cu succes' });
   } catch (error) {
