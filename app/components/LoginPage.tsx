@@ -35,7 +35,7 @@ export default function LoginPage() {
         // Signup
         await signup(email, password, name);
       }
-      
+
       // Redirect directly to dashboard
       router.push('/dashboard');
     } catch (err) {
@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8 border-2 sm:border border-border-color sm:border-primary/20">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <h1 className="text-2xl sm:text-3xl font-bold">MiniDash</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">SEO Doctor</h1>
           </Link>
           <p className="text-text-secondary mt-2">
             {isLoggingIn ? 'Conectează-te la contul tău' : 'Crează contul tău'}

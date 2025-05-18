@@ -18,17 +18,6 @@ export default function SettingsPage() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
-  
-  // Billing details states
-  const [billingName, setBillingName] = useState(user?.billingName || '');
-  const [billingCompany, setBillingCompany] = useState(user?.billingCompany || '');
-  const [billingVat, setBillingVat] = useState(user?.billingVat || '');
-  const [billingAddress, setBillingAddress] = useState(user?.billingAddress || '');
-  const [billingPhone, setBillingPhone] = useState(user?.billingPhone || '');
-  const [isEditingBilling, setIsEditingBilling] = useState(false);
-  const [isUpdatingBilling, setIsUpdatingBilling] = useState(false);
-  const [billingUpdateSuccess, setBillingUpdateSuccess] = useState('');
-  const [billingUpdateError, setBillingUpdateError] = useState('');
 
   // Handle password change
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -82,65 +71,6 @@ export default function SettingsPage() {
     }
   };
   
-  // Handle billing details update
-  const handleBillingUpdate = async () => {
-    try {
-      // Reset states
-      setBillingUpdateError('');
-      setBillingUpdateSuccess('');
-      
-      // Validate fields
-      if (!billingName.trim() && !billingCompany.trim()) {
-        setBillingUpdateError('Numele sau compania este obligatorie');
-        return;
-      }
-      
-      if (!billingAddress.trim()) {
-        setBillingUpdateError('Adresa este obligatorie');
-        return;
-      }
-      
-      setIsUpdatingBilling(true);
-      
-      // Call API to update billing details
-      const response = await fetch('/api/auth/update-billing-details', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          billingName,
-          billingCompany,
-          billingVat,
-          billingAddress,
-          billingPhone,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'A apărut o eroare');
-      }
-      
-      // Success
-      setBillingUpdateSuccess('Detaliile de facturare au fost actualizate cu succes');
-      setIsEditingBilling(false);
-      
-      // Update user context
-      if (user) {
-        user.billingName = billingName;
-        user.billingCompany = billingCompany;
-        user.billingVat = billingVat;
-        user.billingAddress = billingAddress;
-        user.billingPhone = billingPhone;
-      }
-    } catch (error) {
-      setBillingUpdateError(error instanceof Error ? error.message : 'A apărut o eroare');
-    } finally {
-      setIsUpdatingBilling(false);
-    }
-  };
   
   // Handle account deletion
   const handleDeleteAccount = async () => {
@@ -181,7 +111,7 @@ export default function SettingsPage() {
   };
   
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease forwards' }}>
+    <div>
       <div className="flex items-center mb-8">
         <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
@@ -194,7 +124,6 @@ export default function SettingsPage() {
       {/* Account Information Panel */}
       <div 
         className="dashboard-card p-6 mb-8"
-        style={{ animation: 'fadeInUp 0.6s ease forwards', animationDelay: '0.1s', opacity: 0 }}
       >
         <div className="flex items-center border-b border-border-color pb-4 mb-6">
           <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
@@ -227,212 +156,12 @@ export default function SettingsPage() {
             <p className="text-base sm:text-lg font-medium">{user?.name}</p>
           </div>
           
-          <div className="p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm transition-all duration-300 hover:border-primary/30 md:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center text-text-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                </svg>
-                <p className="text-sm font-medium">Detalii facturare</p>
-              </div>
-              
-              {!isEditingBilling ? (
-                <button 
-                  onClick={() => setIsEditingBilling(true)} 
-                  className="text-primary hover:text-primary/80 text-sm font-medium flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Editează
-                </button>
-              ) : (
-                <button 
-                  onClick={() => {
-                    setIsEditingBilling(false);
-                    setBillingName(user?.billingName || '');
-                    setBillingCompany(user?.billingCompany || '');
-                    setBillingVat(user?.billingVat || '');
-                    setBillingAddress(user?.billingAddress || '');
-                    setBillingPhone(user?.billingPhone || '');
-                    setBillingUpdateError('');
-                    setBillingUpdateSuccess('');
-                  }} 
-                  className="text-text-secondary hover:text-text-primary text-sm font-medium flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                  Anulează
-                </button>
-              )}
-            </div>
-            
-            {billingUpdateError && (
-              <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                {billingUpdateError}
-              </div>
-            )}
-            
-            {billingUpdateSuccess && (
-              <div className="bg-success/10 border border-success/30 text-success px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                {billingUpdateSuccess}
-              </div>
-            )}
-            
-            {isEditingBilling ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="billingName" className="block text-sm text-text-secondary mb-1">
-                      Nume persoană fizică
-                    </label>
-                    <input
-                      id="billingName"
-                      type="text"
-                      value={billingName}
-                      onChange={(e) => setBillingName(e.target.value)}
-                      placeholder="Numele și prenumele"
-                      className="w-full bg-dark-blue-lighter/50 border border-glass-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="billingCompany" className="block text-sm text-text-secondary mb-1">
-                      Denumire companie
-                    </label>
-                    <input
-                      id="billingCompany"
-                      type="text"
-                      value={billingCompany}
-                      onChange={(e) => setBillingCompany(e.target.value)}
-                      placeholder="Denumirea companiei"
-                      className="w-full bg-dark-blue-lighter/50 border border-glass-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="billingVat" className="block text-sm text-text-secondary mb-1">
-                    Cod fiscal / CUI
-                  </label>
-                  <input
-                    id="billingVat"
-                    type="text"
-                    value={billingVat}
-                    onChange={(e) => setBillingVat(e.target.value)}
-                    placeholder="Codul fiscal al companiei"
-                    className="w-full bg-dark-blue-lighter/50 border border-glass-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="billingAddress" className="block text-sm text-text-secondary mb-1">
-                    Adresă <span className="text-danger">*</span>
-                  </label>
-                  <textarea
-                    id="billingAddress"
-                    value={billingAddress}
-                    onChange={(e) => setBillingAddress(e.target.value)}
-                    placeholder="Adresa completă (stradă, număr, bloc, scară, apartament, localitate, județ, cod poștal, țară)"
-                    className="w-full bg-dark-blue-lighter/50 border border-glass-border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[100px]"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="billingPhone" className="block text-sm text-text-secondary mb-1">
-                    Telefon
-                  </label>
-                  <input
-                    id="billingPhone"
-                    type="text"
-                    value={billingPhone}
-                    onChange={(e) => setBillingPhone(e.target.value)}
-                    placeholder="Număr de telefon"
-                    className="w-full bg-dark-blue-lighter/50 border border-glass-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                  />
-                </div>
-                
-                <div className="mt-3 flex justify-end">
-                  <button
-                    onClick={handleBillingUpdate}
-                    disabled={isUpdatingBilling}
-                    className="btn btn-primary py-2 px-4 rounded-lg transition-all duration-300 text-sm hover:translate-y-[-2px]"
-                  >
-                    {isUpdatingBilling ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                        <span>Se procesează...</span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Salvează
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-1 space-y-3">
-                {(user?.billingName || user?.billingCompany) ? (
-                  <>
-                    {user?.billingName && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Nume persoană fizică:</p>
-                        <p className="text-base">{user.billingName}</p>
-                      </div>
-                    )}
-                    
-                    {user?.billingCompany && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Denumire companie:</p>
-                        <p className="text-base">{user.billingCompany}</p>
-                      </div>
-                    )}
-                    
-                    {user?.billingVat && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Cod fiscal / CUI:</p>
-                        <p className="text-base">{user.billingVat}</p>
-                      </div>
-                    )}
-                    
-                    {user?.billingAddress && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Adresă:</p>
-                        <p className="text-base whitespace-pre-wrap">{user.billingAddress}</p>
-                      </div>
-                    )}
-                    
-                    {user?.billingPhone && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Telefon:</p>
-                        <p className="text-base">{user.billingPhone}</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-text-tertiary italic">Nu există detalii de facturare specificate</p>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       </div>
       
       {/* Password Change Panel */}
       <div 
         className="dashboard-card p-6 mb-8"
-        style={{ animation: 'fadeInUp 0.6s ease forwards', animationDelay: '0.2s', opacity: 0 }}
       >
         <div className="flex items-center border-b border-border-color pb-4 mb-6">
           <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center mr-3">
@@ -552,7 +281,6 @@ export default function SettingsPage() {
       {/* Account Deletion Panel */}
       <div 
         className="dashboard-card p-6"
-        style={{ animation: 'fadeInUp 0.6s ease forwards', animationDelay: '0.3s', opacity: 0 }}
       >
         <div className="flex items-center border-b border-danger/30 pb-4 mb-6">
           <div className="w-8 h-8 bg-danger/10 rounded-full flex items-center justify-center mr-3">

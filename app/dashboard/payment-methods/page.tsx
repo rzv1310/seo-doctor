@@ -15,49 +15,49 @@ type PaymentMethod = {
 
 export default function PaymentMethodsPage() {
   const { user } = useAuth();
-  
+
   // Billing details states
-  const [billingName, setBillingName] = useState(user?.billingName || '');
-  const [billingCompany, setBillingCompany] = useState(user?.billingCompany || '');
-  const [billingVat, setBillingVat] = useState(user?.billingVat || '');
-  const [billingAddress, setBillingAddress] = useState(user?.billingAddress || '');
-  const [billingPhone, setBillingPhone] = useState(user?.billingPhone || '');
+  const [billingName, setBillingName] = useState('');
+  const [billingCompany, setBillingCompany] = useState('');
+  const [billingVat, setBillingVat] = useState('');
+  const [billingAddress, setBillingAddress] = useState('');
+  const [billingPhone, setBillingPhone] = useState('');
   const [isEditingBilling, setIsEditingBilling] = useState(false);
   const [isUpdatingBilling, setIsUpdatingBilling] = useState(false);
   const [billingUpdateSuccess, setBillingUpdateSuccess] = useState('');
   const [billingUpdateError, setBillingUpdateError] = useState('');
-  
+
   // Update billing details when user changes
   useEffect(() => {
     if (user) {
-      if (user.billingName) setBillingName(user.billingName);
-      if (user.billingCompany) setBillingCompany(user.billingCompany);
-      if (user.billingVat) setBillingVat(user.billingVat);
-      if (user.billingAddress) setBillingAddress(user.billingAddress);
-      if (user.billingPhone) setBillingPhone(user.billingPhone);
+      setBillingName(user.billingName || '');
+      setBillingCompany(user.billingCompany || '');
+      setBillingVat(user.billingVat || '');
+      setBillingAddress(user.billingAddress || '');
+      setBillingPhone(user.billingPhone || '');
     }
   }, [user]);
-  
+
   // Handle billing details update
   const handleBillingUpdate = async () => {
     try {
       // Reset states
       setBillingUpdateError('');
       setBillingUpdateSuccess('');
-      
+
       // Validate fields
       if (!billingName.trim() && !billingCompany.trim()) {
         setBillingUpdateError('Numele sau compania este obligatorie');
         return;
       }
-      
+
       if (!billingAddress.trim()) {
         setBillingUpdateError('Adresa este obligatorie');
         return;
       }
-      
+
       setIsUpdatingBilling(true);
-      
+
       // Call API to update billing details
       const response = await fetch('/api/auth/update-billing-details', {
         method: 'POST',
@@ -72,17 +72,17 @@ export default function PaymentMethodsPage() {
           billingPhone,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'A apărut o eroare');
       }
-      
+
       // Success
       setBillingUpdateSuccess('Detaliile de facturare au fost actualizate cu succes');
       setIsEditingBilling(false);
-      
+
       // Update user context
       if (user) {
         user.billingName = billingName;
@@ -97,7 +97,7 @@ export default function PaymentMethodsPage() {
       setIsUpdatingBilling(false);
     }
   };
-  
+
   // Mock data for payment methods
   const initialPaymentMethods: PaymentMethod[] = [
     {
@@ -144,12 +144,12 @@ export default function PaymentMethodsPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : false;
-    
+
     setAddCardForm({
       ...addCardForm,
       [name]: type === 'checkbox' ? checked : value
     });
-    
+
     // Clear error when user types
     setFormErrors({
       ...formErrors,
@@ -159,7 +159,7 @@ export default function PaymentMethodsPage() {
 
   // Set default payment method
   const setDefaultMethod = (id: number) => {
-    setPaymentMethods(methods => 
+    setPaymentMethods(methods =>
       methods.map(method => ({
         ...method,
         isDefault: method.id === id
@@ -182,7 +182,7 @@ export default function PaymentMethodsPage() {
       expiryYear: '',
       cvv: ''
     };
-    
+
     if (!addCardForm.cardNumber.trim()) {
       errors.cardNumber = 'Numărul cardului este obligatoriu';
       valid = false;
@@ -190,22 +190,22 @@ export default function PaymentMethodsPage() {
       errors.cardNumber = 'Numărul cardului trebuie să aibă 16 cifre';
       valid = false;
     }
-    
+
     if (!addCardForm.nameOnCard.trim()) {
       errors.nameOnCard = 'Numele este obligatoriu';
       valid = false;
     }
-    
+
     if (!addCardForm.expiryMonth) {
       errors.expiryMonth = 'Luna este obligatorie';
       valid = false;
     }
-    
+
     if (!addCardForm.expiryYear) {
       errors.expiryYear = 'Anul este obligatoriu';
       valid = false;
     }
-    
+
     if (!addCardForm.cvv.trim()) {
       errors.cvv = 'CVV este obligatoriu';
       valid = false;
@@ -213,7 +213,7 @@ export default function PaymentMethodsPage() {
       errors.cvv = 'CVV trebuie să aibă 3 sau 4 cifre';
       valid = false;
     }
-    
+
     setFormErrors(errors);
     return valid;
   };
@@ -221,11 +221,11 @@ export default function PaymentMethodsPage() {
   // Submit new card form
   const handleAddCard = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     // In a real app, we would call Stripe API to create a payment method
     // For demo, just add a new card to the list
     const newCard: PaymentMethod = {
@@ -237,20 +237,20 @@ export default function PaymentMethodsPage() {
       isDefault: addCardForm.setDefault,
       cardBrand: 'visa' // Assuming Visa for demo
     };
-    
+
     // If new card is default, update all other cards
     if (newCard.isDefault) {
-      setPaymentMethods(methods => 
+      setPaymentMethods(methods =>
         methods.map(method => ({
           ...method,
           isDefault: false
         }))
       );
     }
-    
+
     // Add new card to list
     setPaymentMethods(methods => [...methods, newCard]);
-    
+
     // Reset form
     setAddCardForm({
       cardNumber: '',
@@ -260,7 +260,7 @@ export default function PaymentMethodsPage() {
       cvv: '',
       setDefault: false
     });
-    
+
     // Hide form
     setShowAddCard(false);
   };
@@ -302,7 +302,7 @@ export default function PaymentMethodsPage() {
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Metodele Tale de Plată</h2>
-          <button 
+          <button
             onClick={() => setShowAddCard(!showAddCard)}
             className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
           >
@@ -337,14 +337,14 @@ export default function PaymentMethodsPage() {
                     </div>
                     <div className="flex gap-3">
                       {!method.isDefault && (
-                        <button 
+                        <button
                           onClick={() => setDefaultMethod(method.id)}
                           className="text-primary hover:text-primary-dark transition-colors text-sm"
                         >
                           Setează ca Implicit
                         </button>
                       )}
-                      <button 
+                      <button
                         onClick={() => deleteMethod(method.id)}
                         className="text-danger hover:text-red-500 transition-colors text-sm"
                       >
@@ -360,7 +360,7 @@ export default function PaymentMethodsPage() {
               Nu au fost găsite metode de plată. Adaugă o metodă de plată pentru a începe.
             </div>
           )}
-          
+
           {/* Add Card Form */}
           {showAddCard && (
             <div className="mt-6 p-4 border border-border-color rounded-lg">
@@ -383,7 +383,7 @@ export default function PaymentMethodsPage() {
                     <p className="text-danger text-xs mt-1">{formErrors.cardNumber}</p>
                   )}
                 </div>
-                
+
                 <div className="mb-4">
                   <label htmlFor="nameOnCard" className="block text-sm text-text-secondary mb-1">
                     Nume pe Card
@@ -401,7 +401,7 @@ export default function PaymentMethodsPage() {
                     <p className="text-danger text-xs mt-1">{formErrors.nameOnCard}</p>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div>
                     <label htmlFor="expiryMonth" className="block text-sm text-text-secondary mb-1">
@@ -423,7 +423,7 @@ export default function PaymentMethodsPage() {
                       <p className="text-danger text-xs mt-1">{formErrors.expiryMonth}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="expiryYear" className="block text-sm text-text-secondary mb-1">
                       Anul
@@ -444,7 +444,7 @@ export default function PaymentMethodsPage() {
                       <p className="text-danger text-xs mt-1">{formErrors.expiryYear}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="cvv" className="block text-sm text-text-secondary mb-1">
                       CVV
@@ -463,7 +463,7 @@ export default function PaymentMethodsPage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="mb-4">
                   <label className="flex items-center">
                     <input
@@ -478,7 +478,7 @@ export default function PaymentMethodsPage() {
                     </span>
                   </label>
                 </div>
-                
+
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
@@ -505,8 +505,8 @@ export default function PaymentMethodsPage() {
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Detalii Facturare</h2>
           {!isEditingBilling && (
-            <button 
-              onClick={() => setIsEditingBilling(true)} 
+            <button
+              onClick={() => setIsEditingBilling(true)}
               className="text-primary hover:text-primary-dark transition-colors text-sm flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -525,7 +525,7 @@ export default function PaymentMethodsPage() {
               {billingUpdateError}
             </div>
           )}
-          
+
           {billingUpdateSuccess && (
             <div className="bg-success/10 border border-success/30 text-success px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -534,7 +534,7 @@ export default function PaymentMethodsPage() {
               {billingUpdateSuccess}
             </div>
           )}
-          
+
           {isEditingBilling ? (
             <div className="p-4 border border-border-color rounded-lg">
               <h3 className="font-medium mb-4">Editează Detaliile de Facturare</h3>
@@ -553,7 +553,7 @@ export default function PaymentMethodsPage() {
                       className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="billingCompany" className="block text-sm text-text-secondary mb-1">
                       Denumire companie
@@ -568,7 +568,7 @@ export default function PaymentMethodsPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="billingVat" className="block text-sm text-text-secondary mb-1">
                     Cod fiscal / CUI
@@ -582,7 +582,7 @@ export default function PaymentMethodsPage() {
                     className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="billingAddress" className="block text-sm text-text-secondary mb-1">
                     Adresă <span className="text-danger">*</span>
@@ -595,7 +595,7 @@ export default function PaymentMethodsPage() {
                     className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[100px]"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="billingPhone" className="block text-sm text-text-secondary mb-1">
                     Telefon
@@ -609,7 +609,7 @@ export default function PaymentMethodsPage() {
                     className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
                   />
                 </div>
-                
+
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => {
@@ -660,28 +660,28 @@ export default function PaymentMethodsPage() {
                         <p className="text-base">{user.billingName}</p>
                       </div>
                     )}
-                    
+
                     {user?.billingCompany && (
                       <div>
                         <p className="text-sm text-text-secondary">Denumire companie:</p>
                         <p className="text-base">{user.billingCompany}</p>
                       </div>
                     )}
-                    
+
                     {user?.billingVat && (
                       <div>
                         <p className="text-sm text-text-secondary">Cod fiscal / CUI:</p>
                         <p className="text-base">{user.billingVat}</p>
                       </div>
                     )}
-                    
+
                     {user?.billingAddress && (
                       <div>
                         <p className="text-sm text-text-secondary">Adresă:</p>
                         <p className="text-base whitespace-pre-wrap">{user.billingAddress}</p>
                       </div>
                     )}
-                    
+
                     {user?.billingPhone && (
                       <div>
                         <p className="text-sm text-text-secondary">Telefon:</p>
@@ -715,7 +715,7 @@ export default function PaymentMethodsPage() {
               Toate informațiile de plată sunt criptate și stocate în siguranță. Folosim practici de securitate standard în industrie pentru a-ți proteja datele.
             </p>
           </div>
-          
+
           <div className="bg-dark-blue-lighter rounded-lg p-4">
             <h3 className="font-medium mb-2 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

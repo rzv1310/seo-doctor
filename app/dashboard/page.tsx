@@ -93,10 +93,6 @@ export default function Dashboard() {
           <div 
             key={index} 
             className="dashboard-card p-6 transition-all duration-300 hover:scale-[1.02]"
-            style={{
-              animationDelay: `${index * 150}ms`,
-              animation: 'fadeInUp 0.5s ease forwards'
-            }}
           >
             <div className="medical-stat mb-2">
               <h3 className="text-base sm:text-lg font-semibold">{stat.title}</h3>
@@ -125,12 +121,7 @@ export default function Dashboard() {
 
       {/* Recent Orders Section */}
       <div 
-        className="dashboard-card mb-6" 
-        style={{
-          animation: 'fadeInUp 0.6s ease forwards',
-          animationDelay: '0.3s',
-          opacity: 0
-        }}
+        className="dashboard-card mb-6"
       >
         <div className="p-6 border-b border-border-color flex justify-between items-center">
           <div className="flex items-center">
@@ -170,11 +161,6 @@ export default function Dashboard() {
                   <tr 
                     key={order.id} 
                     className="hover:bg-primary/5 transition-colors duration-200"
-                    style={{
-                      animation: 'fadeIn 0.5s ease forwards',
-                      animationDelay: `${0.4 + idx * 0.1}s`,
-                      opacity: 0
-                    }}
                   >
                     <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">{order.id}</td>
                     <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">{order.service}</td>
@@ -209,11 +195,6 @@ export default function Dashboard() {
         {/* Services Expiring Soon */}
         <div 
           className="dashboard-card"
-          style={{
-            animation: 'fadeInUp 0.6s ease forwards',
-            animationDelay: '0.5s',
-            opacity: 0
-          }}
         >
           <div className="p-6 border-b border-border-color">
             <div className="flex items-center">
@@ -232,11 +213,6 @@ export default function Dashboard() {
                   <div 
                     key={service.id} 
                     className="p-4 border border-glass-border bg-glass-bg backdrop-blur-sm rounded-lg flex justify-between items-center hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]"
-                    style={{
-                      animation: 'fadeIn 0.5s ease forwards',
-                      animationDelay: `${0.6 + idx * 0.1}s`,
-                      opacity: 0
-                    }}
                   >
                     <div className="flex-1">
                       <h3 className="font-medium text-primary text-sm sm:text-base">{service.name}</h3>
@@ -274,11 +250,6 @@ export default function Dashboard() {
         {/* Payment Methods */}
         <div 
           className="dashboard-card"
-          style={{
-            animation: 'fadeInUp 0.6s ease forwards',
-            animationDelay: '0.6s',
-            opacity: 0
-          }}
         >
           <div className="p-6 border-b border-border-color flex justify-between items-center">
             <div className="flex items-center">
@@ -304,11 +275,6 @@ export default function Dashboard() {
               <div 
                 key={method.id} 
                 className="p-4 border border-glass-border rounded-lg flex justify-between items-center mb-4 bg-glass-bg backdrop-blur-sm hover:shadow-md hover:border-primary/30 transition-all duration-300"
-                style={{
-                  animation: 'fadeIn 0.5s ease forwards',
-                  animationDelay: `${0.7 + idx * 0.1}s`,
-                  opacity: 0
-                }}
               >
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-4 shadow-inner">

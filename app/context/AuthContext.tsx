@@ -163,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Redirect to home page
       window.location.href = '/';
     } catch (err) {
@@ -171,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Even if there's an error, we still want to clear the local state
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Redirect to home page even on error
       window.location.href = '/';
     } finally {
