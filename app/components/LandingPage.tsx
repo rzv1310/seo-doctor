@@ -1,7 +1,36 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function LandingPage({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
+  // Add smooth scrolling with offset handling
+  useEffect(() => {
+    // Get all anchor links in the header
+    const anchorLinks = document.querySelectorAll('nav a[href^="#"]');
+    
+    // Add click event handler to each anchor link
+    anchorLinks.forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href')?.substring(1);
+        if (!targetId) return;
+        
+        const targetElement = document.getElementById(targetId);
+        if (!targetElement) return;
+        
+        // Calculate position with offset (header height + extra padding)
+        const offset = 90; // Adjust based on header height
+        const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - offset;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      });
+    });
+  }, []);
+  
   return (
     <div className="min-h-screen bg-dark-blue flex flex-col">
       {/* Header */}
@@ -10,7 +39,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
         <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-40"></div>
         <div className="absolute top-0 right-0 w-1/3 h-24 bg-primary opacity-5 blur-3xl rounded-full"></div>
         <div className="absolute bottom-0 left-0 w-1/4 h-12 bg-accent opacity-10 blur-2xl rounded-full"></div>
-        
+
         <div className="container mx-auto px-6 flex justify-between items-center relative z-10">
           <div className="flex items-center">
             <h1 className="text-2xl font-bold relative">
@@ -21,13 +50,13 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
             </h1>
           </div>
           <nav className="flex items-center gap-8">
-            <a href="#features" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Servicii</a>
-            <a href="#pricing" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Prețuri</a>
-            <a href="#testimonials" className="text-text-secondary hover:text-primary hover:scale-105 transition-all">Testimoniale</a>
+            <a href="#features" className="text-text-secondary hover:text-primary transition-all">Servicii</a>
+            <a href="#pricing" className="text-text-secondary hover:text-primary transition-all">Prețuri</a>
+            <a href="#testimonials" className="text-text-secondary hover:text-primary transition-all">Testimoniale</a>
             {isAuthenticated ? (
               <Link
                 href="/dashboard"
-                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2"
+                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
               >
                 <span>Profil</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,7 +66,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
             ) : (
               <Link
                 href="/login"
-                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
+                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
               >
                 <span>Autentificare</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,7 +109,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={isAuthenticated ? "/dashboard" : "/login"}
-              className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
+              className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 relative group overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {isAuthenticated ? "Accesează Profil" : "Începe Acum"}
@@ -92,7 +121,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
             </Link>
             <a
               href="#features"
-              className="border border-border-color text-white hover:bg-dark-blue-lighter text-lg font-medium rounded-md px-8 py-3 transition-all shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30 hover:transform hover:translate-y-[-2px]"
+              className="border border-border-color text-white hover:bg-dark-blue-lighter text-lg font-medium rounded-md px-8 py-3 transition-all shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30"
             >
               Vezi Serviciile
             </a>
@@ -102,6 +131,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Services section */}
       <section id="features" className="py-20 bg-dark-blue-lighter relative overflow-hidden">
+        
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-dark-blue/40 to-transparent"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--primary-dark)_0%,_transparent_70%)] opacity-5"></div>
@@ -169,7 +199,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
                 <Link
                   href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
+                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 relative group overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">
                     {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
@@ -239,7 +269,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
                 <Link
                   href={isAuthenticated ? "/dashboard/services/2" : "/login"}
-                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
+                  className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 relative group overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">
                     {isAuthenticated ? "Accesează Serviciul" : "Începe Acum"}
@@ -257,6 +287,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Pricing section */}
       <section id="pricing" className="py-20 relative overflow-hidden">
+        
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-bl from-accent/5 to-transparent"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--primary)_0%,_transparent_60%)] opacity-5"></div>
@@ -295,7 +326,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
+                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 relative group overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
                   {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
@@ -344,7 +375,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/1" : "/login"}
-                className="block text-center bg-gradient-to-r from-primary to-primary-dark text-white rounded-md py-2.5 transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
+                className="block text-center bg-gradient-to-r from-primary to-primary-dark text-white rounded-md py-2.5 transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 relative group overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
                   {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
@@ -390,7 +421,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
               <Link
                 href={isAuthenticated ? "/dashboard/services/2" : "/login"}
-                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 hover:transform hover:translate-y-[-2px] relative group overflow-hidden"
+                className="block text-center bg-dark-blue-lighter hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark text-text-primary hover:text-white border border-border-color rounded-md py-2.5 transition-all w-full shadow-md hover:shadow-lg hover:shadow-primary/20 relative group overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-1.5 mx-auto w-fit">
                   {isAuthenticated ? "Accesează Serviciul" : "Selectează Pachet"}
@@ -406,6 +437,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Testimonials section */}
       <section id="testimonials" className="py-20 bg-dark-blue-lighter relative overflow-hidden">
+        
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent)_0%,_transparent_70%)] opacity-5"></div>
@@ -474,7 +506,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
           <div className="mt-12">
             <Link
               href={isAuthenticated ? "/dashboard" : "/login"}
-              className="bg-primary hover:bg-primary-dark text-white text-lg font-medium rounded-md px-8 py-3 transition-all inline-block shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px]"
+              className="bg-primary hover:bg-primary-dark text-white text-lg font-medium rounded-md px-8 py-3 transition-all inline-block shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
             >
               {isAuthenticated ? "Accesează Dashboard" : "Încearcă Acum"}
             </Link>
@@ -494,7 +526,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
           </p>
           <Link
             href={isAuthenticated ? "/dashboard" : "/login"}
-            className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all inline-block shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
+            className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all inline-block shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 relative group overflow-hidden"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
               {isAuthenticated ? "Accesează Profil" : "Începe Acum"}
@@ -512,7 +544,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">MiniDash</h3>
+              <h3 className="text-lg font-semibold mb-4">SEO Doctor</h3>
               <p className="text-text-secondary">
                 Soluții de optimizare Google pentru afaceri care vor să crească online.
               </p>
@@ -551,7 +583,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
           <div className="pt-8 border-t border-border-color flex flex-col md:flex-row justify-between items-center">
             <div className="text-text-secondary mb-4 md:mb-0">
-              © 2025 MiniDash. Toate drepturile rezervate.
+              © {new Date().getFullYear()} SEO Doctor. Toate drepturile rezervate.
             </div>
             <div className="flex gap-6">
               <a href="#" className="text-text-secondary hover:text-primary transition-colors">

@@ -15,6 +15,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // Handle navigation and set active item
+  const handleNavigation = (item: string) => {
+    setActiveItem(item);
+  };
+
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isAuthenticated && !isLoading) {
@@ -24,12 +29,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Get the current path to highlight the active sidebar item
   useEffect(() => {
-    const path = window.location.pathname;
-    if (path === '/dashboard') setActiveItem('dashboard');
-    else if (path.includes('/dashboard/orders')) setActiveItem('orders');
-    else if (path.includes('/dashboard/services')) setActiveItem('services');
-    else if (path.includes('/dashboard/invoices')) setActiveItem('invoices');
-    else if (path.includes('/dashboard/payment-methods')) setActiveItem('payment-methods');
+    const updateActiveItem = () => {
+      const path = window.location.pathname;
+      if (path === '/dashboard') setActiveItem('dashboard');
+      else if (path.includes('/dashboard/orders')) setActiveItem('orders');
+      else if (path.includes('/dashboard/services')) setActiveItem('services');
+      else if (path.includes('/dashboard/invoices')) setActiveItem('invoices');
+      else if (path.includes('/dashboard/payment-methods')) setActiveItem('payment-methods');
+      else if (path.includes('/dashboard/settings')) setActiveItem('settings');
+    };
+
+    // Set initial active item
+    updateActiveItem();
+
+    // Listen for route changes
+    window.addEventListener('popstate', updateActiveItem);
+
+    return () => {
+      window.removeEventListener('popstate', updateActiveItem);
+    };
   }, []);
 
   // Handle logout
@@ -48,10 +66,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Get user initials for the avatar
   const getUserInitials = () => {
     if (!user?.name) return '?';
-    
+
     const nameParts = user.name.split(' ');
     if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
-    
+
     return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
 
@@ -63,7 +81,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     );
   }
-  
+
   // Don't render anything when not authenticated (redirect will happen)
   if (!isAuthenticated) {
     return null;
@@ -74,18 +92,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <div className="sidebar w-64 flex-shrink-0 h-full">
         <div className="p-6 flex items-center border-b border-border-color h-20 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 to-transparent opacity-50"></div>
-          <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
-          
-          <div className="font-bold text-2xl relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            MiniDash
-            <span className="absolute -inset-1 bg-primary opacity-10 blur-lg rounded-full -z-10"></span>
-          </div>
+          <Link
+            href="/"
+            className="sidebar-item py-3 flex items-center gap-3 font-bold"
+          >
+            SEO Doctor
+          </Link>
         </div>
 
         <nav className="py-4">
-          <Link 
-            href="/dashboard" 
+          <Link
+            href="/dashboard"
+            onClick={() => handleNavigation('dashboard')}
             className={`sidebar-item ${activeItem === 'dashboard' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,8 +114,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </svg>
             Panou Control
           </Link>
-          <Link 
-            href="/dashboard/orders" 
+          <Link
+            href="/dashboard/orders"
+            onClick={() => handleNavigation('orders')}
             className={`sidebar-item ${activeItem === 'orders' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,8 +124,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </svg>
             Comenzi
           </Link>
-          <Link 
-            href="/dashboard/services" 
+          <Link
+            href="/dashboard/services"
+            onClick={() => handleNavigation('services')}
             className={`sidebar-item ${activeItem === 'services' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,8 +134,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </svg>
             Servicii
           </Link>
-          <Link 
-            href="/dashboard/invoices" 
+          <Link
+            href="/dashboard/invoices"
+            onClick={() => handleNavigation('invoices')}
             className={`sidebar-item ${activeItem === 'invoices' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,8 +144,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </svg>
             Facturi
           </Link>
-          <Link 
-            href="/dashboard/payment-methods" 
+          <Link
+            href="/dashboard/payment-methods"
+            onClick={() => handleNavigation('payment-methods')}
             className={`sidebar-item ${activeItem === 'payment-methods' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,9 +154,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </svg>
             Plată
           </Link>
-          
+
           <div className="mt-8 border-t border-border-color pt-4">
-            <button 
+            <Link
+              href="/dashboard/settings"
+              onClick={() => handleNavigation('settings')}
+              className={`sidebar-item ${activeItem === 'settings' ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Setări
+            </Link>
+            
+            <button
               onClick={handleLogout}
               disabled={isLoggingOut}
               className="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3 text-danger disabled:opacity-70"
@@ -160,67 +194,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-50 z-0"></div>
           <div className="absolute top-0 right-0 w-96 h-20 bg-primary opacity-5 blur-3xl rounded-full"></div>
           <div className="absolute bottom-0 left-0 w-72 h-10 bg-accent opacity-10 blur-2xl rounded-full"></div>
-          
-          <div className="flex items-center z-10">
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent relative">
-              Profil
-              <span className="absolute -inset-1 bg-primary opacity-10 blur-lg rounded-full -z-10"></span>
-            </h1>
-          </div>
-          <div className="flex items-center gap-6 z-10">
-            {/* Search */}
-            <div className="relative group">
-              <input
-                type="text"
-                placeholder="Caută..."
-                className="bg-dark-blue-lighter h-10 rounded-full py-2 px-5 pr-10 text-sm border border-border-color focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all w-56 shadow-sm group-hover:shadow-md"
-              />
-              <div className="absolute right-3 top-2.5 text-text-secondary bg-primary/10 p-1 rounded-full group-hover:bg-primary/20 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-            
-            {/* Notifications */}
-            <div className="relative group">
-              <button className="w-10 h-10 rounded-full bg-dark-blue-lighter flex items-center justify-center border border-border-color hover:border-primary/50 transition-all group-hover:shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-text-secondary group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span className="absolute -top-1 -right-1 bg-primary w-4 h-4 rounded-full text-xs flex items-center justify-center text-white shadow-lg shadow-primary/30">3</span>
-              </button>
-            </div>
-            
-            {/* User Profile */}
-            <div className="relative group">
-              <div 
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20 cursor-pointer group-hover:shadow-xl group-hover:shadow-primary/30 transition-all border-2 border-transparent group-hover:border-white/10"
-                title={user?.name || 'User'}
-              >
-                <span className="text-white font-bold">{getUserInitials()}</span>
-              </div>
-              
-              {/* Dropdown menu (can be expanded later) */}
-              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-dark-blue-lighter border border-border-color hidden group-hover:block z-50">
-                <div className="py-2">
-                  <div className="px-4 py-3 border-b border-border-color">
-                    <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
-                    <p className="text-xs text-text-secondary truncate">{user?.email || 'user@example.com'}</p>
-                  </div>
-                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Profil</a>
-                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Setări</a>
-                  <button 
-                    onClick={handleLogout} 
-                    disabled={isLoggingOut}
-                    className="block w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors disabled:opacity-70"
-                  >
-                    {isLoggingOut ? 'Se deconectează...' : 'Deconectare'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </header>
 
         {/* Dashboard Content */}
