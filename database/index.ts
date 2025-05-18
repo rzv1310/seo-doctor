@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 
-import * as schemaUsers from './schema/users';
+import * as schema from './schema';
 
 // Create a client connection to the database
 const client = createClient({
@@ -10,11 +10,7 @@ const client = createClient({
 });
 
 // Initialize the database with all our schemas
-const database = drizzle(client, {
-    schema: {
-        ...schemaUsers,
-    },
-});
+const database = drizzle(client, { schema });
 
 // Export the database instance
 export default database;
@@ -24,6 +20,6 @@ export const {
     users,
     services,
     orders,
-    invoices, 
+    invoices,
     paymentMethods
-} = schemaUsers;
+} = schema;
