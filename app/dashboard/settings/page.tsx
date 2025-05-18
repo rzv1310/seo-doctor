@@ -104,7 +104,7 @@ export default function SettingsPage() {
             <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold">Setări</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Setări</h1>
       </div>
       
       {/* Account Information Panel */}
@@ -118,7 +118,7 @@ export default function SettingsPage() {
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold">Informații cont</h2>
+          <h2 className="text-lg sm:text-xl font-semibold">Informații cont</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,7 +130,7 @@ export default function SettingsPage() {
               </svg>
               <p className="text-sm">Email</p>
             </div>
-            <p className="text-lg font-medium">{user?.email}</p>
+            <p className="text-base sm:text-lg font-medium">{user?.email}</p>
           </div>
           
           <div className="p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm transition-all duration-300 hover:border-primary/30">
@@ -140,7 +140,7 @@ export default function SettingsPage() {
               </svg>
               <p className="text-sm">Nume</p>
             </div>
-            <p className="text-lg font-medium">{user?.name}</p>
+            <p className="text-base sm:text-lg font-medium">{user?.name}</p>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold">Modificare parolă</h2>
+          <h2 className="text-lg sm:text-xl font-semibold">Modificare parolă</h2>
         </div>
         
         {passwordError && (
@@ -177,10 +177,10 @@ export default function SettingsPage() {
           </div>
         )}
         
-        <form onSubmit={handlePasswordChange} className="p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handlePasswordChange} className="p-3 sm:p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium text-text-secondary" htmlFor="currentPassword">
+              <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="currentPassword">
                 Parola actuală
               </label>
               <div className="relative">
@@ -201,7 +201,7 @@ export default function SettingsPage() {
             </div>
             
             <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium text-text-secondary" htmlFor="newPassword">
+              <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="newPassword">
                 Parola nouă
               </label>
               <div className="relative">
@@ -223,7 +223,7 @@ export default function SettingsPage() {
           </div>
           
           <div className="mb-6">
-            <label className="block mb-2 text-sm font-medium text-text-secondary" htmlFor="confirmPassword">
+            <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="confirmPassword">
               Confirmă parola nouă
             </label>
             <div className="relative">
@@ -246,19 +246,19 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={isChangingPassword}
-            className="btn btn-primary py-2.5 px-6 rounded-lg transition-all duration-300 hover:translate-y-[-2px] group"
+            className="btn btn-primary py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg transition-all duration-300 hover:translate-y-[-2px] group w-full sm:w-auto"
           >
             {isChangingPassword ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                Se procesează...
+                <span className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                <span className="text-sm sm:text-base">Se procesează...</span>
               </span>
             ) : (
               <span className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                 </svg>
-                Actualizează parola
+                <span className="text-sm sm:text-base">Actualizează parola</span>
               </span>
             )}
           </button>
@@ -276,7 +276,7 @@ export default function SettingsPage() {
               <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-danger">Ștergere cont</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-danger">Ștergere cont</h2>
         </div>
         
         <div className="p-5 border border-danger/20 rounded-lg bg-danger/5 backdrop-blur-sm">
@@ -284,7 +284,7 @@ export default function SettingsPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-danger mr-3 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
-            <p className="text-text-secondary">
+            <p className="text-text-secondary text-xs sm:text-sm">
               Această acțiune va șterge permanent contul dvs. și toate datele asociate. 
               Această acțiune <span className="text-danger font-semibold">nu poate fi anulată</span>.
             </p>
@@ -317,35 +317,35 @@ export default function SettingsPage() {
                 </svg>
                 Ești sigur că vrei să ștergi contul?
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={handleDeleteAccount}
                   disabled={isDeletingAccount}
-                  className="bg-danger hover:bg-danger/90 text-white font-medium py-2.5 px-5 rounded-lg disabled:opacity-70 transition-all duration-300 flex items-center"
+                  className="bg-danger hover:bg-danger/90 text-white font-medium py-2.5 px-4 sm:px-5 rounded-lg disabled:opacity-70 transition-all duration-300 flex items-center justify-center w-full sm:w-auto"
                 >
                   {isDeletingAccount ? (
                     <span className="flex items-center gap-2">
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                      Se procesează...
+                      <span className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                      <span className="text-sm sm:text-base">Se procesează...</span>
                     </span>
                   ) : (
                     <span className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
-                      Da, șterge contul
+                      <span className="text-sm sm:text-base">Da, șterge contul</span>
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={isDeletingAccount}
-                  className="border border-glass-border bg-glass-bg backdrop-blur-sm hover:bg-dark-blue-lighter text-text-primary font-medium py-2.5 px-5 rounded-lg disabled:opacity-70 transition-all duration-300 flex items-center"
+                  className="border border-glass-border bg-glass-bg backdrop-blur-sm hover:bg-dark-blue-lighter text-text-primary font-medium py-2.5 px-4 sm:px-5 rounded-lg disabled:opacity-70 transition-all duration-300 flex items-center justify-center w-full sm:w-auto"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                  Anulează
+                  <span className="text-sm sm:text-base">Anulează</span>
                 </button>
               </div>
             </div>

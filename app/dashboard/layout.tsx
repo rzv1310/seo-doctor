@@ -14,6 +14,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const [activeItem, setActiveItem] = useState('dashboard');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Handle navigation and set active item
   const handleNavigation = (item: string) => {
@@ -87,10 +88,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return null;
   }
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className="flex h-screen bg-dark-blue text-text-primary">
+      {/* Mobile sidebar backdrop overlay */}
+      {sidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"
+          onClick={toggleSidebar}
+        />
+      )}
+      
       {/* Enhanced Sidebar with glass effect */}
-      <div className="sidebar w-64 flex-shrink-0 h-full">
+      <div className={`sidebar fixed md:relative z-30 w-64 flex-shrink-0 h-full transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-6 flex items-center border-b border-border-color h-20 relative overflow-hidden">
           <Link
             href="/"
@@ -192,15 +205,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Enhanced Glassy Header */}
-        <header className="dashboard-header h-20 flex items-center justify-between px-8 relative overflow-hidden z-10">
+        <header className="dashboard-header h-20 flex items-center justify-between px-4 md:px-8 relative overflow-hidden z-10">
           {/* Background decorative elements */}
           <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-50 z-0"></div>
           <div className="absolute top-0 right-0 w-96 h-20 bg-primary opacity-5 blur-3xl rounded-full"></div>
           <div className="absolute bottom-0 left-0 w-72 h-10 bg-accent opacity-10 blur-2xl rounded-full"></div>
 
-          <div />
+          {/* Sidebar Toggle Button for Mobile */}
+          <button 
+            className="md:hidden hamburger-button flex items-center justify-center text-text-primary"
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <div className="md:block hidden" />
 
           {/* User Avatar */}
           <div className="relative z-10">
@@ -211,7 +235,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Dashboard Content with subtle background */}
-        <main className="flex-1 overflow-y-auto p-6 relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 relative">
           {/* Subtle grid pattern background */}
           <div className="absolute inset-0 opacity-5 z-0"
             style={{

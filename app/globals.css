@@ -89,6 +89,10 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px var(--glass-shadow);
   position: relative;
+  z-index: 30;
+  /* Mobile optimizations */
+  width: 100%;
+  max-width: 16rem;
 }
 
 .sidebar::before {
@@ -116,6 +120,7 @@ body::before {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 
 .dashboard-card::before {
@@ -194,6 +199,12 @@ body::before {
   border-radius: 0.5rem;
   position: relative;
   overflow: hidden;
+  font-size: 0.9rem;
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0.25rem;
+  }
 }
 
 .sidebar-item:hover {
@@ -315,6 +326,54 @@ body::before {
   }
 }
 
+/* Fix for mobile menu */
+.mobile-menu {
+  transform: translateY(-105%); /* Move it slightly more up to ensure it's completely out of view */
+  visibility: hidden;
+  opacity: 0;
+  transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  overflow: hidden;
+  height: auto;
+  display: block;
+}
+
+.mobile-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glass-highlight), transparent 80%);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mobile-menu::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, var(--primary) 0%, transparent 70%);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mobile-menu.visible {
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (max-height: 600px) {
+  .mobile-menu {
+    overflow-y: auto;
+  }
+}
+
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
@@ -324,6 +383,51 @@ body::before {
   }
   100% {
     box-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Adjust card layouts for mobile */
+  .dashboard-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Optimize typography for mobile */
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Animate sidebar */
+  .sidebar {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Hamburger button animation */
+  .hamburger-button {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(14, 165, 233, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-button:hover {
+    background: rgba(14, 165, 233, 0.2);
+  }
+  
+  .hamburger-button:active {
+    transform: scale(0.95);
   }
 }
 

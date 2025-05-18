@@ -50,10 +50,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4">
-      <div className="dashboard-card w-full max-w-md p-8">
+      <div className="dashboard-card w-full max-w-md p-4 sm:p-6 md:p-8">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <h1 className="text-3xl font-bold">MiniDash</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">MiniDash</h1>
           </Link>
           <p className="text-text-secondary mt-2">
             {isLoggingIn ? 'Conectează-te la contul tău' : 'Crează contul tău'}
@@ -70,7 +70,7 @@ export default function LoginPage() {
           {/* Name field (only for signup) */}
           {!isLoggingIn && (
             <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
+              <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-text-secondary mb-1">
                 Nume
               </label>
               <input
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
+                className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-border-color focus:outline-none focus:border-primary text-base sm:text-base"
                 placeholder="Numele tău"
                 disabled={isSubmitting}
               />
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
           {/* Email field */}
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-1">
+            <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-text-secondary mb-1">
               Email
             </label>
             <input
@@ -95,7 +95,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
+              className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-border-color focus:outline-none focus:border-primary text-base sm:text-base"
               placeholder="your@email.com"
               disabled={isSubmitting}
             />
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
           {/* Password field */}
           <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-1">
+            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-text-secondary mb-1">
               Parolă
             </label>
             <input
@@ -111,7 +111,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
+              className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-border-color focus:outline-none focus:border-primary text-base sm:text-base"
               placeholder="••••••••"
               disabled={isSubmitting}
             />
@@ -122,7 +122,7 @@ export default function LoginPage() {
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
               </div>
-              <div className="text-sm">
+              <div className="text-xs sm:text-sm">
                 <a href="#" className="text-primary hover:text-primary-dark">
                   Ai uitat parola?
                 </a>
@@ -134,7 +134,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-2.5 sm:py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
             <span className="relative z-10 flex items-center justify-center mx-auto w-fit">
@@ -147,8 +147,8 @@ export default function LoginPage() {
         </form>
 
         {/* Toggle between login and signup */}
-        <div className="mt-8 pt-6 border-t border-border-color text-center">
-          <p className="text-text-secondary">
+        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border-color text-center">
+          <p className="text-text-secondary text-sm sm:text-base flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-0">
             {isLoggingIn ? "Nu ai un cont?" : "Ai deja un cont?"}
             <button
               onClick={() => {
@@ -158,14 +158,14 @@ export default function LoginPage() {
                 // No need to clear them when we're just switching modes
               }}
               disabled={isSubmitting}
-              className="ml-2 px-3 py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+              className="sm:ml-2 px-3 py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               {isLoggingIn ? 'Înregistrare' : 'Conectare'}
             </button>
           </p>
         </div>
 
-        <div className="mt-8 text-center text-xs text-text-secondary">
+        <div className="mt-4 sm:mt-8 text-center text-xs text-text-secondary">
           Continuând, ești de acord cu{' '}
           <a href="#" className="text-primary hover:text-primary-dark">
             Termenii și Condițiile
