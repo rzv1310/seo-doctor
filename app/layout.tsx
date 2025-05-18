@@ -1,37 +1,46 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const spaceGrotesk = Space_Grotesk({
+    variable: "--font-sans",
+    subsets: ["latin"],
+    display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const firaCode = Fira_Code({
+    variable: "--font-mono",
+    subsets: ["latin"],
+    display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MiniDash - Manage Your Digital Services",
-  description: "Dashboard for managing digital services and subscriptions",
+    title: "SEO Doctor - Gestionați Strategia SEO cu Expertiză",
+    description: "Instrument profesional pentru analiza, optimizarea și îmbunătățirea prezenței dvs. online. Creșteți vizibilitatea și traficul organic cu SEO Doctor.",
+    keywords: "SEO, optimizare motoare de căutare, analiză SEO, audit website, creștere trafic organic",
+    openGraph: {
+        title: "SEO Doctor - Gestionați Strategia SEO cu Expertiză",
+        description: "Instrument profesional pentru analiza, optimizarea și îmbunătățirea prezenței dvs. online.",
+        url: "https://seodoctor.ro",
+        siteName: "SEO Doctor"
+    },
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" className="dark">
+            <body
+                className={`${spaceGrotesk.variable} ${firaCode.variable} antialiased`}
+            >
+                <AuthProvider>
+                    {children}
+                </AuthProvider>
+            </body>
+        </html>
+    );
 }
