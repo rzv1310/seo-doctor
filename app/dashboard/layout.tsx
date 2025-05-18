@@ -130,7 +130,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
-            Payment
+            Plată
           </Link>
           
           <div className="mt-8 border-t border-border-color pt-4">
@@ -146,7 +146,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               )}
-              Logout
+              Deconectare
             </button>
           </div>
         </nav>
@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           
           <div className="flex items-center z-10">
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent relative">
-              Dashboard
+              Profil
               <span className="absolute -inset-1 bg-primary opacity-10 blur-lg rounded-full -z-10"></span>
             </h1>
           </div>
@@ -172,7 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="relative group">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Caută..."
                 className="bg-dark-blue-lighter h-10 rounded-full py-2 px-5 pr-10 text-sm border border-border-color focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all w-56 shadow-sm group-hover:shadow-md"
               />
               <div className="absolute right-3 top-2.5 text-text-secondary bg-primary/10 p-1 rounded-full group-hover:bg-primary/20 transition-all">
@@ -208,14 +208,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
                     <p className="text-xs text-text-secondary truncate">{user?.email || 'user@example.com'}</p>
                   </div>
-                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Profile</a>
-                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Settings</a>
+                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Profil</a>
+                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Setări</a>
                   <button 
                     onClick={handleLogout} 
                     disabled={isLoggingOut}
                     className="block w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors disabled:opacity-70"
                   >
-                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                    {isLoggingOut ? 'Se deconectează...' : 'Deconectare'}
                   </button>
                 </div>
               </div>

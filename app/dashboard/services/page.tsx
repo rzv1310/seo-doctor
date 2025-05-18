@@ -54,20 +54,20 @@ export default function ServicesPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Services</h1>
-        <p className="text-text-secondary">Manage your subscribed services</p>
+        <h1 className="text-2xl font-bold mb-2">Servicii</h1>
+        <p className="text-text-secondary">Gestionează serviciile tale abonate</p>
       </div>
 
       {/* Filters and search */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Filters</h2>
+          <h2 className="text-xl font-semibold">Filtre</h2>
         </div>
         <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative md:w-1/2">
             <input
               type="text"
-              placeholder="Search services..."
+              placeholder="Caută servicii..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
@@ -85,16 +85,16 @@ export default function ServicesPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
             >
-              <option value="all">All</option>
+              <option value="all">Toate</option>
               <option value="active">Active</option>
-              <option value="trial">Trial</option>
+              <option value="trial">Probă</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
           
           <div className="self-end">
             <button className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors text-sm">
-              Add New Service
+              Adaugă Serviciu Nou
             </button>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function ServicesPage() {
             
             <div className="p-4 flex-1">
               <div className="mb-4">
-                <div className="text-sm text-text-secondary mb-1">Usage</div>
+                <div className="text-sm text-text-secondary mb-1">Utilizare</div>
                 <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
                   <div 
                     className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`} 
@@ -131,7 +131,7 @@ export default function ServicesPage() {
               </div>
               
               <div className="mb-4">
-                <div className="text-sm text-text-secondary mb-1">Features</div>
+                <div className="text-sm text-text-secondary mb-1">Caracteristici</div>
                 <ul className="text-sm space-y-1">
                   {service.features.map((feature, index) => (
                     <li key={index} className="flex items-center">
@@ -147,13 +147,13 @@ export default function ServicesPage() {
               <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                 <div>
                   <div className="font-bold text-primary text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
-                  <div className="text-xs text-text-secondary">Renews: {service.renewalDate}</div>
+                  <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
                 </div>
                 <Link 
                   href={`/dashboard/services/${service.id}`} 
                   className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
                 >
-                  Manage
+                  Gestionare
                 </Link>
               </div>
             </div>
@@ -163,10 +163,10 @@ export default function ServicesPage() {
       
       {filteredServices.length === 0 && (
         <div className="dashboard-card p-8 text-center">
-          <div className="text-xl font-semibold mb-2">No services found</div>
-          <p className="text-text-secondary mb-6">Try adjusting your search or filter criteria.</p>
+          <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
+          <p className="text-text-secondary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
           <button className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors">
-            Browse Available Services
+            Explorează Servicii Disponibile
           </button>
         </div>
       )}
@@ -174,7 +174,7 @@ export default function ServicesPage() {
       {/* Available Services Section */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Recommended Services</h2>
+          <h2 className="text-xl font-semibold">Servicii Recomandate</h2>
         </div>
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
@@ -183,13 +183,13 @@ export default function ServicesPage() {
                 <h3 className="font-medium">Social Media Management</h3>
                 <p className="text-text-secondary text-sm mt-1">Complete management of your social media profiles for better engagement and visibility.</p>
                 <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                  20% off first 3 months
+                  20% reducere primele 3 luni
                 </span>
               </div>
               <div className="text-right">
                 <div className="font-bold text-lg">$199.99<span className="text-xs text-text-secondary">/mo</span></div>
                 <button className="mt-2 text-sm text-primary hover:text-primary-dark transition-colors">
-                  Learn More
+                  Află Mai Multe
                 </button>
               </div>
             </div>
@@ -201,13 +201,13 @@ export default function ServicesPage() {
                 <h3 className="font-medium">Content Marketing</h3>
                 <p className="text-text-secondary text-sm mt-1">Strategic content creation and distribution to drive traffic and conversions.</p>
                 <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                  Free consultation
+                  Consultație gratuită
                 </span>
               </div>
               <div className="text-right">
                 <div className="font-bold text-lg">$249.99<span className="text-xs text-text-secondary">/mo</span></div>
                 <button className="mt-2 text-sm text-primary hover:text-primary-dark transition-colors">
-                  Learn More
+                  Află Mai Multe
                 </button>
               </div>
             </div>

@@ -99,33 +99,33 @@ export default function PaymentMethodsPage() {
     };
     
     if (!addCardForm.cardNumber.trim()) {
-      errors.cardNumber = 'Card number is required';
+      errors.cardNumber = 'Numărul cardului este obligatoriu';
       valid = false;
     } else if (!/^\d{16}$/.test(addCardForm.cardNumber.replace(/\s/g, ''))) {
-      errors.cardNumber = 'Card number must be 16 digits';
+      errors.cardNumber = 'Numărul cardului trebuie să aibă 16 cifre';
       valid = false;
     }
     
     if (!addCardForm.nameOnCard.trim()) {
-      errors.nameOnCard = 'Name is required';
+      errors.nameOnCard = 'Numele este obligatoriu';
       valid = false;
     }
     
     if (!addCardForm.expiryMonth) {
-      errors.expiryMonth = 'Month is required';
+      errors.expiryMonth = 'Luna este obligatorie';
       valid = false;
     }
     
     if (!addCardForm.expiryYear) {
-      errors.expiryYear = 'Year is required';
+      errors.expiryYear = 'Anul este obligatoriu';
       valid = false;
     }
     
     if (!addCardForm.cvv.trim()) {
-      errors.cvv = 'CVV is required';
+      errors.cvv = 'CVV este obligatoriu';
       valid = false;
     } else if (!/^\d{3,4}$/.test(addCardForm.cvv)) {
-      errors.cvv = 'CVV must be 3 or 4 digits';
+      errors.cvv = 'CVV trebuie să aibă 3 sau 4 cifre';
       valid = false;
     }
     
@@ -209,19 +209,19 @@ export default function PaymentMethodsPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Payment Methods</h1>
-        <p className="text-text-secondary">Manage your payment methods</p>
+        <h1 className="text-2xl font-bold mb-2">Metode de Plată</h1>
+        <p className="text-text-secondary">Gestionează metodele tale de plată</p>
       </div>
 
       {/* Payment Methods List */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Your Payment Methods</h2>
+          <h2 className="text-xl font-semibold">Metodele Tale de Plată</h2>
           <button 
             onClick={() => setShowAddCard(!showAddCard)}
             className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
           >
-            {showAddCard ? 'Cancel' : 'Add Payment Method'}
+            {showAddCard ? 'Anulare' : 'Adaugă Metodă de Plată'}
           </button>
         </div>
         <div className="p-4">
@@ -243,11 +243,11 @@ export default function PaymentMethodsPage() {
                           <h3 className="font-medium">•••• {method.lastFour}</h3>
                           {method.isDefault && (
                             <span className="ml-2 bg-primary/20 text-primary text-xs px-2 py-1 rounded">
-                              Default
+                              Implicit
                             </span>
                           )}
                         </div>
-                        <p className="text-text-secondary text-sm">Expires {method.expiryMonth}/{method.expiryYear}</p>
+                        <p className="text-text-secondary text-sm">Expiră în {method.expiryMonth}/{method.expiryYear}</p>
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -256,14 +256,14 @@ export default function PaymentMethodsPage() {
                           onClick={() => setDefaultMethod(method.id)}
                           className="text-primary hover:text-primary-dark transition-colors text-sm"
                         >
-                          Set as Default
+                          Setează ca Implicit
                         </button>
                       )}
                       <button 
                         onClick={() => deleteMethod(method.id)}
                         className="text-danger hover:text-red-500 transition-colors text-sm"
                       >
-                        Delete
+                        Șterge
                       </button>
                     </div>
                   </div>
@@ -272,18 +272,18 @@ export default function PaymentMethodsPage() {
             </div>
           ) : (
             <div className="text-center py-8 text-text-secondary">
-              No payment methods found. Add a payment method to get started.
+              Nu au fost găsite metode de plată. Adaugă o metodă de plată pentru a începe.
             </div>
           )}
           
           {/* Add Card Form */}
           {showAddCard && (
             <div className="mt-6 p-4 border border-border-color rounded-lg">
-              <h3 className="text-lg font-semibold mb-4">Add New Card</h3>
+              <h3 className="text-lg font-semibold mb-4">Adaugă Card Nou</h3>
               <form onSubmit={handleAddCard}>
                 <div className="mb-4">
                   <label htmlFor="cardNumber" className="block text-sm text-text-secondary mb-1">
-                    Card Number
+                    Număr Card
                   </label>
                   <input
                     type="text"
@@ -301,7 +301,7 @@ export default function PaymentMethodsPage() {
                 
                 <div className="mb-4">
                   <label htmlFor="nameOnCard" className="block text-sm text-text-secondary mb-1">
-                    Name on Card
+                    Nume pe Card
                   </label>
                   <input
                     type="text"
@@ -320,7 +320,7 @@ export default function PaymentMethodsPage() {
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div>
                     <label htmlFor="expiryMonth" className="block text-sm text-text-secondary mb-1">
-                      Month
+                      Luna
                     </label>
                     <select
                       id="expiryMonth"
@@ -341,7 +341,7 @@ export default function PaymentMethodsPage() {
                   
                   <div>
                     <label htmlFor="expiryYear" className="block text-sm text-text-secondary mb-1">
-                      Year
+                      Anul
                     </label>
                     <select
                       id="expiryYear"
@@ -389,7 +389,7 @@ export default function PaymentMethodsPage() {
                       className="h-4 w-4 bg-dark-blue-lighter border border-border-color rounded focus:ring-primary"
                     />
                     <span className="ml-2 text-sm text-text-secondary">
-                      Set as default payment method
+                      Setează ca metodă de plată implicită
                     </span>
                   </label>
                 </div>
@@ -400,13 +400,13 @@ export default function PaymentMethodsPage() {
                     onClick={() => setShowAddCard(false)}
                     className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
                   >
-                    Cancel
+                    Anulare
                   </button>
                   <button
                     type="submit"
                     className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
                   >
-                    Add Card
+                    Adaugă Card
                   </button>
                 </div>
               </form>
@@ -418,12 +418,12 @@ export default function PaymentMethodsPage() {
       {/* Billing Address */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Billing Address</h2>
+          <h2 className="text-xl font-semibold">Adresa de Facturare</h2>
         </div>
         <div className="p-4">
           <div className="mb-6">
             <div className="p-4 border border-border-color rounded-lg">
-              <h3 className="font-medium mb-2">Default Billing Address</h3>
+              <h3 className="font-medium mb-2">Adresa de Facturare Implicită</h3>
               <div className="text-text-secondary">
                 <p>John Doe</p>
                 <p>123 Main St</p>
@@ -432,7 +432,7 @@ export default function PaymentMethodsPage() {
               </div>
               <div className="mt-4 flex gap-3">
                 <button className="text-primary hover:text-primary-dark transition-colors text-sm">
-                  Edit
+                  Editează
                 </button>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function PaymentMethodsPage() {
       {/* Payment Security */}
       <div className="dashboard-card">
         <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Payment Security</h2>
+          <h2 className="text-xl font-semibold">Securitatea Plăților</h2>
         </div>
         <div className="p-4">
           <div className="bg-dark-blue-lighter rounded-lg p-4 mb-4">
@@ -451,10 +451,10 @@ export default function PaymentMethodsPage() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
-              Secure Processing
+              Procesare Securizată
             </h3>
             <p className="text-text-secondary text-sm">
-              All payment information is encrypted and securely stored. We use industry-standard security practices to protect your data.
+              Toate informațiile de plată sunt criptate și stocate în siguranță. Folosim practici de securitate standard în industrie pentru a-ți proteja datele.
             </p>
           </div>
           
@@ -463,10 +463,10 @@ export default function PaymentMethodsPage() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Payment Processing
+              Procesarea Plăților
             </h3>
             <p className="text-text-secondary text-sm">
-              We use Stripe for secure payment processing. Your payment information is never stored on our servers.
+              Folosim Stripe pentru procesarea securizată a plăților. Informațiile tale de plată nu sunt niciodată stocate pe serverele noastre.
             </p>
           </div>
         </div>

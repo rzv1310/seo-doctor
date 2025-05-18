@@ -119,20 +119,20 @@ export default function OrdersPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Orders</h1>
-        <p className="text-text-secondary">View and manage your order history</p>
+        <h1 className="text-2xl font-bold mb-2">Comenzi</h1>
+        <p className="text-text-secondary">Vizualizează și gestionează istoricul comenzilor</p>
       </div>
 
       {/* Filters and search */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Filters</h2>
+          <h2 className="text-xl font-semibold">Filtre</h2>
         </div>
         <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative md:w-1/3">
             <input
               type="text"
-              placeholder="Search orders..."
+              placeholder="Caută comenzi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
@@ -150,10 +150,10 @@ export default function OrdersPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
             >
-              <option value="all">All</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="all">Toate</option>
+              <option value="completed">Finalizate</option>
+              <option value="pending">În așteptare</option>
+              <option value="cancelled">Anulate</option>
             </select>
           </div>
         </div>
@@ -162,9 +162,9 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <div className="dashboard-card">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Order History</h2>
+          <h2 className="text-xl font-semibold">Istoric Comenzi</h2>
           <div className="text-text-secondary text-sm">
-            {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'} found
+            {filteredOrders.length} {filteredOrders.length === 1 ? 'comandă' : 'comenzi'} găsite
           </div>
         </div>
         <div className="p-4">
@@ -172,14 +172,14 @@ export default function OrdersPage() {
             <table className="min-w-full divide-y divide-border-color">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Service</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ID Comandă</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
                   <th
                     className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSortClick('date')}
                   >
                     <div className="flex items-center">
-                      Date
+                      Data
                       {sortBy === 'date' && (
                         <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
@@ -192,7 +192,7 @@ export default function OrdersPage() {
                     onClick={() => handleSortClick('amount')}
                   >
                     <div className="flex items-center">
-                      Amount
+                      Sumă
                       {sortBy === 'amount' && (
                         <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
@@ -201,7 +201,7 @@ export default function OrdersPage() {
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-color">
@@ -224,7 +224,7 @@ export default function OrdersPage() {
                         href={`/dashboard/orders/${order.id}`} 
                         className="text-primary hover:text-primary-dark transition-colors"
                       >
-                        View
+                        Vizualizare
                       </Link>
                     </td>
                   </tr>
@@ -235,7 +235,7 @@ export default function OrdersPage() {
           
           {sortedOrders.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
-              No orders found matching your filters.
+              Nu s-au găsit comenzi care să corespundă filtrelor tale.
             </div>
           )}
         </div>

@@ -9,7 +9,7 @@ const StripeForm = ({
   amount, 
   onSuccess, 
   onError,
-  buttonText = 'Pay Now',
+  buttonText = 'Plătește Acum',
   isProcessing,
   setIsProcessing
 }: { 
@@ -40,8 +40,8 @@ const StripeForm = ({
     });
 
     if (error) {
-      setErrorMessage(error.message || 'An error occurred with your payment.');
-      onError(error.message || 'An error occurred with your payment.');
+      setErrorMessage(error.message || 'A apărut o eroare cu plata ta.');
+      onError(error.message || 'A apărut o eroare cu plata ta.');
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       onSuccess(paymentIntent.id);
@@ -65,7 +65,7 @@ const StripeForm = ({
             : 'bg-primary hover:bg-primary-dark'
         } transition-colors`}
       >
-        {isProcessing ? 'Processing...' : buttonText}
+        {isProcessing ? 'Se procesează...' : buttonText}
       </button>
     </form>
   );
@@ -109,16 +109,16 @@ const PaymentForm = ({
         });
 
         if (!response.ok) {
-          throw new Error('Failed to create payment intent');
+          throw new Error('Nu s-a putut crea intenția de plată');
         }
 
         const data = await response.json();
         setClientSecret(data.clientSecret);
       } catch (error) {
         console.error('Error creating payment intent:', error);
-        setError('Error setting up payment. Please try again later.');
+        setError('Eroare la configurarea plății. Te rugăm să încerci din nou mai târziu.');
         if (onError) {
-          onError('Error setting up payment. Please try again later.');
+          onError('Eroare la configurarea plății. Te rugăm să încerci din nou mai târziu.');
         }
       } finally {
         setLoadingSecret(false);

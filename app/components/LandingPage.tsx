@@ -29,7 +29,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
                 href="/dashboard"
                 className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2"
               >
-                <span>Dashboard</span>
+                <span>Profil</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -39,7 +39,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
                 href="/login"
                 className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
               >
-                <span>Login</span>
+                <span>Autentificare</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -83,7 +83,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
               className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+                {isAuthenticated ? "Accesează Profil" : "Începe Acum"}
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -497,7 +497,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
             className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all inline-block shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:transform hover:translate-y-[-3px] relative group overflow-hidden"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
-              {isAuthenticated ? "Accesează Dashboard" : "Începe Acum"}
+              {isAuthenticated ? "Accesează Profil" : "Începe Acum"}
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

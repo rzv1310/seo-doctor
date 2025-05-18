@@ -123,12 +123,12 @@ export default function Dashboard() {
             <table className="min-w-full divide-y divide-border-color">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Service</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ID Comandă</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Data</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Sumă</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-color">
@@ -148,7 +148,7 @@ export default function Dashboard() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
                       <a href={`/dashboard/orders/${order.id}`} className="text-primary hover:text-primary-dark transition-colors">
-                        View
+                        Vizualizare
                       </a>
                     </td>
                   </tr>
@@ -163,7 +163,7 @@ export default function Dashboard() {
         {/* Services Expiring Soon */}
         <div className="dashboard-card">
           <div className="p-4 border-b border-border-color">
-            <h2 className="text-xl font-semibold">Services Expiring Soon</h2>
+            <h2 className="text-xl font-semibold">Servicii care Expiră Curând</h2>
           </div>
           <div className="p-4">
             {expiringServices.length > 0 ? (
@@ -172,12 +172,12 @@ export default function Dashboard() {
                   <div key={service.id} className="p-3 border border-border-color rounded-lg flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">{service.name}</h3>
-                      <p className="text-text-secondary text-sm">Renews on {service.renewDate}</p>
+                      <p className="text-text-secondary text-sm">Se reînnoiește pe {service.renewDate}</p>
                     </div>
                     <div className="text-right">
                       <div className="font-semibold">{service.price}/mo</div>
                       <div className={`text-xs mt-1 ${service.daysLeft < 5 ? 'text-danger' : 'text-accent'}`}>
-                        {service.daysLeft} days left
+                        {service.daysLeft} zile rămase
                       </div>
                     </div>
                   </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-8 text-text-secondary">
-                No services expiring soon.
+                Nu există servicii care expiră curând.
               </div>
             )}
           </div>
@@ -194,9 +194,9 @@ export default function Dashboard() {
         {/* Payment Methods */}
         <div className="dashboard-card">
           <div className="p-4 border-b border-border-color flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Payment Methods</h2>
+            <h2 className="text-xl font-semibold">Metode de Plată</h2>
             <a href="/dashboard/payment-methods" className="text-primary hover:text-primary-dark transition-colors text-sm">
-              Manage
+              Gestionare
             </a>
           </div>
           <div className="p-4">
@@ -210,18 +210,18 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <h3 className="font-medium">•••• {method.lastFour}</h3>
-                    <p className="text-text-secondary text-sm">Expires {method.expiry}</p>
+                    <p className="text-text-secondary text-sm">Expiră în {method.expiry}</p>
                   </div>
                 </div>
                 {method.isDefault && (
                   <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded">
-                    Default
+                    Implicit
                   </span>
                 )}
               </div>
             ))}
             <button className="w-full mt-3 py-2 border border-dashed border-border-color rounded-md text-text-secondary hover:text-primary hover:border-primary transition-colors">
-              + Add Payment Method
+              + Adaugă Metodă de Plată
             </button>
           </div>
         </div>

@@ -56,7 +56,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold">MiniDash</h1>
           </Link>
           <p className="text-text-secondary mt-2">
-            {isLoggingIn ? 'Sign in to your account' : 'Create your account'}
+            {isLoggingIn ? 'Conectează-te la contul tău' : 'Crează contul tău'}
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
           {!isLoggingIn && (
             <div className="mb-4">
               <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
-                Name
+                Nume
               </label>
               <input
                 id="name"
@@ -79,7 +79,7 @@ export default function LoginPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                placeholder="Your name"
+                placeholder="Numele tău"
                 disabled={isSubmitting}
               />
             </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
           {/* Password field */}
           <div className="mb-6">
             <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-1">
-              Password
+              Parolă
             </label>
             <input
               id="password"
@@ -124,7 +124,7 @@ export default function LoginPage() {
               </div>
               <div className="text-sm">
                 <a href="#" className="text-primary hover:text-primary-dark">
-                  Forgot password?
+                  Ai uitat parola?
                 </a>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
               {isSubmitting ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
               ) : null}
-              {isLoggingIn ? 'Sign In' : 'Create Account'}
+              {isLoggingIn ? 'Conectare' : 'Creare Cont'}
             </span>
           </button>
         </form>
@@ -149,7 +149,7 @@ export default function LoginPage() {
         {/* Toggle between login and signup */}
         <div className="mt-8 pt-6 border-t border-border-color text-center">
           <p className="text-text-secondary">
-            {isLoggingIn ? "Don't have an account?" : "Already have an account?"}
+            {isLoggingIn ? "Nu ai un cont?" : "Ai deja un cont?"}
             <button
               onClick={() => {
                 setIsLoggingIn(!isLoggingIn);
@@ -160,19 +160,19 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="ml-2 px-3 py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLoggingIn ? 'Sign up' : 'Sign in'}
+              {isLoggingIn ? 'Înregistrare' : 'Conectare'}
             </button>
           </p>
         </div>
 
         <div className="mt-8 text-center text-xs text-text-secondary">
-          By continuing, you agree to our{' '}
+          Continuând, ești de acord cu{' '}
           <a href="#" className="text-primary hover:text-primary-dark">
-            Terms of Service
+            Termenii și Condițiile
           </a>{' '}
-          and{' '}
+          și{' '}
           <a href="#" className="text-primary hover:text-primary-dark">
-            Privacy Policy
+            Politica de Confidențialitate
           </a>
           .
         </div>
