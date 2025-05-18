@@ -4,13 +4,13 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 
 const spaceGrotesk = Space_Grotesk({
-    variable: "--font-sans",
+    variable: "--font-space-grotesk",
     subsets: ["latin"],
     display: "swap",
 });
 
 const firaCode = Fira_Code({
-    variable: "--font-mono",
+    variable: "--font-fira-code",
     subsets: ["latin"],
     display: "swap",
 });
@@ -33,13 +33,20 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className="dark">
+        <html
+            lang="en"
+            className="dark"
+        >
             <body
                 className={`${spaceGrotesk.variable} ${firaCode.variable} antialiased`}
             >
-                <AuthProvider>
-                    {children}
-                </AuthProvider>
+                <div
+                    className="font-sans"
+                >
+                    <AuthProvider>
+                        {children}
+                    </AuthProvider>
+                </div>
             </body>
         </html>
     );
