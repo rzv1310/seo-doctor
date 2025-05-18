@@ -18,10 +18,10 @@ type Service = {
 };
 
 export default function ServicesPage() {
-  const { addItem, isInCart, removeItem } = useCart();
-  
-  // Mock data for services
-  const allServices: Service[] = [
+  const { addItem, isInCart, removeItem, items } = useCart();
+
+  // Combined services data
+  const services: Service[] = [
     {
       id: 1,
       name: "GBP MAX",
@@ -43,11 +43,7 @@ export default function ServicesPage() {
       renewalDate: "July 2, 2025",
       usage: 45,
       features: ["Keyword Research", "Content Optimization", "Backlink Analysis", "Technical SEO", "Monthly Reports"]
-    }
-  ];
-
-  // Available services (recommended)
-  const availableServices: Service[] = [
+    },
     {
       id: 3,
       name: "Social Media Management",
@@ -77,7 +73,7 @@ export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filter services based on status and search term
-  const filteredServices = allServices.filter(service => {
+  const filteredServices = services.filter(service => {
     const matchesStatus = statusFilter === 'all' || service.status === statusFilter;
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -139,13 +135,8 @@ export default function ServicesPage() {
               <option value="active">Active</option>
               <option value="trial">Probă</option>
               <option value="inactive">Inactive</option>
+              <option value="available">Disponibile</option>
             </select>
-          </div>
-
-          <div className="md:flex-initial">
-            <button className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors text-sm">
-              Adaugă Serviciu Nou
-            </button>
           </div>
         </div>
       </div>
@@ -160,6 +151,7 @@ export default function ServicesPage() {
                 <span className={`px-2 py-1 rounded-full text-xs ${
                   service.status === 'active' ? 'bg-green-900/30 text-green-300' :
                   service.status === 'trial' ? 'bg-amber-900/30 text-amber-300' :
+                  service.status === 'available' ? 'bg-blue-900/30 text-blue-300' :
                   'bg-red-900/30 text-red-300'
                 }`}>
                   {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
@@ -169,16 +161,18 @@ export default function ServicesPage() {
             </div>
 
             <div className="p-4 flex-1">
-              <div className="mb-4">
-                <div className="text-sm text-text-secondary mb-1">Utilizare</div>
-                <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
-                  <div
-                    className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`}
-                    style={{ width: `${service.usage}%` }}>
+              {service.status !== 'available' && (
+                <div className="mb-4">
+                  <div className="text-sm text-text-secondary mb-1">Utilizare</div>
+                  <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
+                    <div
+                      className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`}
+                      style={{ width: `${service.usage}%` }}>
+                    </div>
                   </div>
+                  <div className="text-xs text-text-secondary">{service.usage}%</div>
                 </div>
-                <div className="text-xs text-text-secondary">{service.usage}%</div>
-              </div>
+              )}
 
               <div className="mb-4">
                 <div className="text-sm text-text-secondary mb-1">Caracteristici</div>
@@ -194,18 +188,54 @@ export default function ServicesPage() {
                 </ul>
               </div>
 
+              {/* Special offers for available services */}
+              {service.id === 3 && service.status === 'available' && (
+                <span className="inline-block mb-4 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                  20% reducere primele 3 luni
+                </span>
+              )}
+              {service.id === 4 && service.status === 'available' && (
+                <span className="inline-block mb-4 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                  Consultație gratuită
+                </span>
+              )}
+
               <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                 <div>
                   <div className="font-bold text-primary text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
-                  <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
+                  {service.renewalDate && (
+                    <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={`/dashboard/services/${service.id}`}
+                    href={`/services/${service.id}`}
                     className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
                   >
-                    Gestionare
+                    Despre
                   </Link>
+                  
+                  {isInCart(service.id) ? (
+                    <button
+                      onClick={() => removeItem(service.id)}
+                      className="text-sm bg-danger/20 hover:bg-danger/30 text-danger px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Elimină
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleAddToCart(service)}
+                      className="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Adaugă în Coș
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -222,68 +252,24 @@ export default function ServicesPage() {
           </button>
         </div>
       )}
-
-      {/* Available Services Section */}
-      <div className="dashboard-card mb-6">
-        <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Servicii Recomandate</h2>
+      
+      {/* Checkout Button - Fixed at bottom right when cart has items */}
+      {items.length > 0 && (
+        <div className="fixed bottom-8 right-8 z-10">
+          <Link 
+            href="/dashboard/checkout" 
+            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md shadow-lg transition-colors flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            Finalizează Comanda
+            <span className="inline-flex items-center justify-center bg-white text-primary rounded-full w-6 h-6 text-sm font-semibold ml-1">
+              {items.length}
+            </span>
+          </Link>
         </div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {availableServices.map((service) => (
-            <div key={service.id} className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-medium">{service.name}</h3>
-                  <p className="text-text-secondary text-sm mt-1">{service.description}</p>
-                  {service.id === 3 && (
-                    <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                      20% reducere primele 3 luni
-                    </span>
-                  )}
-                  {service.id === 4 && (
-                    <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                      Consultație gratuită
-                    </span>
-                  )}
-                </div>
-                <div className="text-right flex flex-col items-end">
-                  <div className="font-bold text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
-                  <div className="flex flex-col sm:flex-row mt-2 gap-2">
-                    <button 
-                      className="text-sm text-primary hover:text-primary-dark transition-colors"
-                      onClick={() => window.location.href = `/dashboard/services/${service.id}`}
-                    >
-                      Află Mai Multe
-                    </button>
-                    
-                    {isInCart(service.id) ? (
-                      <button 
-                        onClick={() => removeItem(service.id)}
-                        className="text-sm bg-danger/20 hover:bg-danger/30 text-danger px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Elimină din Coș
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => handleAddToCart(service)}
-                        className="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        Adaugă în Coș
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </>
   );
 }
