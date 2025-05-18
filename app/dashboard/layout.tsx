@@ -11,15 +11,16 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout, isLoading } = useAuth();
   const [activeItem, setActiveItem] = useState('dashboard');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     // Redirect to login if not authenticated
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isLoading) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   // Get the current path to highlight the active sidebar item
   useEffect(() => {
@@ -31,7 +32,39 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     else if (path.includes('/dashboard/payment-methods')) setActiveItem('payment-methods');
   }, []);
 
-  // If not authenticated, don't render anything (we'll redirect in the useEffect)
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  // Get user initials for the avatar
+  const getUserInitials = () => {
+    if (!user?.name) return '?';
+    
+    const nameParts = user.name.split(' ');
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    
+    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+  };
+
+  // Show loading spinner when authentication state is being checked
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-dark-blue">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+  
+  // Don't render anything when not authenticated (redirect will happen)
   if (!isAuthenticated) {
     return null;
   }
@@ -102,12 +135,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           
           <div className="mt-8 border-t border-border-color pt-4">
             <button 
-              onClick={() => logout()}
-              className="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3 text-danger"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3 text-danger disabled:opacity-70"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              {isLoggingOut ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-danger border-t-transparent"></div>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              )}
               Logout
             </button>
           </div>
@@ -156,8 +194,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             
             {/* User Profile */}
             <div className="relative group">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20 cursor-pointer group-hover:shadow-xl group-hover:shadow-primary/30 transition-all border-2 border-transparent group-hover:border-white/10">
-                <span className="text-white font-bold">JD</span>
+              <div 
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20 cursor-pointer group-hover:shadow-xl group-hover:shadow-primary/30 transition-all border-2 border-transparent group-hover:border-white/10"
+                title={user?.name || 'User'}
+              >
+                <span className="text-white font-bold">{getUserInitials()}</span>
+              </div>
+              
+              {/* Dropdown menu (can be expanded later) */}
+              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-dark-blue-lighter border border-border-color hidden group-hover:block z-50">
+                <div className="py-2">
+                  <div className="px-4 py-3 border-b border-border-color">
+                    <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-text-secondary truncate">{user?.email || 'user@example.com'}</p>
+                  </div>
+                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Profile</a>
+                  <a href="#" className="block px-4 py-2 text-sm text-text-primary hover:bg-primary/10 transition-colors">Settings</a>
+                  <button 
+                    onClick={handleLogout} 
+                    disabled={isLoggingOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors disabled:opacity-70"
+                  >
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
