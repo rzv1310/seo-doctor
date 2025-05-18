@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useCart } from '../../../context/CartContext';
+import type { CartService } from '../../../context/CartContext';
 
 type Service = {
   id: number;
   name: string;
   description: string;
   price: string;
+  priceValue: number; // Price in cents for calculations
   status: string;
   renewalDate: string;
   usage: number;
@@ -15,6 +18,8 @@ type Service = {
 };
 
 export default function ServicesPage() {
+  const { addItem, isInCart, removeItem } = useCart();
+  
   // Mock data for services
   const allServices: Service[] = [
     {
@@ -22,6 +27,7 @@ export default function ServicesPage() {
       name: "GBP MAX",
       description: "Google Business Profile optimization service for maximum local visibility",
       price: "$99.99",
+      priceValue: 9999, // $99.99 in cents
       status: "active",
       renewalDate: "May 20, 2025",
       usage: 73,
@@ -32,10 +38,37 @@ export default function ServicesPage() {
       name: "Google Organic",
       description: "Comprehensive organic search engine optimization for Google",
       price: "$149.99",
+      priceValue: 14999, // $149.99 in cents
       status: "trial",
       renewalDate: "July 2, 2025",
       usage: 45,
       features: ["Keyword Research", "Content Optimization", "Backlink Analysis", "Technical SEO", "Monthly Reports"]
+    }
+  ];
+
+  // Available services (recommended)
+  const availableServices: Service[] = [
+    {
+      id: 3,
+      name: "Social Media Management",
+      description: "Complete management of your social media profiles for better engagement and visibility.",
+      price: "$199.99",
+      priceValue: 19999, // $199.99 in cents
+      status: "available",
+      renewalDate: "",
+      usage: 0,
+      features: ["Profile Setup & Optimization", "Content Calendar", "Daily Posting", "Engagement Monitoring", "Monthly Analytics"]
+    },
+    {
+      id: 4,
+      name: "Content Marketing",
+      description: "Strategic content creation and distribution to drive traffic and conversions.",
+      price: "$249.99",
+      priceValue: 24999, // $249.99 in cents
+      status: "available",
+      renewalDate: "",
+      usage: 0,
+      features: ["Keyword Strategy", "Content Creation", "Blog Management", "Content Distribution", "Performance Analytics"]
     }
   ];
 
@@ -50,6 +83,19 @@ export default function ServicesPage() {
                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  // Handle adding an item to cart
+  const handleAddToCart = (service: Service) => {
+    const cartService: CartService = {
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      price: service.price,
+      priceValue: service.priceValue,
+      features: service.features,
+    };
+    addItem(cartService);
+  };
 
   return (
     <>
@@ -153,12 +199,14 @@ export default function ServicesPage() {
                   <div className="font-bold text-primary text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
                   <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
                 </div>
-                <Link
-                  href={`/dashboard/services/${service.id}`}
-                  className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
-                >
-                  Gestionare
-                </Link>
+                <div className="flex gap-2">
+                  <Link
+                    href={`/dashboard/services/${service.id}`}
+                    className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
+                  >
+                    Gestionare
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -181,41 +229,59 @@ export default function ServicesPage() {
           <h2 className="text-xl font-semibold">Servicii Recomandate</h2>
         </div>
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">Social Media Management</h3>
-                <p className="text-text-secondary text-sm mt-1">Complete management of your social media profiles for better engagement and visibility.</p>
-                <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                  20% reducere primele 3 luni
-                </span>
-              </div>
-              <div className="text-right">
-                <div className="font-bold text-lg">$199.99<span className="text-xs text-text-secondary">/mo</span></div>
-                <button className="mt-2 text-sm text-primary hover:text-primary-dark transition-colors">
-                  Află Mai Multe
-                </button>
+          {availableServices.map((service) => (
+            <div key={service.id} className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium">{service.name}</h3>
+                  <p className="text-text-secondary text-sm mt-1">{service.description}</p>
+                  {service.id === 3 && (
+                    <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                      20% reducere primele 3 luni
+                    </span>
+                  )}
+                  {service.id === 4 && (
+                    <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                      Consultație gratuită
+                    </span>
+                  )}
+                </div>
+                <div className="text-right flex flex-col items-end">
+                  <div className="font-bold text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
+                  <div className="flex flex-col sm:flex-row mt-2 gap-2">
+                    <button 
+                      className="text-sm text-primary hover:text-primary-dark transition-colors"
+                      onClick={() => window.location.href = `/dashboard/services/${service.id}`}
+                    >
+                      Află Mai Multe
+                    </button>
+                    
+                    {isInCart(service.id) ? (
+                      <button 
+                        onClick={() => removeItem(service.id)}
+                        className="text-sm bg-danger/20 hover:bg-danger/30 text-danger px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Elimină din Coș
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleAddToCart(service)}
+                        className="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Adaugă în Coș
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">Content Marketing</h3>
-                <p className="text-text-secondary text-sm mt-1">Strategic content creation and distribution to drive traffic and conversions.</p>
-                <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded">
-                  Consultație gratuită
-                </span>
-              </div>
-              <div className="text-right">
-                <div className="font-bold text-lg">$249.99<span className="text-xs text-text-secondary">/mo</span></div>
-                <button className="mt-2 text-sm text-primary hover:text-primary-dark transition-colors">
-                  Află Mai Multe
-                </button>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import { CartProvider } from "../context/CartContext";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",
@@ -44,7 +45,9 @@ export default function RootLayout({
                     className="font-sans"
                 >
                     <AuthProvider>
-                        {children}
+                        <CartProvider>
+                            {children}
+                        </CartProvider>
                     </AuthProvider>
                 </div>
             </body>

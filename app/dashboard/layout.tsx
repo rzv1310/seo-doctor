@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import Cart from '../../components/Cart';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,9 +14,11 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const { isAuthenticated, user, logout, isLoading } = useAuth();
+  const { itemCount } = useCart();
   const [activeItem, setActiveItem] = useState('dashboard');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   // Handle navigation and set active item
   const handleNavigation = (item: string) => {
@@ -78,6 +82,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
 
+  // Toggle cart visibility
+  const toggleCart = () => {
+    setCartOpen(!cartOpen);
+  };
+
   // Show loading spinner when authentication state is being checked
   if (isLoading) {
     return (
@@ -98,6 +107,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen bg-dark-blue text-text-primary overflow-hidden">
+      {/* Cart Component */}
+      <Cart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+
       {/* Mobile sidebar backdrop overlay */}
       <div
         className={`md:hidden fixed inset-0 bg-black bg-opacity-70 z-25 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -238,8 +250,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <div className="md:block hidden" />
 
-          {/* User Avatar */}
-          <div className="relative z-10">
+          {/* Cart and User Avatar */}
+          <div className="relative z-10 flex items-center gap-4">
+            {/* Cart Button */}
+            <button
+              onClick={toggleCart}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-dark-blue-lighter/40 hover:bg-dark-blue-lighter/60 transition-colors"
+              aria-label="Cart"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              
+              {/* Cart Item Count Badge */}
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </button>
+
+            {/* User Avatar */}
             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 text-primary font-semibold">
               {getUserInitials()}
             </div>
