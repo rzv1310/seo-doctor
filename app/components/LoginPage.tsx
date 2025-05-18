@@ -49,8 +49,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4">
-      <div className="dashboard-card w-full max-w-md p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8 border-2 sm:border border-border-color sm:border-primary/20">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <h1 className="text-2xl sm:text-3xl font-bold">MiniDash</h1>
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-border-color focus:outline-none focus:border-primary text-base sm:text-base"
+                className="w-full bg-dark-blue-lighter rounded-md py-3 sm:py-2.5 px-4 sm:px-3 text-white border border-border-color focus:outline-none focus:border-primary text-base sm:text-base"
                 placeholder="Numele tău"
                 disabled={isSubmitting}
               />
@@ -134,7 +134,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-2.5 sm:py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-3.5 sm:py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed text-lg sm:text-base"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
             <span className="relative z-10 flex items-center justify-center mx-auto w-fit">
@@ -158,7 +158,7 @@ export default function LoginPage() {
                 // No need to clear them when we're just switching modes
               }}
               disabled={isSubmitting}
-              className="sm:ml-2 px-3 py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
+              className="sm:ml-2 px-4 py-2 sm:px-3 sm:py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto mt-2 sm:mt-0"
             >
               {isLoggingIn ? 'Înregistrare' : 'Conectare'}
             </button>

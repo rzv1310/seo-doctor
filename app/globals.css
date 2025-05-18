@@ -88,11 +88,21 @@ body::before {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px var(--glass-shadow);
-  position: relative;
   z-index: 30;
-  /* Mobile optimizations */
-  width: 100%;
   max-width: 16rem;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 16rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed;
+  }
 }
 
 .sidebar::before {
@@ -200,10 +210,19 @@ body::before {
   position: relative;
   overflow: hidden;
   font-size: 0.9rem;
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
-    margin: 0.25rem 0.25rem;
+}
+
+/* Mobile optimizations for sidebar items */
+@media (max-width: 768px) {
+  .sidebar-item {
+    padding: 0.875rem 1.5rem;
+    margin: 0.375rem 0.5rem;
+    font-size: 1.125rem;
+  }
+  
+  .sidebar-item svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 }
 
@@ -328,15 +347,37 @@ body::before {
 
 /* Fix for mobile menu */
 .mobile-menu {
-  transform: translateY(-105%); /* Move it slightly more up to ensure it's completely out of view */
+  transform: translateY(-100%);
   visibility: hidden;
   opacity: 0;
-  transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: transform 0.3s ease-out, visibility 0.3s ease-in-out, opacity 0.3s ease-in-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   position: absolute;
   overflow: hidden;
   height: auto;
   display: block;
+  pointer-events: none;
+}
+
+/* Dashboard mobile sidebar fixes */
+@media (max-width: 768px) {
+  .sidebar {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    max-width: 100vw;
+  }
+  
+  /* Center the logo in the sidebar header */
+  .sidebar > div:first-child {
+    justify-content: center;
+  }
+}
+
+/* Fix for dashboard buttons */
+.sidebar-item {
+  position: relative;
+  z-index: 1;
 }
 
 .mobile-menu::before {
@@ -366,6 +407,7 @@ body::before {
   transform: translateY(0);
   visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-height: 600px) {
@@ -392,15 +434,46 @@ body::before {
   .dashboard-card {
     padding: 1rem;
     margin-bottom: 1rem;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure content fits within mobile viewport */
+  .container, .dashboard-card, main, section {
+    max-width: 100vw;
+    width: 100%;
   }
   
   /* Optimize typography for mobile */
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
   
   h2 {
-    font-size: 1.25rem;
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+  
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Improve readability of small text on mobile */
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  /* Increase spacing between paragraphs on mobile */
+  p + p {
+    margin-top: 1rem;
   }
   
   /* Animate sidebar */
@@ -428,6 +501,42 @@ body::before {
   
   .hamburger-button:active {
     transform: scale(0.95);
+  }
+  
+  /* Improved button styles for mobile */
+  button, .btn, a[href] {
+    min-height: 2.75rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    touch-action: manipulation;
+  }
+  
+  /* Improve form elements on mobile */
+  input, select, textarea {
+    min-height: 3rem;
+    font-size: 1rem;
+  }
+  
+  /* Improve spacing on mobile */
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .py-2 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+  
+  /* Enhanced mobile menu styles */
+  .mobile-menu {
+    max-height: 80vh;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improved mobile footers */
+  footer {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
   }
 }
 

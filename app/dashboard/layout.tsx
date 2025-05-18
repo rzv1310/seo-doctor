@@ -14,11 +14,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const [activeItem, setActiveItem] = useState('dashboard');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Handle navigation and set active item
   const handleNavigation = (item: string) => {
     setActiveItem(item);
+    // Close sidebar on mobile when navigating
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -93,28 +97,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-dark-blue text-text-primary">
+    <div className="flex h-screen bg-dark-blue text-text-primary overflow-hidden">
       {/* Mobile sidebar backdrop overlay */}
-      {sidebarOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"
-          onClick={toggleSidebar}
-        />
-      )}
+      <div 
+        className={`md:hidden fixed inset-0 bg-black bg-opacity-70 z-25 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={toggleSidebar}
+      />
       
       {/* Enhanced Sidebar with glass effect */}
-      <div className={`sidebar fixed md:relative z-30 w-64 flex-shrink-0 h-full transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <aside className={`sidebar flex-shrink-0 h-full transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-6 flex items-center border-b border-border-color h-20 relative overflow-hidden">
           <Link
             href="/"
-            className="flex items-center gap-3 font-bold text-lg"
+            className="flex items-center gap-3 font-bold text-lg w-full justify-center md:justify-start z-10 relative"
           >
-            <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center pulse-animation">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+            <div className="bg-primary w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center pulse-animation">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-4 md:w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <span className="bg-clip-text bg-gradient-to-r from-primary to-accent">SEO Doctor</span>
+            <span className="bg-clip-text bg-gradient-to-r from-primary to-accent text-xl md:text-lg">SEO Doctor</span>
           </Link>
         </div>
 
@@ -202,12 +204,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </button>
           </div>
         </nav>
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Enhanced Glassy Header */}
-        <header className="dashboard-header h-20 flex items-center justify-between px-4 md:px-8 relative overflow-hidden z-10">
+        <header className="dashboard-header h-16 sm:h-20 flex items-center justify-between px-4 md:px-8 relative overflow-hidden z-10">
           {/* Background decorative elements */}
           <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-50 z-0"></div>
           <div className="absolute top-0 right-0 w-96 h-20 bg-primary opacity-5 blur-3xl rounded-full"></div>
@@ -215,7 +217,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Sidebar Toggle Button for Mobile */}
           <button 
-            className="md:hidden hamburger-button flex items-center justify-center text-text-primary"
+            className="md:hidden flex items-center justify-center p-2 rounded-md text-text-primary hover:text-primary hover:bg-dark-blue-lighter/40 transition-colors relative z-50"
             onClick={toggleSidebar}
             aria-label="Toggle sidebar menu"
           >
@@ -223,6 +225,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
+          
+          {/* Title shown in center on mobile */}
+          <div className="md:hidden text-center flex-1 font-medium text-lg">
+            {activeItem === 'dashboard' && 'Panou Control'}
+            {activeItem === 'orders' && 'Comenzi'}
+            {activeItem === 'services' && 'Servicii'}
+            {activeItem === 'invoices' && 'Facturi'}
+            {activeItem === 'payment-methods' && 'Plată'}
+            {activeItem === 'settings' && 'Setări'}
+          </div>
           
           <div className="md:block hidden" />
 
@@ -235,7 +247,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Dashboard Content with subtle background */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 relative">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-5 md:p-6 relative">
           {/* Subtle grid pattern background */}
           <div className="absolute inset-0 opacity-5 z-0"
             style={{
