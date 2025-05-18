@@ -52,10 +52,10 @@ export default function ServiceDetailPage() {
           createdDate: "May 20, 2024",
           usage: 73,
           features: [
-            "10GB Storage", 
-            "Unlimited Bandwidth", 
-            "5 Databases", 
-            "SSL Certificate", 
+            "10GB Storage",
+            "Unlimited Bandwidth",
+            "5 Databases",
+            "SSL Certificate",
             "24/7 Support",
             "Daily Backups",
             "Free Domain"
@@ -112,10 +112,10 @@ export default function ServiceDetailPage() {
           createdDate: "July 2, 2024",
           usage: 45,
           features: [
-            "Unlimited Queries", 
-            "Custom Training", 
-            "API Access", 
-            "Priority Support", 
+            "Unlimited Queries",
+            "Custom Training",
+            "API Access",
+            "Priority Support",
             "Analytics Dashboard"
           ],
           usageDetails: [
@@ -158,10 +158,10 @@ export default function ServiceDetailPage() {
           createdDate: "May 8, 2025",
           usage: 12,
           features: [
-            "5 Projects", 
-            "1M Data Points", 
-            "Custom Dashboards", 
-            "Export Options", 
+            "5 Projects",
+            "1M Data Points",
+            "Custom Dashboards",
+            "Export Options",
             "Email Reports"
           ],
           limitations: [
@@ -239,8 +239,8 @@ export default function ServiceDetailPage() {
       <div className="text-center py-16">
         <h2 className="text-xl font-semibold mb-2">Service Not Found</h2>
         <p className="text-text-secondary mb-4">We couldn't find the service you're looking for.</p>
-        <Link 
-          href="/dashboard/services" 
+        <Link
+          href="/dashboard/services"
           className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors"
         >
           Back to Services
@@ -257,8 +257,8 @@ export default function ServiceDetailPage() {
           <p className="text-text-secondary">{service.description}</p>
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">
-          <Link 
-            href="/dashboard/services" 
+          <Link
+            href="/dashboard/services"
             className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
           >
             Back to Services
@@ -319,7 +319,7 @@ export default function ServiceDetailPage() {
                   </span>
                 </div>
                 <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
-                  <div 
+                  <div
                     className={`h-2 rounded-full ${detail.percentage > 80 ? 'bg-danger' : 'bg-accent'}`}
                     style={{ width: `${detail.percentage}%` }}>
                   </div>
@@ -350,7 +350,7 @@ export default function ServiceDetailPage() {
                 </li>
               ))}
             </ul>
-            
+
             {service.limitations && (
               <>
                 <div className="mt-6 mb-2 font-semibold">Limitations</div>
@@ -393,8 +393,8 @@ export default function ServiceDetailPage() {
                     <td className="px-4 py-4 whitespace-nowrap text-sm">{billing.amount}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
                       <span className={`px-2 py-1 rounded-full text-xs ${
-                        billing.status === 'paid' ? 'bg-green-900/30 text-green-300' : 
-                        billing.status === 'pending' ? 'bg-amber-900/30 text-amber-300' : 
+                        billing.status === 'paid' ? 'bg-green-900/30 text-green-300' :
+                        billing.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
                         billing.status === 'trial' ? 'bg-blue-900/30 text-blue-300' :
                         'bg-red-900/30 text-red-300'
                       }`}>
@@ -415,7 +415,7 @@ export default function ServiceDetailPage() {
               </tbody>
             </table>
           </div>
-          
+
           {service.billingHistory.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
               No billing history available.
@@ -438,7 +438,7 @@ export default function ServiceDetailPage() {
                 Contact Support
               </button>
             </div>
-            
+
             <div className="p-4 border border-border-color rounded-lg">
               <h3 className="font-semibold mb-2">Documentation</h3>
               <p className="text-text-secondary text-sm mb-4">Access our comprehensive documentation to learn more about using this service.</p>

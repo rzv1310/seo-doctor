@@ -166,8 +166,8 @@ export default function InvoiceDetailsPage() {
       <div className="text-center py-16">
         <h2 className="text-xl font-semibold mb-2">Invoice Not Found</h2>
         <p className="text-text-secondary mb-4">We couldn't find the invoice you're looking for.</p>
-        <Link 
-          href="/dashboard/invoices" 
+        <Link
+          href="/dashboard/invoices"
           className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors"
         >
           Back to Invoices
@@ -184,8 +184,8 @@ export default function InvoiceDetailsPage() {
           <p className="text-text-secondary">Issued on {invoice.date}</p>
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">
-          <Link 
-            href="/dashboard/invoices" 
+          <Link
+            href="/dashboard/invoices"
             className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
           >
             Back to Invoices
@@ -319,7 +319,7 @@ export default function InvoiceDetailsPage() {
             </div>
           </div>
         )}
-        
+
         <div className="dashboard-card">
           <div className="p-4 border-b border-border-color">
             <h2 className="text-xl font-semibold">Payment Actions</h2>
@@ -338,7 +338,7 @@ export default function InvoiceDetailsPage() {
                 </p>
               </div>
             )}
-            
+
             {invoice.status === 'pending' && (
               <div className="flex flex-col space-y-3">
                 <p className="text-text-secondary mb-2">
@@ -349,7 +349,7 @@ export default function InvoiceDetailsPage() {
                 </button>
               </div>
             )}
-            
+
             {invoice.status === 'overdue' && (
               <div className="bg-red-900/20 border border-red-900/30 rounded-md p-4 mb-4">
                 <div className="flex items-center">
@@ -366,7 +366,7 @@ export default function InvoiceDetailsPage() {
                 </button>
               </div>
             )}
-            
+
             {invoice.status === 'cancelled' && (
               <div className="bg-red-900/20 border border-red-900/30 rounded-md p-4">
                 <div className="flex items-center">
@@ -380,7 +380,7 @@ export default function InvoiceDetailsPage() {
                 </p>
               </div>
             )}
-            
+
             <div className="mt-6">
               <h3 className="font-semibold mb-2">Need Help?</h3>
               <p className="text-text-secondary text-sm mb-3">

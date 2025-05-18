@@ -4,7 +4,7 @@ import { z } from 'zod';
 import db from '@/database';
 import { users } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
-import { verifyPassword, setAuthCookie } from '@/app/utils/auth';
+import { verifyPassword, setAuthCookie } from '@/utils/auth';
 
 // Validation schema for login
 const loginSchema = z.object({
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
       });
-      
+
       // Modify the response to include full user data (excluding password)
       const responseData = {
         success: true,
@@ -87,18 +87,18 @@ export async function POST(req: NextRequest) {
           stripeCustomerId: user.stripeCustomerId,
         }
       };
-      
+
       // We need to extract the cookie from the original response
       const cookieHeader = response.headers.get('set-cookie');
-      
+
       // Create a new response with the same cookie but updated body
       const newResponse = NextResponse.json(responseData, { status: 200 });
-      
+
       // Set the cookie header if it exists
       if (cookieHeader) {
         newResponse.headers.set('set-cookie', cookieHeader);
       }
-      
+
       return newResponse;
     } catch (cookieError) {
       console.error('Cookie setting error:', cookieError);

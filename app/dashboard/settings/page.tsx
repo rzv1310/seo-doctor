@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,25 +22,25 @@ export default function SettingsPage() {
   // Handle password change
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset states
     setPasswordError('');
     setPasswordSuccess('');
-    
+
     // Validate password
     if (!currentPassword || !newPassword || !confirmPassword) {
       setPasswordError('Toate câmpurile sunt obligatorii');
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setPasswordError('Parolele noi nu coincid');
       return;
     }
-    
+
     try {
       setIsChangingPassword(true);
-      
+
       // Call API to change password
       const response = await fetch('/api/auth/change-password', {
         method: 'POST',
@@ -52,13 +52,13 @@ export default function SettingsPage() {
           newPassword,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'A apărut o eroare');
       }
-      
+
       // Success
       setPasswordSuccess('Parola a fost actualizată cu succes');
       setCurrentPassword('');
@@ -70,8 +70,8 @@ export default function SettingsPage() {
       setIsChangingPassword(false);
     }
   };
-  
-  
+
+
   // Handle account deletion
   const handleDeleteAccount = async () => {
     try {
@@ -80,10 +80,10 @@ export default function SettingsPage() {
         setDeleteError('Parola este obligatorie');
         return;
       }
-      
+
       setIsDeletingAccount(true);
       setDeleteError('');
-      
+
       // Call API to delete account with password
       const response = await fetch('/api/auth/delete-account', {
         method: 'DELETE',
@@ -94,13 +94,13 @@ export default function SettingsPage() {
           password: deletePassword,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'A apărut o eroare');
       }
-      
+
       // Logout and redirect to home after account deletion
       await logout();
       router.push('/');
@@ -109,7 +109,7 @@ export default function SettingsPage() {
       setIsDeletingAccount(false);
     }
   };
-  
+
   return (
     <div>
       <div className="flex items-center mb-8">
@@ -120,9 +120,9 @@ export default function SettingsPage() {
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold">Setări</h1>
       </div>
-      
+
       {/* Account Information Panel */}
-      <div 
+      <div
         className="dashboard-card p-6 mb-8"
       >
         <div className="flex items-center border-b border-border-color pb-4 mb-6">
@@ -133,7 +133,7 @@ export default function SettingsPage() {
           </div>
           <h2 className="text-lg sm:text-xl font-semibold">Informații cont</h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm transition-all duration-300 hover:border-primary/30">
             <div className="flex items-center mb-2 text-text-secondary">
@@ -145,7 +145,7 @@ export default function SettingsPage() {
             </div>
             <p className="text-base sm:text-lg font-medium">{user?.email}</p>
           </div>
-          
+
           <div className="p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm transition-all duration-300 hover:border-primary/30">
             <div className="flex items-center mb-2 text-text-secondary">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -155,12 +155,12 @@ export default function SettingsPage() {
             </div>
             <p className="text-base sm:text-lg font-medium">{user?.name}</p>
           </div>
-          
+
         </div>
       </div>
-      
+
       {/* Password Change Panel */}
-      <div 
+      <div
         className="dashboard-card p-6 mb-8"
       >
         <div className="flex items-center border-b border-border-color pb-4 mb-6">
@@ -171,7 +171,7 @@ export default function SettingsPage() {
           </div>
           <h2 className="text-lg sm:text-xl font-semibold">Modificare parolă</h2>
         </div>
-        
+
         {passwordError && (
           <div className="bg-danger/10 border border-danger/30 text-danger px-5 py-3 rounded-lg mb-6 flex items-start">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -180,7 +180,7 @@ export default function SettingsPage() {
             {passwordError}
           </div>
         )}
-        
+
         {passwordSuccess && (
           <div className="bg-success/10 border border-success/30 text-success px-5 py-3 rounded-lg mb-6 flex items-start">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -189,7 +189,7 @@ export default function SettingsPage() {
             {passwordSuccess}
           </div>
         )}
-        
+
         <form onSubmit={handlePasswordChange} className="p-3 sm:p-4 border border-glass-border rounded-lg bg-glass-bg backdrop-blur-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div className="mb-4">
@@ -212,7 +212,7 @@ export default function SettingsPage() {
                 />
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="newPassword">
                 Parola nouă
@@ -234,7 +234,7 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="mb-6">
             <label className="block mb-1 sm:mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="confirmPassword">
               Confirmă parola nouă
@@ -255,7 +255,7 @@ export default function SettingsPage() {
               />
             </div>
           </div>
-          
+
           <button
             type="submit"
             disabled={isChangingPassword}
@@ -277,9 +277,9 @@ export default function SettingsPage() {
           </button>
         </form>
       </div>
-      
+
       {/* Account Deletion Panel */}
-      <div 
+      <div
         className="dashboard-card p-6"
       >
         <div className="flex items-center border-b border-danger/30 pb-4 mb-6">
@@ -290,18 +290,18 @@ export default function SettingsPage() {
           </div>
           <h2 className="text-lg sm:text-xl font-semibold text-danger">Ștergere cont</h2>
         </div>
-        
+
         <div className="p-5 border border-danger/20 rounded-lg bg-danger/5 backdrop-blur-sm">
           <div className="flex items-start mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-danger mr-3 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             <p className="text-text-secondary text-xs sm:text-sm">
-              Această acțiune va șterge permanent contul dvs. și toate datele asociate. 
+              Această acțiune va șterge permanent contul dvs. și toate datele asociate.
               Această acțiune <span className="text-danger font-semibold">nu poate fi anulată</span>.
             </p>
           </div>
-          
+
           {deleteError && (
             <div className="bg-danger/10 border border-danger/30 text-danger px-5 py-3 rounded-lg mb-4 flex items-start">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -310,7 +310,7 @@ export default function SettingsPage() {
               {deleteError}
             </div>
           )}
-          
+
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
@@ -329,7 +329,7 @@ export default function SettingsPage() {
                 </svg>
                 Ești sigur că vrei să ștergi contul?
               </p>
-              
+
               <div className="mb-4">
                 <label className="block mb-2 text-xs sm:text-sm font-medium text-text-secondary" htmlFor="deletePassword">
                   Pentru confirmare, introdu parola actuală
@@ -350,7 +350,7 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={handleDeleteAccount}

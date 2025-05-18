@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -99,11 +99,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen bg-dark-blue text-text-primary overflow-hidden">
       {/* Mobile sidebar backdrop overlay */}
-      <div 
+      <div
         className={`md:hidden fixed inset-0 bg-black bg-opacity-70 z-25 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={toggleSidebar}
       />
-      
+
       {/* Enhanced Sidebar with glass effect */}
       <aside className={`sidebar flex-shrink-0 h-full transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-6 flex items-center border-b border-border-color h-20 relative overflow-hidden">
@@ -216,7 +216,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="absolute bottom-0 left-0 w-72 h-10 bg-accent opacity-10 blur-2xl rounded-full"></div>
 
           {/* Sidebar Toggle Button for Mobile */}
-          <button 
+          <button
             className="md:hidden flex items-center justify-center p-2 rounded-md text-text-primary hover:text-primary hover:bg-dark-blue-lighter/40 transition-colors relative z-50"
             onClick={toggleSidebar}
             aria-label="Toggle sidebar menu"
@@ -225,7 +225,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          
+
           {/* Title shown in center on mobile */}
           <div className="md:hidden text-center flex-1 font-medium text-lg">
             {activeItem === 'dashboard' && 'Panou Control'}
@@ -235,7 +235,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {activeItem === 'payment-methods' && 'Plată'}
             {activeItem === 'settings' && 'Setări'}
           </div>
-          
+
           <div className="md:block hidden" />
 
           {/* User Avatar */}

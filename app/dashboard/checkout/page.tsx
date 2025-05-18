@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import PaymentForm from '../../components/PaymentForm';
+import PaymentForm from '../../../components/PaymentForm';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -25,12 +25,12 @@ export default function CheckoutPage() {
     console.log('Payment successful:', paymentId);
     setPaymentIntentId(paymentId);
     setPaymentSuccess(true);
-    
+
     // In a real app, you would:
     // 1. Send a request to your server to verify the payment
     // 2. Create an order and invoice in your database
     // 3. Redirect the user to a success page
-    
+
     // For this demo, we'll just show a success message
   };
 
@@ -82,13 +82,13 @@ export default function CheckoutPage() {
                   <p className="mb-6 text-text-secondary">
                     Please enter your payment details to complete your purchase.
                   </p>
-                  
+
                   {paymentError && (
                     <div className="bg-red-900/20 border border-red-900/30 rounded-md p-4 mb-6 text-danger">
                       {paymentError}
                     </div>
                   )}
-                  
+
                   <PaymentForm
                     amount={checkoutData.price}
                     description={checkoutData.description}
@@ -101,7 +101,7 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="dashboard-card h-fit">
           <div className="p-4 border-b border-border-color">
             <h2 className="text-xl font-semibold">Order Summary</h2>
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
                 {checkoutData.description}
               </p>
             </div>
-            
+
             <div className="py-4 border-t border-border-color">
               <div className="flex justify-between mb-2">
                 <span className="text-text-secondary">Subtotal</span>
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
                 <span className="text-primary">{checkoutData.formattedPrice}</span>
               </div>
             </div>
-            
+
             <div className="mt-6 text-xs text-text-secondary">
               <p className="mb-2">By completing your purchase, you agree to our:</p>
               <ul className="space-y-1">
@@ -146,10 +146,10 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="mt-6">
-        <Link 
-          href="/dashboard" 
+        <Link
+          href="/dashboard"
           className="text-text-secondary hover:text-primary transition-colors"
         >
           ← Back to Dashboard

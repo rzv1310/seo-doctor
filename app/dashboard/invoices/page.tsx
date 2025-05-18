@@ -177,7 +177,7 @@ export default function InvoicesPage() {
               </svg>
             </div>
           </div>
-          
+
           <div className="max-w-[300px]">
             <label htmlFor="status-filter" className="block text-sm text-text-secondary mb-1">Status</label>
             <select
@@ -258,8 +258,8 @@ export default function InvoicesPage() {
                 {sortedInvoices.map((invoice) => (
                   <tr key={invoice.id}>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <Link 
-                        href={`/dashboard/invoices/${invoice.id}`} 
+                      <Link
+                        href={`/dashboard/invoices/${invoice.id}`}
                         className="text-primary hover:text-primary-dark transition-colors"
                       >
                         {invoice.id}
@@ -270,9 +270,9 @@ export default function InvoicesPage() {
                     <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.service}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.amount}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs 
-                        ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' : 
-                          invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' : 
+                      <span className={`px-2 py-1 rounded-full text-xs
+                        ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
+                          invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
                           invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
                           'bg-red-900/30 text-red-300'}`}>
                         {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
@@ -280,8 +280,8 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
                       <div className="flex gap-3">
-                        <Link 
-                          href={`/dashboard/invoices/${invoice.id}`} 
+                        <Link
+                          href={`/dashboard/invoices/${invoice.id}`}
                           className="text-primary hover:text-primary-dark transition-colors"
                         >
                           Vizualizare
@@ -296,7 +296,7 @@ export default function InvoicesPage() {
               </tbody>
             </table>
           </div>
-          
+
           {sortedInvoices.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
               Nu s-au găsit facturi care să corespundă filtrelor tale.

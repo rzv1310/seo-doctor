@@ -145,7 +145,7 @@ export default function OrdersPage() {
               </svg>
             </div>
           </div>
-          
+
           <div className="max-w-[300px]">
             <label htmlFor="status-filter" className="block text-sm text-text-secondary mb-1">Status</label>
             <select
@@ -216,16 +216,16 @@ export default function OrdersPage() {
                     <td className="px-4 py-4 whitespace-nowrap text-sm">{order.date}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">{order.amount}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs 
-                        ${order.status === 'completed' ? 'bg-green-900/30 text-green-300' : 
-                          order.status === 'pending' ? 'bg-amber-900/30 text-amber-300' : 
+                      <span className={`px-2 py-1 rounded-full text-xs
+                        ${order.status === 'completed' ? 'bg-green-900/30 text-green-300' :
+                          order.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
                           'bg-red-900/30 text-red-300'}`}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <Link 
-                        href={`/dashboard/orders/${order.id}`} 
+                      <Link
+                        href={`/dashboard/orders/${order.id}`}
                         className="text-primary hover:text-primary-dark transition-colors"
                       >
                         Vizualizare
@@ -236,7 +236,7 @@ export default function OrdersPage() {
               </tbody>
             </table>
           </div>
-          
+
           {sortedOrders.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
               Nu s-au găsit comenzi care să corespundă filtrelor tale.

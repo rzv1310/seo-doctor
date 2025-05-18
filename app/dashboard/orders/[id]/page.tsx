@@ -142,8 +142,8 @@ export default function OrderDetailsPage() {
       <div className="text-center py-16">
         <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
         <p className="text-text-secondary mb-4">We couldn't find the order you're looking for.</p>
-        <Link 
-          href="/dashboard/orders" 
+        <Link
+          href="/dashboard/orders"
           className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors"
         >
           Back to Orders
@@ -173,15 +173,15 @@ export default function OrderDetailsPage() {
           <p className="text-text-secondary">Placed on {order.date}</p>
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">
-          <Link 
-            href="/dashboard/orders" 
+          <Link
+            href="/dashboard/orders"
             className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
           >
             Back to Orders
           </Link>
           {order.invoiceId && (
-            <Link 
-              href={`/dashboard/invoices/${order.invoiceId}`} 
+            <Link
+              href={`/dashboard/invoices/${order.invoiceId}`}
               className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-2 rounded-md transition-colors text-sm"
             >
               View Invoice

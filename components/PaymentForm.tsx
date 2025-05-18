@@ -5,15 +5,15 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import stripePromise from '../utils/stripe';
 
 // Stripe Payment Element form
-const StripeForm = ({ 
-  amount, 
-  onSuccess, 
+const StripeForm = ({
+  amount,
+  onSuccess,
   onError,
   buttonText = 'Plătește Acum',
   isProcessing,
   setIsProcessing
-}: { 
-  amount: number; 
+}: {
+  amount: number;
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
   buttonText?: string;
@@ -51,17 +51,17 @@ const StripeForm = ({
   return (
     <form onSubmit={handleSubmit} className="mt-4">
       <PaymentElement />
-      
+
       {errorMessage && (
         <div className="mt-4 text-danger text-sm">{errorMessage}</div>
       )}
-      
+
       <button
         type="submit"
         disabled={!stripe || isProcessing}
         className={`w-full mt-6 py-2 px-4 rounded-md text-white ${
-          !stripe || isProcessing 
-            ? 'bg-primary/50 cursor-not-allowed' 
+          !stripe || isProcessing
+            ? 'bg-primary/50 cursor-not-allowed'
             : 'bg-primary hover:bg-primary-dark'
         } transition-colors`}
       >
@@ -72,15 +72,15 @@ const StripeForm = ({
 };
 
 // Main payment form component with Stripe Elements wrapper
-const PaymentForm = ({ 
-  amount, 
+const PaymentForm = ({
+  amount,
   description,
   onSuccess,
   onError,
   buttonText
-}: { 
+}: {
   amount: number;
-  description: string; 
+  description: string;
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
   buttonText?: string;
@@ -95,13 +95,13 @@ const PaymentForm = ({
       try {
         setLoadingSecret(true);
         setError(null);
-        
+
         const response = await fetch('/api/create-payment-intent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             amount, // amount in cents
             currency: 'usd',
             description
@@ -166,9 +166,9 @@ const PaymentForm = ({
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <StripeForm 
-        amount={amount} 
-        onSuccess={onSuccess} 
+      <StripeForm
+        amount={amount}
+        onSuccess={onSuccess}
         onError={onError}
         buttonText={buttonText}
         isProcessing={isProcessing}

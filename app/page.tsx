@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from './context/AuthContext';
-import LandingPage from './components/LandingPage';
+import { useAuth } from '../context/AuthContext';
+import LandingPage from '../containers/LandingPage';
 
 export default function Home() {
     const { isAuthenticated } = useAuth();

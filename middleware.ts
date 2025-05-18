@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAuthToken } from './app/utils/auth';
+import { verifyAuthToken } from './utils/auth';
 
 // Auth cookie name
 const AUTH_COOKIE_NAME = 'minidash_auth';
@@ -34,29 +34,29 @@ const AUTH_ROUTES = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Check for auth cookie
   const authCookie = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const user = authCookie ? verifyAuthToken(authCookie) : null;
   const isAuthenticated = !!user;
 
   // Check if it's a protected route
-  const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+  const isProtectedRoute = PROTECTED_ROUTES.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
-  
+
   // Check if it's a protected API route
-  const isProtectedApiRoute = PROTECTED_API_ROUTES.some(route => 
+  const isProtectedApiRoute = PROTECTED_API_ROUTES.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
-  
+
   // Check if it's a public API route
-  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route => 
+  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
-  
+
   // Check if it's an auth route (login, etc.)
-  const isAuthRoute = AUTH_ROUTES.some(route => 
+  const isAuthRoute = AUTH_ROUTES.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
 
@@ -67,29 +67,29 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     // Handle OPTIONS request for CORS preflight
     if (request.method === 'OPTIONS') {
-      return new NextResponse(null, { 
+      return new NextResponse(null, {
         status: 204,
         headers: response.headers
       });
     }
-    
+
     // Check if it's a public API route first (allow these regardless of auth)
     if (isPublicApiRoute) {
       return response;
     }
-    
+
     // Check auth for protected API routes
     if (isProtectedApiRoute && !isAuthenticated) {
       return new NextResponse(
-        JSON.stringify({ 
+        JSON.stringify({
           success: false,
-          error: 'Authentication required' 
+          error: 'Authentication required'
         }),
-        { 
-          status: 401, 
+        {
+          status: 401,
           headers: {
             'Content-Type': 'application/json',
             ...Object.fromEntries(response.headers)
@@ -97,7 +97,7 @@ export function middleware(request: NextRequest) {
         }
       );
     }
-    
+
     return response;
   }
 
@@ -123,7 +123,7 @@ export const config = {
     // Protected routes
     '/dashboard/:path*',
     '/api/:path*',
-    
+
     // Auth routes
     '/login',
     '/login/:path*',

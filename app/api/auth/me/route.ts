@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifyAuth, verifyAuthToken } from '@/app/utils/auth';
+import { verifyAuth, verifyAuthToken } from '@/utils/auth';
 import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
 

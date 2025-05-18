@@ -8,12 +8,12 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { amount, currency = 'usd', description } = body;
-    
+
     // In a real app, you would:
     // 1. Create a payment intent with Stripe
     // 2. Store the payment intent in your database
     // 3. Return the client secret to the client
-    
+
     // Mock response
     const paymentIntent = {
       id: `pi_${Math.random().toString(36).substring(2, 15)}`,
@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
       description,
       status: 'requires_payment_method'
     };
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id
     });
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { amount, currency = 'usd', description, metadata = {} } = body;
-    
+
     // Create a payment intent with Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
@@ -61,9 +61,9 @@ export async function POST(req: NextRequest) {
         enabled: true,
       },
     });
-    
+
     // Return the client secret to the client
-    return NextResponse.json({ 
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id
     });

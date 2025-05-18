@@ -80,7 +80,7 @@ export default function ServicesPage() {
               </svg>
             </div>
           </div>
-          
+
           <div className="max-w-[300px]">
             <label htmlFor="status-filter" className="block text-sm text-text-secondary mb-1">Status</label>
             <select
@@ -95,7 +95,7 @@ export default function ServicesPage() {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          
+
           <div className="md:flex-initial">
             <button className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors text-sm">
               Adaugă Serviciu Nou
@@ -112,8 +112,8 @@ export default function ServicesPage() {
               <div className="flex justify-between items-start">
                 <h3 className="text-lg font-semibold">{service.name}</h3>
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  service.status === 'active' ? 'bg-green-900/30 text-green-300' : 
-                  service.status === 'trial' ? 'bg-amber-900/30 text-amber-300' : 
+                  service.status === 'active' ? 'bg-green-900/30 text-green-300' :
+                  service.status === 'trial' ? 'bg-amber-900/30 text-amber-300' :
                   'bg-red-900/30 text-red-300'
                 }`}>
                   {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
@@ -121,19 +121,19 @@ export default function ServicesPage() {
               </div>
               <p className="text-text-secondary text-sm mt-2">{service.description}</p>
             </div>
-            
+
             <div className="p-4 flex-1">
               <div className="mb-4">
                 <div className="text-sm text-text-secondary mb-1">Utilizare</div>
                 <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
-                  <div 
-                    className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`} 
+                  <div
+                    className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`}
                     style={{ width: `${service.usage}%` }}>
                   </div>
                 </div>
                 <div className="text-xs text-text-secondary">{service.usage}%</div>
               </div>
-              
+
               <div className="mb-4">
                 <div className="text-sm text-text-secondary mb-1">Caracteristici</div>
                 <ul className="text-sm space-y-1">
@@ -147,14 +147,14 @@ export default function ServicesPage() {
                   ))}
                 </ul>
               </div>
-              
+
               <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                 <div>
                   <div className="font-bold text-primary text-lg">{service.price}<span className="text-xs text-text-secondary">/mo</span></div>
                   <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
                 </div>
-                <Link 
-                  href={`/dashboard/services/${service.id}`} 
+                <Link
+                  href={`/dashboard/services/${service.id}`}
                   className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
                 >
                   Gestionare
@@ -164,7 +164,7 @@ export default function ServicesPage() {
           </div>
         ))}
       </div>
-      
+
       {filteredServices.length === 0 && (
         <div className="dashboard-card p-8 text-center">
           <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
@@ -174,7 +174,7 @@ export default function ServicesPage() {
           </button>
         </div>
       )}
-      
+
       {/* Available Services Section */}
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color">
@@ -198,7 +198,7 @@ export default function ServicesPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="p-3 border border-border-color rounded-lg hover:border-primary transition-all duration-300">
             <div className="flex justify-between items-start">
               <div>
