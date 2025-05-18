@@ -37,7 +37,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
             ) : (
               <Link
                 href="/login"
-                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2"
+                className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-105 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
               >
                 <span>Login</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

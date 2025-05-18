@@ -14,19 +14,19 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     // Simple validation
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
     }
-    
+
     // Accept any login credentials as specified
     // In a real app, this would validate credentials against a backend
-    
+
     // Use the login method from AuthContext
     login();
-    
+
     // Redirect to dashboard page
     router.push('/');
   };
@@ -81,14 +81,6 @@ export default function LoginPage() {
           {isLoggingIn && (
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  className="h-4 w-4 bg-dark-blue-lighter border border-border-color rounded focus:ring-primary"
-                />
-                <label htmlFor="remember" className="ml-2 block text-sm text-text-secondary">
-                  Remember me
-                </label>
               </div>
               <div className="text-sm">
                 <a href="#" className="text-primary hover:text-primary-dark">
@@ -100,9 +92,12 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:transform hover:translate-y-[-2px] border-2 border-primary/30 relative overflow-hidden group"
           >
+            <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            <span className="relative z-10 flex items-center justify-center mx-auto w-fit">
             {isLoggingIn ? 'Sign In' : 'Create Account'}
+            </span>
           </button>
         </form>
 
@@ -111,7 +106,7 @@ export default function LoginPage() {
             {isLoggingIn ? "Don't have an account?" : "Already have an account?"}
             <button
               onClick={() => setIsLoggingIn(!isLoggingIn)}
-              className="ml-2 text-primary hover:text-primary-dark focus:outline-none"
+              className="ml-2 px-3 py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md"
             >
               {isLoggingIn ? 'Sign up' : 'Sign in'}
             </button>
