@@ -89,18 +89,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen bg-dark-blue text-text-primary">
-      {/* Sidebar */}
+      {/* Enhanced Sidebar with glass effect */}
       <div className="sidebar w-64 flex-shrink-0 h-full">
         <div className="p-6 flex items-center border-b border-border-color h-20 relative overflow-hidden">
           <Link
             href="/"
-            className="sidebar-item py-3 flex items-center gap-3 font-bold"
+            className="flex items-center gap-3 font-bold text-lg"
           >
-            SEO Doctor
+            <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center pulse-animation">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <span className="bg-clip-text bg-gradient-to-r from-primary to-accent">SEO Doctor</span>
           </Link>
         </div>
 
-        <nav className="py-4">
+        <nav className="py-4 px-2">
           <Link
             href="/dashboard"
             onClick={() => handleNavigation('dashboard')}
@@ -167,7 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </svg>
               Setări
             </Link>
-            
+
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
@@ -188,17 +193,41 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="dashboard-header h-20 flex items-center justify-between px-8 relative overflow-hidden backdrop-blur-sm bg-dark-blue bg-opacity-80 z-10">
+        {/* Enhanced Glassy Header */}
+        <header className="dashboard-header h-20 flex items-center justify-between px-8 relative overflow-hidden z-10">
           {/* Background decorative elements */}
           <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-50 z-0"></div>
           <div className="absolute top-0 right-0 w-96 h-20 bg-primary opacity-5 blur-3xl rounded-full"></div>
           <div className="absolute bottom-0 left-0 w-72 h-10 bg-accent opacity-10 blur-2xl rounded-full"></div>
+
+          <div />
+
+          {/* User Avatar */}
+          <div className="relative z-10">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 text-primary font-semibold">
+              {getUserInitials()}
+            </div>
+          </div>
         </header>
 
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
+        {/* Dashboard Content with subtle background */}
+        <main className="flex-1 overflow-y-auto p-6 relative">
+          {/* Subtle grid pattern background */}
+          <div className="absolute inset-0 opacity-5 z-0"
+            style={{
+              backgroundImage: 'radial-gradient(var(--primary) 1px, transparent 1px)',
+              backgroundSize: '30px 30px'
+            }}>
+          </div>
+
+          {/* Subtle glow effects */}
+          <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary opacity-3 blur-3xl rounded-full -z-10"></div>
+          <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-accent opacity-3 blur-2xl rounded-full -z-10"></div>
+
+          {/* Content */}
+          <div className="relative z-10">
+            {children}
+          </div>
         </main>
       </div>
     </div>

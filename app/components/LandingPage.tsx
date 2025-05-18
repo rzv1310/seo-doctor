@@ -7,22 +7,22 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
   useEffect(() => {
     // Get all anchor links in the header
     const anchorLinks = document.querySelectorAll('nav a[href^="#"]');
-    
+
     // Add click event handler to each anchor link
     anchorLinks.forEach(anchor => {
       anchor.addEventListener('click', function(e) {
         e.preventDefault();
-        
+
         const targetId = this.getAttribute('href')?.substring(1);
         if (!targetId) return;
-        
+
         const targetElement = document.getElementById(targetId);
         if (!targetElement) return;
-        
+
         // Calculate position with offset (header height + extra padding)
         const offset = 90; // Adjust based on header height
         const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - offset;
-        
+
         window.scrollTo({
           top: targetPosition,
           behavior: 'smooth'
@@ -30,7 +30,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
       });
     });
   }, []);
-  
+
   return (
     <div className="min-h-screen bg-dark-blue flex flex-col">
       {/* Header */}
@@ -131,7 +131,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Services section */}
       <section id="features" className="py-20 bg-dark-blue-lighter relative overflow-hidden">
-        
+
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-dark-blue/40 to-transparent"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--primary-dark)_0%,_transparent_70%)] opacity-5"></div>
@@ -287,7 +287,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Pricing section */}
       <section id="pricing" className="py-20 relative overflow-hidden">
-        
+
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-bl from-accent/5 to-transparent"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--primary)_0%,_transparent_60%)] opacity-5"></div>
@@ -437,7 +437,7 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
 
       {/* Testimonials section */}
       <section id="testimonials" className="py-20 bg-dark-blue-lighter relative overflow-hidden">
-        
+
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent)_0%,_transparent_70%)] opacity-5"></div>
@@ -501,15 +501,6 @@ export default function LandingPage({ isAuthenticated = false }: { isAuthenticat
               <div className="font-semibold">Alexandru Marin</div>
               <div className="text-sm text-text-secondary">Proprietar, Restaurant Gourmet</div>
             </div>
-          </div>
-
-          <div className="mt-12">
-            <Link
-              href={isAuthenticated ? "/dashboard" : "/login"}
-              className="bg-primary hover:bg-primary-dark text-white text-lg font-medium rounded-md px-8 py-3 transition-all inline-block shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
-            >
-              {isAuthenticated ? "Accesează Dashboard" : "Încearcă Acum"}
-            </Link>
           </div>
         </div>
       </section>
