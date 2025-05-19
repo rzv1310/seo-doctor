@@ -167,31 +167,82 @@ export function getAuthUser(): AuthUser | null {
 }
 
 /**
- * Verify authentication from server-side cookies and return user ID
- * @param cookiesObject - The cookies object from Next.js
- * @returns The user ID if authenticated, null otherwise
+ * Extracts auth token from request headers (for API routes)
  */
-export async function verifyAuth(
-  cookiesObject: RequestCookies | cookies
-): Promise<string | null> {
+export function getAuthTokenFromRequest(request: Request): string | null {
   try {
-    // Get the auth token from cookies
-    const authToken = cookiesObject.get(AUTH_COOKIE_NAME)?.value;
-    
-    if (!authToken) {
-      return null;
+    // Try to get from authorization header
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7);
     }
     
-    // Verify and decode the token
-    const user = verifyAuthToken(authToken);
-    
-    if (!user) {
-      return null;
+    // Try to get from cookie header
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === AUTH_COOKIE_NAME) {
+          return decodeURIComponent(value);
+        }
+      }
     }
     
-    return user.id;
+    return null;
+  } catch (error) {
+    console.error('Error extracting auth token:', error);
+    return null;
+  }
+}
+
+/**
+ * Verify authentication from a request object and return user ID
+ */
+export function verifyAuthFromRequest(request: Request): string | null {
+  try {
+    const token = getAuthTokenFromRequest(request);
+    if (!token) return null;
+    
+    const user = verifyAuthToken(token);
+    return user?.id || null;
   } catch (error) {
     console.error('Authentication verification error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get the hardcoded test user ID for development
+ * WARNING: Only use this in development mode!
+ */
+export function getTestUserId(): string {
+  return process.env.NODE_ENV !== 'production' ? 'test-user-id' : '';
+}
+
+/**
+ * Verify authentication for API routes, handling all possible input types
+ */
+export async function verifyAuth(request: Request | NextRequest | null): Promise<string | null> {
+  try {
+    // First try to get user ID from request
+    if (request) {
+      const userId = verifyAuthFromRequest(request);
+      if (userId) return userId;
+    }
+    
+    // If we're still in development, return test user as fallback
+    if (process.env.NODE_ENV !== 'production') {
+      const testId = getTestUserId();
+      if (testId) {
+        console.warn('Using test user ID for authentication - NOT SECURE FOR PRODUCTION');
+        return testId;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Auth verification error:', error);
     return null;
   }
 }

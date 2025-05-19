@@ -2,7 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { getAuthUser } from '@/utils/auth';
 
 // Define subscription types
-export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled';
+export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired';
+export type PlanType = 'monthly' | 'yearly' | 'custom';
+
+export interface SubscriptionMetadata {
+  planType?: PlanType;
+  quantity?: number;
+  couponCode?: string | null;
+  cancelReason?: string;
+  pauseReason?: string;
+  pausedAt?: string;
+  pauseUntil?: string;
+  notes?: string;
+  [key: string]: any; // Allow for additional custom metadata
+}
 
 export type Subscription = {
   id: string;
@@ -15,6 +28,10 @@ export type Subscription = {
   cancelledAt?: string;
   price: number;
   usage?: number;
+  stripeSubscriptionId?: string | null;
+  metadata?: string; // JSON string of SubscriptionMetadata
+  createdAt: string;
+  updatedAt: string;
   // From joined service
   service?: {
     id: string;
@@ -22,6 +39,8 @@ export type Subscription = {
     description: string;
     price: number;
   };
+  // Parsed metadata (added for convenience)
+  parsedMetadata?: SubscriptionMetadata;
 };
 
 export function useSubscriptions() {
@@ -35,6 +54,30 @@ export function useSubscriptions() {
     const user = getAuthUser();
     setIsAuthenticated(!!user);
   }, []);
+
+  // Parse metadata for a subscription
+  const parseSubscriptionMetadata = (subscription: Subscription): Subscription => {
+    if (!subscription.metadata) {
+      return {
+        ...subscription,
+        parsedMetadata: {},
+      };
+    }
+    
+    try {
+      const parsedMetadata = JSON.parse(subscription.metadata) as SubscriptionMetadata;
+      return {
+        ...subscription,
+        parsedMetadata,
+      };
+    } catch (e) {
+      console.error('Error parsing subscription metadata:', e);
+      return {
+        ...subscription,
+        parsedMetadata: {},
+      };
+    }
+  };
 
   // Fetch all subscriptions for the current user
   const fetchSubscriptions = useCallback(async () => {
@@ -51,7 +94,10 @@ export function useSubscriptions() {
       }
       
       const data = await response.json();
-      setSubscriptions(data.subscriptions || []);
+      
+      // Parse metadata for each subscription
+      const processedSubscriptions = (data.subscriptions || []).map(parseSubscriptionMetadata);
+      setSubscriptions(processedSubscriptions);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
       console.error('Error fetching subscriptions:', err);
@@ -60,12 +106,32 @@ export function useSubscriptions() {
     }
   }, [isAuthenticated]);
 
+  // Type for subscription options
+  interface SubscribeOptions {
+    planType?: PlanType;
+    trialPeriod?: number;
+    quantity?: number;
+    couponCode?: string;
+    metadata?: Record<string, any>;
+  }
+
   // Subscribe to a service
-  const subscribeToService = useCallback(async (serviceId: string, planType: 'monthly' | 'yearly' = 'monthly') => {
+  const subscribeToService = useCallback(async (
+    serviceId: string, 
+    options: SubscribeOptions = {}
+  ) => {
     if (!isAuthenticated) {
       setError('You must be logged in to subscribe');
       return null;
     }
+    
+    const {
+      planType = 'monthly',
+      trialPeriod = 0,
+      quantity = 1,
+      couponCode = null,
+      metadata = {}
+    } = options;
     
     try {
       const response = await fetch(`/api/subscriptions/${serviceId}`, {
@@ -73,7 +139,13 @@ export function useSubscriptions() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ planType }),
+        body: JSON.stringify({ 
+          planType,
+          trialPeriod,
+          quantity,
+          couponCode,
+          metadata
+        }),
       });
       
       if (!response.ok) {
@@ -86,7 +158,14 @@ export function useSubscriptions() {
       // Refresh subscriptions list
       await fetchSubscriptions();
       
-      return data.subscription;
+      return {
+        subscription: parseSubscriptionMetadata(data.subscription),
+        orderId: data.orderId,
+        invoiceId: data.invoiceId,
+        message: data.message,
+        planDetails: data.planDetails,
+        service: data.service
+      };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
       console.error('Error subscribing to service:', err);
@@ -94,11 +173,27 @@ export function useSubscriptions() {
     }
   }, [isAuthenticated, fetchSubscriptions]);
 
-  // Cancel a subscription
-  const cancelSubscription = useCallback(async (subscriptionId: string, cancelReason?: string) => {
+  // Type for subscription update options
+  interface UpdateSubscriptionOptions {
+    status?: SubscriptionStatus;
+    cancelReason?: string;
+    renewalDate?: string;
+    planType?: PlanType;
+    quantity?: number;
+    pauseUntil?: string;
+    usage?: number;
+    notes?: string;
+    additionalMetadata?: Record<string, any>;
+  }
+
+  // Update a subscription
+  const updateSubscription = useCallback(async (
+    subscriptionId: string,
+    options: UpdateSubscriptionOptions
+  ) => {
     if (!isAuthenticated) {
-      setError('You must be logged in to cancel a subscription');
-      return false;
+      setError('You must be logged in to update a subscription');
+      return null;
     }
     
     try {
@@ -107,27 +202,77 @@ export function useSubscriptions() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          status: 'cancelled',
-          cancelReason
-        }),
+        body: JSON.stringify(options),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to cancel subscription');
+        throw new Error(errorData.error || 'Failed to update subscription');
       }
+      
+      const data = await response.json();
       
       // Refresh subscriptions list
       await fetchSubscriptions();
       
-      return true;
+      return {
+        subscription: parseSubscriptionMetadata(data.subscription),
+        message: data.message,
+        updatedFields: data.updatedFields
+      };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      console.error('Error updating subscription:', err);
+      return null;
+    }
+  }, [isAuthenticated, fetchSubscriptions]);
+
+  // Cancel a subscription (convenience method that uses updateSubscription)
+  const cancelSubscription = useCallback(async (subscriptionId: string, cancelReason?: string) => {
+    if (!isAuthenticated) {
+      setError('You must be logged in to cancel a subscription');
+      return false;
+    }
+    
+    try {
+      const result = await updateSubscription(subscriptionId, {
+        status: 'cancelled',
+        cancelReason
+      });
+      
+      return !!result;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
       console.error('Error cancelling subscription:', err);
       return false;
     }
-  }, [isAuthenticated, fetchSubscriptions]);
+  }, [isAuthenticated, updateSubscription]);
+  
+  // Pause a subscription (convenience method)
+  const pauseSubscription = useCallback(async (
+    subscriptionId: string, 
+    pauseUntil: string,
+    pauseReason?: string
+  ) => {
+    if (!isAuthenticated) {
+      setError('You must be logged in to pause a subscription');
+      return false;
+    }
+    
+    try {
+      const result = await updateSubscription(subscriptionId, {
+        status: 'paused',
+        pauseUntil,
+        additionalMetadata: { pauseReason }
+      });
+      
+      return !!result;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      console.error('Error pausing subscription:', err);
+      return false;
+    }
+  }, [isAuthenticated, updateSubscription]);
 
   // Check if user is subscribed to a specific service
   const isSubscribed = useCallback((serviceId: string): boolean => {
@@ -152,15 +297,48 @@ export function useSubscriptions() {
     }
   }, [isAuthenticated, fetchSubscriptions]);
 
+  // Helper to get active subscription count
+  const getActiveSubscriptionCount = useCallback((): number => {
+    return subscriptions.filter(sub => 
+      sub.status === 'active' || sub.status === 'trial'
+    ).length;
+  }, [subscriptions]);
+  
+  // Helper to calculate total monthly spend
+  const calculateTotalMonthlySpend = useCallback((): number => {
+    return subscriptions
+      .filter(sub => sub.status === 'active' || sub.status === 'trial')
+      .reduce((total, sub) => {
+        const parsedMeta = sub.parsedMetadata || {};
+        // For yearly subscriptions, divide by 12 to get monthly equivalent
+        if (parsedMeta.planType === 'yearly') {
+          return total + (sub.price / 12);
+        }
+        return total + sub.price;
+      }, 0);
+  }, [subscriptions]);
+
   return {
+    // State
     subscriptions,
     isLoading,
     error,
     isAuthenticated,
+    
+    // Core methods
     fetchSubscriptions,
     subscribeToService,
+    updateSubscription,
     cancelSubscription,
+    pauseSubscription,
+    
+    // Helper methods
     isSubscribed,
     getSubscription,
+    getActiveSubscriptionCount,
+    calculateTotalMonthlySpend,
+    
+    // Utility
+    parseSubscriptionMetadata,
   };
 }

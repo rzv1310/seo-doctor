@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
-import { cookies } from 'next/headers';
 import database, { orders, services } from '@/database';
 import { verifyAuth } from '@/utils/auth';
 
 // GET /api/orders - Get all orders for the current user
 export async function GET(request: NextRequest) {
   try {
-    // Get the current user from the auth cookie
-    const userId = await verifyAuth(cookies());
+    // Get the current user from the request
+    const userId = await verifyAuth(request);
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

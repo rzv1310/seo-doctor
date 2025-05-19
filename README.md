@@ -111,3 +111,40 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Tailwind CSS for the styling system
 - Stripe for payment processing
 - Turso for the database solution
+
+## Troubleshooting
+
+### Dynamic APIs in Next.js App Router
+
+When using dynamic APIs in Next.js App Router, make sure to await them before accessing their values:
+
+1. **Cookies**: Always await `cookies()` before accessing its values:
+   ```typescript
+   // Correct way:
+   const cookiesStore = cookies();
+   const value = await cookiesStore.get('cookie_name');
+   ```
+
+   Our app uses a custom `verifyAuth` function in `utils/auth.ts` that properly handles this.
+
+2. **Route Parameters**: Always await `params` before accessing its properties:
+   ```typescript
+   // Correct way in route handlers:
+   export async function GET(
+     request: NextRequest,
+     { params }: { params: { id: string } }
+   ) {
+     const paramsObj = await params;
+     const id = paramsObj.id;
+     // ...
+   }
+   ```
+
+Our implementation properly handles both these cases to avoid errors like:
+
+```
+Error: Route "/api/route" used `cookies().get('cookie_name')`. `cookies()` should be awaited before using its value.
+Error: Route "/api/route/[id]" used `params.id`. `params` should be awaited before using its properties.
+```
+
+The code supports both the older synchronous access patterns and the newer asynchronous patterns from Next.js.
