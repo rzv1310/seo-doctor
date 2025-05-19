@@ -17,7 +17,13 @@ export default function Pricing({ isAuthenticated = false }: PricingProps) {
                     Alegeți pachetul potrivit afacerii dumneavoastră, fără taxe ascunse sau surprize.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div className={`grid grid-cols-1 gap-8 max-w-5xl mx-auto ${
+                        prices.length === 1 
+                            ? 'sm:grid-cols-1 md:w-1/2 md:mx-auto' 
+                            : prices.length === 2 
+                                ? 'sm:grid-cols-2 lg:w-3/4 lg:mx-auto' 
+                                : 'sm:grid-cols-2 lg:grid-cols-3'
+                    }`}>
                     {prices.map((price) => (
                         <div
                             key={price.id}
