@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { prices } from '../data';
+import { prices } from '@/data/services';
 
 interface PricingProps {
     isAuthenticated?: boolean;
@@ -27,7 +27,7 @@ export default function Pricing({ isAuthenticated = false }: PricingProps) {
                                 }`}
                         >
                             {price.highlighted && (
-                                <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-md rounded-tr-md relative z-10 shadow-lg shadow-primary/30">
+                                <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-md rounded-tr-md z-10 shadow-lg shadow-primary/30">
                                     {price.tag}
                                     <span className="absolute -inset-1 bg-primary opacity-30 blur-md rounded-bl-md rounded-tr-md -z-10 animate-pulse"></span>
                                 </div>

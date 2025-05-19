@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { services } from '../data';
+import { services } from '@/data/services';
 
 interface ServicesProps {
     isAuthenticated?: boolean;
