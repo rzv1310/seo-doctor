@@ -50,12 +50,30 @@ MiniDash is a dashboard application for managing digital services and subscripti
    pnpm db:migrate
    ```
 
-5. Start the development server:
+5. Seed the database with test data:
+   ```bash
+   # Seed only a test user
+   pnpm db:seed
+
+   # Seed a test user with services, orders, invoices, and subscriptions
+   pnpm db:seed:data
+
+   # Run all seeding operations
+   pnpm db:seed:all
+   ```
+
+6. Start the development server:
    ```bash
    pnpm dev
    ```
 
-6. Visit http://localhost:3000 to see the app in action
+7. Visit http://localhost:3000 to see the app in action
+
+8. Log in with the test account:
+   ```
+   Email: test@example.com
+   Password: password123
+   ```
 
 ## Database Setup
 
