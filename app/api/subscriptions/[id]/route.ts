@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
-import database, { subscriptions, services } from '@/database';
+import database, { subscriptions, services, orders } from '@/database';
 import { verifyAuth } from '@/utils/auth';
 
 // POST /api/subscriptions/[id] - Subscribe to a service
@@ -70,8 +70,21 @@ export async function POST(
       updatedAt: startDate,
     }).returning();
 
+    // Create an order record for this subscription
+    const orderId = uuidv4();
+    await database.insert(orders).values({
+      id: orderId,
+      userId,
+      serviceId,
+      createdAt: startDate,
+      price: service.price,
+      status: 'completed', // Order is immediately completed since it's a subscription
+      notes: `Initial subscription order for ${service.name}. Subscription ID: ${newSubscription[0].id}`,
+    });
+
     return NextResponse.json({ 
       subscription: newSubscription[0],
+      orderId: orderId,
       message: 'Successfully subscribed to service'
     });
   } catch (error) {

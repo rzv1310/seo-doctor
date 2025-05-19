@@ -2,81 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useOrders, Order } from '@/hooks/useOrders';
 
 export default function OrdersPage() {
-  // Simulated orders data
-  const allOrders = [
-    {
-      id: "ORD-123456",
-      service: "Premium Hosting",
-      date: "May 12, 2025",
-      amount: "$12.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123455",
-      service: "AI Assistant Pro",
-      date: "May 10, 2025",
-      amount: "$29.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123454",
-      service: "Data Analytics",
-      date: "May 5, 2025",
-      amount: "$39.99",
-      status: "pending",
-    },
-    {
-      id: "ORD-123453",
-      service: "Cloud Storage",
-      date: "Apr 28, 2025",
-      amount: "$8.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123452",
-      service: "Security Suite",
-      date: "Apr 15, 2025",
-      amount: "$14.99",
-      status: "cancelled",
-    },
-    {
-      id: "ORD-123451",
-      service: "Premium Hosting",
-      date: "Apr 10, 2025",
-      amount: "$12.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123450",
-      service: "Email Marketing",
-      date: "Apr 5, 2025",
-      amount: "$19.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123449",
-      service: "AI Assistant Pro",
-      date: "Mar 25, 2025",
-      amount: "$29.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123448",
-      service: "Data Analytics",
-      date: "Mar 20, 2025",
-      amount: "$39.99",
-      status: "completed",
-    },
-    {
-      id: "ORD-123447",
-      service: "Premium Hosting",
-      date: "Mar 12, 2025",
-      amount: "$12.99",
-      status: "completed",
-    }
-  ];
+  // Get orders from our custom hook
+  const { orders, loading, error } = useOrders();
 
   // State for filters
   const [statusFilter, setStatusFilter] = useState('all');
@@ -84,24 +14,39 @@ export default function OrdersPage() {
   const [sortBy, setSortBy] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
 
+  // Format price as currency
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price);
+  };
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   // Filter orders based on status and search term
-  const filteredOrders = allOrders.filter(order => {
+  const filteredOrders = orders.filter(order => {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          order.service.toLowerCase().includes(searchTerm.toLowerCase());
+                          order.serviceName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   // Sort orders
-  const sortedOrders = [...filteredOrders].sort((a, b) => {
+  const sortedOrders = [...filteredOrders].sort((a: Order, b: Order) => {
     if (sortBy === 'date') {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       return sortDirection === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
     } else if (sortBy === 'amount') {
-      const amountA = parseFloat(a.amount.replace('$', ''));
-      const amountB = parseFloat(b.amount.replace('$', ''));
-      return sortDirection === 'asc' ? amountA - amountB : amountB - amountA;
+      return sortDirection === 'asc' ? a.price - b.price : b.price - a.price;
     }
     return 0;
   });
@@ -172,72 +117,84 @@ export default function OrdersPage() {
           </div>
         </div>
         <div className="p-4">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-color">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ID Comandă</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortClick('date')}
-                  >
-                    <div className="flex items-center">
-                      Data
-                      {sortBy === 'date' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                        </svg>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortClick('amount')}
-                  >
-                    <div className="flex items-center">
-                      Sumă
-                      {sortBy === 'amount' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                        </svg>
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-color">
-                {sortedOrders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{order.id}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{order.service}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{order.date}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{order.amount}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs
-                        ${order.status === 'completed' ? 'bg-green-900/30 text-green-300' :
-                          order.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
-                          'bg-red-900/30 text-red-300'}`}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <Link
-                        href={`/dashboard/orders/${order.id}`}
-                        className="text-primary hover:text-primary-dark transition-colors"
-                      >
-                        Vizualizare
-                      </Link>
-                    </td>
+          {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-danger">
+              {error}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border-color">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ID Comandă</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSortClick('date')}
+                    >
+                      <div className="flex items-center">
+                        Data
+                        {sortBy === 'date' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                          </svg>
+                        )}
+                      </div>
+                    </th>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSortClick('amount')}
+                    >
+                      <div className="flex items-center">
+                        Sumă
+                        {sortBy === 'amount' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                          </svg>
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border-color">
+                  {sortedOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{order.id}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{order.serviceName}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(order.createdAt)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(order.price)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs
+                          ${order.status === 'completed' ? 'bg-green-900/30 text-green-300' :
+                            order.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
+                            'bg-red-900/30 text-red-300'}`}>
+                          {order.status === 'completed' ? 'Finalizată' : 
+                           order.status === 'pending' ? 'În așteptare' : 
+                           'Anulată'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        <Link
+                          href={`/dashboard/orders/${order.id}`}
+                          className="text-primary hover:text-primary-dark transition-colors"
+                        >
+                          Vizualizare
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {sortedOrders.length === 0 && (
+          {!loading && !error && sortedOrders.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
               Nu s-au găsit comenzi care să corespundă filtrelor tale.
             </div>
