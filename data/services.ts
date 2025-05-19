@@ -29,53 +29,74 @@ export type Service = {
 export const services: Service[] = [
     {
         id: 1,
-        name: 'GBP MAX',
+        name: 'GMB MAX',
         tag: 'Recomandat',
         tagClass: 'bg-green-900/30 text-green-300',
-        price: '$99.99',
-        priceValue: 9999, // $99.99 in cents
+        price: '1000 €',
+        priceValue: 100000, // 1000 EUR in cents
         period: '/lună',
-        description: 'Serviciu complet de optimizare a profilului de afaceri Google pentru maximizarea vizibilității locale',
-        status: 'active',
+        description: 'GARANTAT TOP 3 ÎN GOOGLE MAP - SAU NU PLĂTEȘTI NIMIC!',
+        status: 'available',
         renewalDate: 'May 20, 2025',
         usage: 73,
         features: [
-            'Optimizare Google Business Profile',
-            'Gestionarea și răspunsuri la recenzii',
-            'Actualizări informații de afaceri',
-            'Optimizare fotografii și postări',
-            'Rapoarte lunare de performanță'
+            'Creare profil Google My Business nou',
+            'Optimizare completă cu datele afacerii',
+            'Recenzii de la subiecți reali',
+            'Backlink-uri dofollow locale',
+            'Indexare forțată',
+            'Exclusivitate geografică'
         ],
-        details: 'Profilul Google Business este esențial pentru afacerile locale. Cu GBP MAX, transformăm profilul tău într-un magnet pentru clienți locali, crescând vizibilitatea, încrederea și numărul de apeluri/vizite la locație.',
-        buttonText: 'Accesează Serviciul',
+        details: 'GMB MAX este arma ta secretă pentru a domina Pachetul de hărți Google și pentru a aduce mai mulți pacienți către clinica ta! Prin strategia noastră te ajutăm ca afacerea ta să apară mai sus în căutările locale.',
+        buttonText: 'Descoperă mai multe',
         buttonTextUnauth: 'Începe Acum',
-        url: '/dashboard/services/1',
-        unauthUrl: '/login'
+        url: '/services/gmb-max',
+        unauthUrl: '/login',
+        offers: [
+            {
+                text: 'Reducere până la 75% în primele 3 luni',
+                bgClass: 'bg-green-900/30',
+                textClass: 'text-green-300'
+            }
+        ]
     },
     {
         id: 2,
-        name: 'Google Organic',
+        name: 'GOOGLE ORGANIC',
         tag: 'Premium',
         tagClass: 'bg-blue-900/30 text-blue-300',
-        price: '$149.99',
-        priceValue: 14999, // $149.99 in cents
+        price: '1000 €',
+        priceValue: 100000, // 1000 EUR in cents
         period: '/lună',
-        description: 'Serviciu complet de optimizare SEO pentru căutări organice în motorul de căutare Google',
-        status: 'trial',
+        description: 'GARANTAT TOP 3 ÎN REZULTATELE GOOGLE - SAU NU PLĂTEȘTI NIMIC!',
+        status: 'available',
         renewalDate: 'July 2, 2025',
         usage: 45,
         features: [
-            'Cercetare cuvinte cheie relevante',
-            'Optimizare on-page și conținut',
-            'Analiză și strategie de link building',
-            'SEO tehnic și optimizare site',
-            'Rapoarte detaliate lunare'
+            'Website nou, optimizat',
+            'Strategie SEO avansată',
+            'Off-page cu backlink-uri de calitate',
+            'Optimizare pentru dispozitive mobile',
+            'Monitorizare și raportare transparentă',
+            'Plătești doar după ce ajungi în Top 3'
         ],
-        details: 'Optimizarea pentru căutările organice aduce trafic de calitate pe termen lung. Serviciul nostru se concentrează pe creșterea vizibilității în Google, îmbunătățind clasamentele pentru cuvintele cheie relevante și generând conversii.',
-        buttonText: 'Accesează Serviciul',
+        details: 'GOOGLE ORGANIC este soluția ta completă pentru a domina rezultatele organice. Prin strategia noastră avansată SEO, creăm un website nou special pentru tine, optimizat pentru a urca rapid în Google pentru serviciul medical pe care îl dorești.',
+        buttonText: 'Descoperă mai multe',
         buttonTextUnauth: 'Începe Acum',
-        url: '/dashboard/services/2',
-        unauthUrl: '/login'
+        url: '/services/google-organic',
+        unauthUrl: '/login',
+        offers: [
+            {
+                text: 'Reducere până la 75% în primele 3 luni',
+                bgClass: 'bg-green-900/30',
+                textClass: 'text-green-300'
+            },
+            {
+                text: 'Plătești doar după ce ajungi în Top 3!',
+                bgClass: 'bg-blue-900/30',
+                textClass: 'text-blue-300'
+            }
+        ]
     },
 ];
 
@@ -83,34 +104,38 @@ export const services: Service[] = [
 export const prices = [
     {
         id: 1,
-        name: 'GBP Basic',
-        price: '$49.99',
+        name: 'GMB MAX',
+        price: '1000 €',
         period: '/lună',
-        description: 'Pentru afaceri mici cu prezență locală',
+        description: 'Pentru afaceri medicale care vor să domine căutările locale în Google Maps',
         features: [
-            'Optimizare profil Google Business',
-            'Gestionare recenzii de bază',
-            'Rapoarte lunare simple'
+            'Garantat Top 3 în Google Maps',
+            'Profil GMB nou, optimizat',
+            'Recenzii de la utilizatori reali',
+            'Backlink-uri locale de calitate',
+            'Exclusivitate geografică'
         ],
-        url: '/dashboard/services/1',
-        unauthUrl: '/login',
-        highlighted: false
-    },
-    {
-        id: 2,
-        name: 'GBP MAX',
-        price: '$99.99',
-        period: '/lună',
-        description: 'Pentru afaceri care vor să domine căutările locale',
-        features: [
-            'Optimizare completă profil',
-            'Gestionare și răspunsuri la recenzii',
-            'Postări săptămânale',
-            'Rapoarte detaliate lunare'
-        ],
-        url: '/dashboard/services/1',
+        url: '/dashboard/services/gmb-max',
         unauthUrl: '/login',
         highlighted: true,
         tag: 'RECOMANDAT'
+    },
+    {
+        id: 2,
+        name: 'GOOGLE ORGANIC',
+        price: '1000 €',
+        period: '/lună',
+        description: 'Pentru clinici medicale care vor să domine rezultatele organice Google',
+        features: [
+            'Garantat Top 3 în Google Organic',
+            'Website nou, optimizat',
+            'Plătești doar după ce ajungi în Top 3',
+            'Strategie SEO completă',
+            'Rapoarte detaliate lunare'
+        ],
+        url: '/dashboard/services/google-organic',
+        unauthUrl: '/login',
+        highlighted: false,
+        tag: 'PREMIUM'
     },
 ];
