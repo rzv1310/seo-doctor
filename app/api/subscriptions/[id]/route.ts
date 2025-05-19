@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
-import database, { subscriptions, services, orders } from '@/database';
+import database, { subscriptions, services, orders, invoices } from '@/database';
 import { verifyAuth } from '@/utils/auth';
 
 // POST /api/subscriptions/[id] - Subscribe to a service
@@ -82,9 +82,27 @@ export async function POST(
       notes: `Initial subscription order for ${service.name}. Subscription ID: ${newSubscription[0].id}`,
     });
 
+    // Set due date to 14 days from now
+    const dueDate = new Date(now);
+    dueDate.setDate(dueDate.getDate() + 14);
+
+    // Create an invoice for this order
+    const invoiceId = uuidv4();
+    await database.insert(invoices).values({
+      id: invoiceId,
+      userId,
+      orderId,
+      createdAt: startDate,
+      dueDate: dueDate.toISOString(),
+      amount: service.price,
+      status: 'paid', // Invoice is paid immediately for simplicity
+      stripeInvoiceId: null,
+    });
+
     return NextResponse.json({ 
       subscription: newSubscription[0],
-      orderId: orderId,
+      orderId,
+      invoiceId,
       message: 'Successfully subscribed to service'
     });
   } catch (error) {

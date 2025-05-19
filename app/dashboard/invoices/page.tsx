@@ -2,134 +2,53 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
-type Invoice = {
-  id: string;
-  date: string;
-  dueDate: string;
-  amount: string;
-  status: string;
-  orderId?: string;
-  service: string;
-};
+import { useInvoices, Invoice } from '@/hooks/useInvoices';
 
 export default function InvoicesPage() {
-  // Mock data for invoices
-  const allInvoices: Invoice[] = [
-    {
-      id: "INV-785432",
-      date: "May 12, 2025",
-      dueDate: "May 26, 2025",
-      amount: "$12.99",
-      status: "paid",
-      orderId: "ORD-123456",
-      service: "Premium Hosting"
-    },
-    {
-      id: "INV-785431",
-      date: "May 10, 2025",
-      dueDate: "May 24, 2025",
-      amount: "$29.99",
-      status: "paid",
-      orderId: "ORD-123455",
-      service: "AI Assistant Pro"
-    },
-    {
-      id: "INV-785430",
-      date: "Apr 20, 2025",
-      dueDate: "May 4, 2025",
-      amount: "$12.99",
-      status: "paid",
-      orderId: "ORD-123451",
-      service: "Premium Hosting"
-    },
-    {
-      id: "INV-785429",
-      date: "Apr 15, 2025",
-      dueDate: "Apr 29, 2025",
-      amount: "$14.99",
-      status: "cancelled",
-      orderId: "ORD-123452",
-      service: "Security Suite"
-    },
-    {
-      id: "INV-785428",
-      date: "Apr 10, 2025",
-      dueDate: "Apr 24, 2025",
-      amount: "$29.99",
-      status: "paid",
-      orderId: "ORD-123450",
-      service: "AI Assistant Pro"
-    },
-    {
-      id: "INV-785427",
-      date: "Mar 20, 2025",
-      dueDate: "Apr 3, 2025",
-      amount: "$12.99",
-      status: "paid",
-      orderId: "ORD-123447",
-      service: "Premium Hosting"
-    },
-    {
-      id: "INV-785426",
-      date: "Mar 15, 2025",
-      dueDate: "Mar 29, 2025",
-      amount: "$39.99",
-      status: "paid",
-      orderId: "ORD-123448",
-      service: "Data Analytics"
-    },
-    {
-      id: "INV-785425",
-      date: "Feb 20, 2025",
-      dueDate: "Mar 6, 2025",
-      amount: "$12.99",
-      status: "paid",
-      service: "Premium Hosting"
-    },
-    {
-      id: "INV-785424",
-      date: "Jan 20, 2025",
-      dueDate: "Feb 3, 2025",
-      amount: "$12.99",
-      status: "paid",
-      service: "Premium Hosting"
-    },
-    {
-      id: "INV-785423",
-      date: "Dec 20, 2024",
-      dueDate: "Jan 3, 2025",
-      amount: "$12.99",
-      status: "paid",
-      service: "Premium Hosting"
-    }
-  ];
-
-  // State for filters
+  // State for filters and pagination
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  // Get invoices from our custom hook
+  const { invoices, pagination, loading, error } = useInvoices(currentPage, PAGE_SIZE);
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  // Format price as currency
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price);
+  };
 
   // Filter invoices based on status and search term
-  const filteredInvoices = allInvoices.filter(invoice => {
+  const filteredInvoices = invoices.filter(invoice => {
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
     const matchesSearch = invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          invoice.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (invoice.orderId && invoice.orderId.toLowerCase().includes(searchTerm.toLowerCase()));
+                        (invoice.serviceName?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     return matchesStatus && matchesSearch;
   });
 
   // Sort invoices
-  const sortedInvoices = [...filteredInvoices].sort((a, b) => {
+  const sortedInvoices = [...filteredInvoices].sort((a: Invoice, b: Invoice) => {
     if (sortBy === 'date') {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       return sortDirection === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
     } else if (sortBy === 'amount') {
-      const amountA = parseFloat(a.amount.replace('$', ''));
-      const amountB = parseFloat(b.amount.replace('$', ''));
-      return sortDirection === 'asc' ? amountA - amountB : amountB - amountA;
+      return sortDirection === 'asc' ? a.amount - b.amount : b.amount - a.amount;
     } else if (sortBy === 'dueDate') {
       const dueDateA = new Date(a.dueDate);
       const dueDateB = new Date(b.dueDate);
@@ -146,6 +65,120 @@ export default function InvoicesPage() {
       setSortBy(field);
       setSortDirection('desc');
     }
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Get status text
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return 'Plătită';
+      case 'pending':
+        return 'În așteptare';
+      case 'overdue':
+        return 'Restantă';
+      case 'cancelled':
+        return 'Anulată';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  // Generate pagination buttons
+  const generatePaginationButtons = () => {
+    const buttons = [];
+    const totalPages = pagination.totalPages;
+    
+    // Add previous page button
+    buttons.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+        disabled={currentPage === 1}
+        className={`px-3 py-1 rounded-md ${
+          currentPage === 1
+            ? 'text-text-secondary cursor-not-allowed'
+            : 'text-text-primary hover:bg-dark-blue-lighter'
+        }`}
+      >
+        ← Anterior
+      </button>
+    );
+
+    // Add page number buttons (show 5 pages at most)
+    const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+    const endPage = Math.min(totalPages, Math.max(5, currentPage + 2));
+
+    // Add first page button if not already in range
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className={`px-3 py-1 rounded-md hover:bg-dark-blue-lighter`}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="ellipsis1" className="px-1">...</span>);
+      }
+    }
+
+    // Add page buttons
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-1 rounded-md ${
+            i === currentPage
+              ? 'bg-primary text-white'
+              : 'hover:bg-dark-blue-lighter'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Add last page button if not already in range
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(<span key="ellipsis2" className="px-1">...</span>);
+      }
+      buttons.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className={`px-3 py-1 rounded-md hover:bg-dark-blue-lighter`}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    // Add next page button
+    buttons.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+        disabled={currentPage === totalPages}
+        className={`px-3 py-1 rounded-md ${
+          currentPage === totalPages
+            ? 'text-text-secondary cursor-not-allowed'
+            : 'text-text-primary hover:bg-dark-blue-lighter'
+        }`}
+      >
+        Următor →
+      </button>
+    );
+
+    return buttons;
   };
 
   return (
@@ -201,105 +234,132 @@ export default function InvoicesPage() {
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Istoric Facturi</h2>
           <div className="text-text-secondary text-sm">
-            {filteredInvoices.length} {filteredInvoices.length === 1 ? 'factură' : 'facturi'} găsite
+            {loading ? (
+              'Se încarcă...'
+            ) : (
+              `${filteredInvoices.length} ${filteredInvoices.length === 1 ? 'factură' : 'facturi'} găsite din ${pagination.totalItems} total`
+            )}
           </div>
         </div>
         <div className="p-4">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-color">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Factură</th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortClick('date')}
-                  >
-                    <div className="flex items-center">
-                      Data
-                      {sortBy === 'date' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                        </svg>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortClick('dueDate')}
-                  >
-                    <div className="flex items-center">
-                      Data Scadentă
-                      {sortBy === 'dueDate' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                        </svg>
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortClick('amount')}
-                  >
-                    <div className="flex items-center">
-                      Sumă
-                      {sortBy === 'amount' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                        </svg>
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-color">
-                {sortedInvoices.map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <Link
-                        href={`/dashboard/invoices/${invoice.id}`}
-                        className="text-primary hover:text-primary-dark transition-colors"
-                      >
-                        {invoice.id}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.date}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.dueDate}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.service}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.amount}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs
-                        ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
-                          invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
-                          invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
-                          'bg-red-900/30 text-red-300'}`}>
-                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      <div className="flex gap-3">
+          {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-danger">
+              {error}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border-color">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Factură</th>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSortClick('date')}
+                    >
+                      <div className="flex items-center">
+                        Data
+                        {sortBy === 'date' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                          </svg>
+                        )}
+                      </div>
+                    </th>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSortClick('dueDate')}
+                    >
+                      <div className="flex items-center">
+                        Data Scadentă
+                        {sortBy === 'dueDate' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                          </svg>
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      onClick={() => handleSortClick('amount')}
+                    >
+                      <div className="flex items-center">
+                        Sumă
+                        {sortBy === 'amount' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                          </svg>
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-color">
+                  {sortedInvoices.map((invoice) => (
+                    <tr key={invoice.id}>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <Link
                           href={`/dashboard/invoices/${invoice.id}`}
                           className="text-primary hover:text-primary-dark transition-colors"
                         >
-                          Vizualizare
+                          {invoice.id}
                         </Link>
-                        <button className="text-primary hover:text-primary-dark transition-colors">
-                          Descărcare
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.createdAt)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.dueDate)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.serviceName || 'N/A'}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(invoice.amount)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs
+                          ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
+                            invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
+                            invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
+                            'bg-red-900/30 text-red-300'}`}>
+                          {getStatusText(invoice.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-3">
+                          <Link
+                            href={`/dashboard/invoices/${invoice.id}`}
+                            className="text-primary hover:text-primary-dark transition-colors"
+                          >
+                            Vizualizare
+                          </Link>
+                          <button className="text-primary hover:text-primary-dark transition-colors">
+                            Descărcare
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {sortedInvoices.length === 0 && (
+          {!loading && !error && sortedInvoices.length === 0 && (
             <div className="text-center py-8 text-text-secondary">
               Nu s-au găsit facturi care să corespundă filtrelor tale.
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && !error && pagination.totalPages > 1 && (
+            <div className="mt-6 flex justify-between items-center">
+              <div className="text-sm text-text-secondary">
+                Afișez {(currentPage - 1) * PAGE_SIZE + 1}-
+                {Math.min(currentPage * PAGE_SIZE, pagination.totalItems)} din {pagination.totalItems} rezultate
+              </div>
+              <div className="flex space-x-1">
+                {generatePaginationButtons()}
+              </div>
             </div>
           )}
         </div>
