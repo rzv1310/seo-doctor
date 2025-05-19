@@ -29,6 +29,13 @@
       "when": 1747580154426,
       "tag": "0003_closed_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1747656459913,
+      "tag": "0004_kind_mesmero",
+      "breakpoints": true
     }
   ]
 }

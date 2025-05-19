@@ -29,5 +29,6 @@ export const {
   services,
   orders,
   invoices, 
-  paymentMethods
+  paymentMethods,
+  subscriptions
 } = schema;
