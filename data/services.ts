@@ -1,13 +1,44 @@
-// Services data
-export const services = [
+// Services data for both landing page and dashboard
+export type Service = {
+    id: number;
+    name: string;
+    description: string;
+    price: string;
+    priceValue: number; // Price in cents for calculations
+    status?: string;
+    renewalDate?: string;
+    usage?: number;
+    features: string[];
+    // Landing page specific fields
+    tag?: string;
+    tagClass?: string;
+    period?: string;
+    details?: string;
+    buttonText?: string;
+    buttonTextUnauth?: string;
+    url?: string;
+    unauthUrl?: string;
+    // Additional fields for dashboard
+    offers?: {
+        text: string;
+        bgClass: string;
+        textClass: string;
+    }[];
+};
+
+export const services: Service[] = [
     {
         id: 1,
         name: 'GBP MAX',
         tag: 'Recomandat',
         tagClass: 'bg-green-900/30 text-green-300',
         price: '$99.99',
+        priceValue: 9999, // $99.99 in cents
         period: '/lună',
         description: 'Serviciu complet de optimizare a profilului de afaceri Google pentru maximizarea vizibilității locale',
+        status: 'active',
+        renewalDate: 'May 20, 2025',
+        usage: 73,
         features: [
             'Optimizare Google Business Profile',
             'Gestionarea și răspunsuri la recenzii',
@@ -27,8 +58,12 @@ export const services = [
         tag: 'Premium',
         tagClass: 'bg-blue-900/30 text-blue-300',
         price: '$149.99',
+        priceValue: 14999, // $149.99 in cents
         period: '/lună',
         description: 'Serviciu complet de optimizare SEO pentru căutări organice în motorul de căutare Google',
+        status: 'trial',
+        renewalDate: 'July 2, 2025',
+        usage: 45,
         features: [
             'Cercetare cuvinte cheie relevante',
             'Optimizare on-page și conținut',
@@ -44,7 +79,7 @@ export const services = [
     },
 ];
 
-// Pricing data
+// Pricing data for landing page
 export const prices = [
     {
         id: 1,
@@ -77,21 +112,5 @@ export const prices = [
         unauthUrl: '/login',
         highlighted: true,
         tag: 'RECOMANDAT'
-    },
-    {
-        id: 3,
-        name: 'Google Organic',
-        price: '$149.99',
-        period: '/lună',
-        description: 'Optimizare SEO completă pentru rezultate organice',
-        features: [
-            'Cercetare cuvinte cheie',
-            'Optimizare on-page și conținut',
-            'Analiză link building',
-            'Rapoarte analitice avansate'
-        ],
-        url: '/dashboard/services/2',
-        unauthUrl: '/login',
-        highlighted: false
     },
 ];
