@@ -38,9 +38,10 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
 
-                const targetId = this.getAttribute('href')?.substring(1);
-                if (!targetId) return;
+                const href = anchor.getAttribute('href');
+                if (!href) return;
 
+                const targetId = href.slice(1);
                 const targetElement = document.getElementById(targetId);
                 if (!targetElement) return;
 
@@ -57,21 +58,14 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
     }, []);
 
     return (
-        <header className="py-4 sm:py-6 border-b border-border-color relative backdrop-blur-sm bg-dark-blue bg-opacity-90 sticky top-0 z-50 overflow-visible">
+        <header className="py-4 sm:py-6 border-b border-border-color backdrop-blur-sm bg-dark-blue bg-opacity-90 sticky top-0 z-50 overflow-visible">
             {/* Background decorative elements */}
             <div className="absolute inset-0 bg-gradient-to-r from-dark-blue via-dark-blue-lighter to-dark-blue opacity-40"></div>
             <div className="absolute top-0 right-0 w-1/3 h-24 bg-primary opacity-5 blur-3xl rounded-full"></div>
             <div className="absolute bottom-0 left-0 w-1/4 h-12 bg-accent opacity-10 blur-2xl rounded-full"></div>
 
             <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center relative z-10">
-                <div className="flex items-center">
-                    <h1 className="text-xl sm:text-2xl font-bold relative">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                            SEO Doctor
-                        </span>
-                        <span className="absolute -inset-1 bg-primary opacity-20 blur-xl rounded-full -z-10"></span>
-                    </h1>
-                </div>
+                <div />
 
                 {/* Desktop Navigation - Hidden on mobile */}
                 <nav className="hidden md:flex items-center gap-8">
@@ -79,7 +73,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                         <a
                             key={link.id}
                             href={link.href}
-                            className="text-text-secondary hover:text-primary transition-all"
+                            className="text-text-secondary font-bold hover:text-primary transition-all"
                         >
                             {link.name}
                         </a>
@@ -87,7 +81,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                     {isAuthenticated ? (
                         <Link
                             href="/dashboard"
-                            className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
+                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
                         >
                             <span>Profil</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,7 +91,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                     ) : (
                         <Link
                             href="/login"
-                            className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
+                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
                         >
                             <span>Autentificare</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,7 +131,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
 
             {/* Mobile Menu - Absolute overlay */}
             <div
-                className={`mobile-menu absolute top-full left-0 w-full max-h-[80vh] overflow-y-auto bg-dark-blue-lighter border-b border-border-color backdrop-filter backdrop-blur-xl bg-opacity-80 md:hidden z-40 ${mobileMenuOpen ? 'visible' : ''}`}
+                className={`mobile-menu absolute top-full left-0 w-full max-h-[80vh] overflow-y-auto bg-dark-blue-lighter backdrop-filter backdrop-blur-xl bg-opacity-80 md:hidden z-40 ${mobileMenuOpen ? 'visible' : ''}`}
             >
                 <div className="container mx-auto px-6 py-6">
                     <nav className="flex flex-col space-y-4">
@@ -145,20 +139,17 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                             <a
                                 key={link.id}
                                 href={link.href}
-                                className="text-text-primary hover:text-primary transition-all py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
+                                className="text-text-primary font-bold hover:text-primary transition-all py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 <span>{link.name}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
                             </a>
                         ))}
-                        <div className="pt-3 mt-3 border-border-color w-full">
+                        <div className="pt-3 mt-3 w-full">
                             {isAuthenticated ? (
                                 <Link
                                     href="/dashboard"
-                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-md w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
+                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     <span className="font-medium relative z-10">
@@ -172,7 +163,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                             ) : (
                                 <Link
                                     href="/login"
-                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-md w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
+                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     <span className="font-medium relative z-10">
