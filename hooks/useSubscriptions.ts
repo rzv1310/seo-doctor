@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAuthUser } from '@/utils/auth';
+import { getAuthUser } from '@/utils/client-auth';
 
 // Define subscription types
 export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAuthUser } from '@/utils/auth';
+import { getAuthUser } from '@/utils/client-auth';
 import { Footer } from '@/containers/LandingPage/components';
 import ServiceHeader from './components/ServiceHeader';
 import { usePathname } from 'next/navigation';

@@ -7,7 +7,7 @@ import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { getAuthUser } from '@/utils/auth';
+import { getAuthUser } from '@/utils/client-auth';
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAuthUser } from '@/utils/auth';
+import { getAuthUser } from '@/utils/client-auth';
 import { useCart } from '@/context/CartContext';
 import { services } from '@/data/services';
 
