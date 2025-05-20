@@ -12,19 +12,31 @@ export default function ServiceLayout({
   children: React.ReactNode;
 }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check if user is authenticated
-    const user = getAuthUser();
-    setIsAuthenticated(!!user);
+    try {
+      // Check if user is authenticated
+      const user = getAuthUser();
+      setIsAuthenticated(!!user);
+    } catch (error) {
+      console.error('Error checking auth:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Scroll to top when pathname changes
+  // This ensures it only runs on the client side
+  const isClient = typeof window !== 'undefined';
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (isClient) {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, isClient]);
 
+  // Show content immediately for services pages without waiting for auth check
   return (
     <div className="min-h-screen bg-dark-blue flex flex-col">
       <ServiceHeader isAuthenticated={isAuthenticated} />

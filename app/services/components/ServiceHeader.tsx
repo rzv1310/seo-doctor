@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -66,7 +68,9 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                             className="text-text-secondary font-bold hover:text-primary transition-all"
                             onClick={(e) => {
                                 e.preventDefault();
-                                window.location.href = link.href;
+                                if (typeof window !== 'undefined') {
+                                    window.location.href = link.href;
+                                }
                             }}
                         >
                             {link.name}
@@ -76,7 +80,11 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                         <Link
                             href="/dashboard"
                             className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
-                            onClick={() => window.scrollTo(0, 0)}
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    window.scrollTo(0, 0);
+                                }
+                            }}
                         >
                             <span>Profil</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +95,11 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                         <Link
                             href="/login"
                             className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
-                            onClick={() => window.scrollTo(0, 0)}
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    window.scrollTo(0, 0);
+                                }
+                            }}
                         >
                             <span>Autentificare</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,7 +151,9 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setMobileMenuOpen(false);
-                                    window.location.href = link.href;
+                                    if (typeof window !== 'undefined') {
+                                        window.location.href = link.href;
+                                    }
                                 }}
                             >
                                 <span>{link.name}</span>
@@ -152,7 +166,9 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                                     className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => {
                                         setMobileMenuOpen(false);
-                                        window.scrollTo(0, 0);
+                                        if (typeof window !== 'undefined') {
+                                            window.scrollTo(0, 0);
+                                        }
                                     }}
                                 >
                                     <span className="font-medium relative z-10">
@@ -169,7 +185,9 @@ export default function ServiceHeader({ isAuthenticated = false }: HeaderProps) 
                                     className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => {
                                         setMobileMenuOpen(false);
-                                        window.scrollTo(0, 0);
+                                        if (typeof window !== 'undefined') {
+                                            window.scrollTo(0, 0);
+                                        }
                                     }}
                                 >
                                     <span className="font-medium relative z-10">

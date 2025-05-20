@@ -36,8 +36,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Clear any error
   const clearError = () => setError(null);
 
-  // Check auth status on initial load
+  // Check auth status on initial load - only on client side to prevent hydration errors
   useEffect(() => {
+    // Skip auth check during SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     const checkAuth = async () => {
       try {
         const res = await fetch('/api/auth/me', {
@@ -181,7 +186,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Show loading state while checking authentication on initial load
-  if (isLoading && !user) {
+  // Avoid using window.location during SSR to prevent hydration errors
+  const [pathname, setPathname] = useState('');
+  
+  // Set pathname only on client side to avoid hydration mismatch
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPathname(window.location.pathname);
+    }
+  }, []);
+  
+  // Only show loading screen if we're still loading, not on a services page, and not during SSR
+  if (isLoading && !user && pathname && !pathname.startsWith('/services')) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-dark-blue">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>

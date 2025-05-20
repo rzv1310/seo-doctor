@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getAuthUser } from '@/utils/client-auth';
-import { useCart } from '@/context/CartContext';
 import { services } from '@/data/services';
 
 export default function GoogleOrganicServicePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { addItem, isInCart, removeItem } = useCart();
   const service = services.find(s => s.name === 'GOOGLE ORGANIC');
 
   useEffect(() => {
@@ -24,26 +22,8 @@ export default function GoogleOrganicServicePage() {
     }, 300);
   }, []);
 
-  // Handle adding service to cart
-  const handleAddToCart = () => {
-    if (service) {
-      addItem({
-        id: service.id,
-        name: service.name,
-        description: service.description,
-        price: service.price,
-        priceValue: service.priceValue,
-        features: service.features,
-      });
-    }
-  };
-
-  // Handle removing service from cart
-  const handleRemoveFromCart = () => {
-    if (service) {
-      removeItem(service.id);
-    }
-  };
+  // These functions are now simplified since we'll redirect to login
+  // instead of using the cart directly
 
   if (loading) {
     return (
@@ -114,24 +94,13 @@ export default function GoogleOrganicServicePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {isAuthenticated ? (
               <>
-                {isInCart(service.id) ? (
-                  <button
-                    onClick={handleRemoveFromCart}
-                    className="bg-danger/20 hover:bg-danger/30 text-danger font-semibold rounded-full px-8 py-3 transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Elimină din Coș
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleAddToCart}
-                    className="bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-full px-8 py-3 transition-all hover:shadow-lg hover:shadow-primary/20"
-                  >
-                    Adaugă în Coș
-                  </button>
-                )}
+                <Link
+                  href="/dashboard"
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-full px-8 py-3 transition-all hover:shadow-lg hover:shadow-primary/20"
+                  onClick={() => window.scrollTo(0, 0)}
+                >
+                  Achiziție Serviciu
+                </Link>
                 <Link
                   href="/dashboard/checkout"
                   className="bg-dark-blue-lighter hover:bg-primary/20 text-white font-semibold rounded-full px-8 py-3 transition-all border border-border-color"
@@ -208,15 +177,12 @@ export default function GoogleOrganicServicePage() {
           <p className="text-sm text-text-secondary mb-4">Se poate achiziționa individual sau împreună cu "GMB MAX", pentru rezultate complete.</p>
           
           {isAuthenticated ? (
-            <button
-              onClick={isInCart(service.id) ? handleRemoveFromCart : handleAddToCart}
-              className={`${isInCart(service.id) 
-                ? 'bg-danger/20 hover:bg-danger/30 text-danger' 
-                : 'bg-gradient-to-r from-primary to-primary-dark text-white'} 
-                font-semibold rounded-full px-6 py-3 transition-all mt-auto`}
+            <Link
+              href="/dashboard"
+              className="bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-full px-6 py-3 transition-all mt-auto"
             >
-              {isInCart(service.id) ? 'Elimină din Coș' : 'Adaugă în Coș'}
-            </button>
+              Achiziție Serviciu
+            </Link>
           ) : (
             <Link
               href="/login"
@@ -468,15 +434,12 @@ export default function GoogleOrganicServicePage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
             {isAuthenticated ? (
               <>
-                <button
-                  onClick={isInCart(service.id) ? handleRemoveFromCart : handleAddToCart}
-                  className={`${isInCart(service.id) 
-                    ? 'bg-danger/20 hover:bg-danger/30 text-danger' 
-                    : 'bg-gradient-to-r from-primary to-primary-dark text-white'} 
-                    font-semibold rounded-full px-8 py-3 transition-all`}
+                <Link
+                  href="/dashboard"
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-full px-8 py-3 transition-all hover:shadow-lg hover:shadow-primary/20"
                 >
-                  {isInCart(service.id) ? 'Elimină din Coș' : 'Adaugă în Coș'}
-                </button>
+                  Achiziție Serviciu
+                </Link>
                 <Link
                   href="/dashboard/checkout"
                   className="bg-dark-blue-lighter hover:bg-primary/20 text-white font-semibold rounded-full px-8 py-3 transition-all border border-border-color"
