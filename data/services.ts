@@ -35,7 +35,7 @@ export const services: Service[] = [
         price: '1000 €',
         priceValue: 100000, // 1000 EUR in cents
         period: '/lună',
-        description: 'GARANTAT TOP 3 ÎN GOOGLE MAP - SAU NU PLĂTEȘTI NIMIC!',
+        description: 'GARANTAT TOP 3 ÎN GOOGLE MAPS - SAU NU PLĂTEȘTI NIMIC!',
         status: 'available',
         renewalDate: 'May 20, 2025',
         usage: 73,

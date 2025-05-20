@@ -5,6 +5,8 @@ import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { NextResponse } from 'next/server';
 import type { cookies } from 'next/headers';
 import type { RequestCookies } from 'next/dist/compiled/@edge-runtime/cookies';
+import database, { users } from '@/database';
+import { eq } from 'drizzle-orm';
 
 // Cookie names
 const AUTH_COOKIE_NAME = 'minidash_auth';
@@ -243,6 +245,43 @@ export async function verifyAuth(request: Request | NextRequest | null): Promise
     return null;
   } catch (error) {
     console.error('Auth verification error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get the full auth session with user details from database
+ */
+export async function getAuthSession(request?: Request) {
+  try {
+    // Get user ID from auth token
+    const userId = request ? await verifyAuth(request) : getAuthUser()?.id;
+    
+    if (!userId) {
+      return null;
+    }
+    
+    // Query database to get full user data
+    const [user] = await database.select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      picture: users.picture,
+      createdAt: users.createdAt,
+      billingName: users.billingName,
+      billingCompany: users.billingCompany,
+      billingVat: users.billingVat,
+      billingAddress: users.billingAddress,
+      billingPhone: users.billingPhone,
+      stripeCustomerId: users.stripeCustomerId,
+      admin: users.admin,
+    }).from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    
+    return user ? { user } : null;
+  } catch (error) {
+    console.error('Error getting auth session:', error);
     return null;
   }
 }

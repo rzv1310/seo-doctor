@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
         billingAddress: dbUser.billingAddress,
         billingPhone: dbUser.billingPhone,
         stripeCustomerId: dbUser.stripeCustomerId,
+        admin: dbUser.admin,
       }
     });
 

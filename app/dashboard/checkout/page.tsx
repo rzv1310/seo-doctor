@@ -8,7 +8,19 @@ import { useCart } from '../../../context/CartContext';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalPrice, formattedTotalPrice, clearCart } = useCart();
+  const { 
+    items, 
+    totalPrice, 
+    formattedTotalPrice, 
+    clearCart, 
+    couponCode, 
+    setCouponCode,
+    discountAmount,
+    formattedDiscountAmount,
+    finalPrice,
+    formattedFinalPrice
+  } = useCart();
+  const [inputCoupon, setInputCoupon] = useState(couponCode);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -99,7 +111,7 @@ export default function CheckoutPage() {
                   )}
 
                   <PaymentForm
-                    amount={totalPrice}
+                    amount={couponCode ? finalPrice : totalPrice}
                     description={paymentDescription}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
@@ -132,18 +144,57 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            <div className="py-4 border-t border-border-color">
+            {/* Coupon Code Input */}
+            <div className="pt-4 pb-4 border-t border-border-color">
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <input
+                    type="text"
+                    value={inputCoupon}
+                    onChange={(e) => setInputCoupon(e.target.value)}
+                    placeholder="Cod promoțional"
+                    className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
+                  />
+                  <button 
+                    onClick={() => setCouponCode(inputCoupon)}
+                    className="px-3 py-2 bg-secondary hover:bg-secondary-dark text-white rounded text-sm transition-colors"
+                  >
+                    Aplică
+                  </button>
+                </div>
+                {couponCode && (
+                  <div className="text-xs text-green-500 flex items-center gap-1 mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Cod promoțional aplicat: {couponCode}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Price Summary */}
+            <div className="py-2 border-t border-border-color">
               <div className="flex justify-between mb-2">
                 <span className="text-text-secondary">Subtotal</span>
                 <span>{formattedTotalPrice}</span>
               </div>
+              
+              {couponCode && (
+                <div className="flex justify-between mb-2">
+                  <span className="text-text-secondary">Discount</span>
+                  <span className="text-green-500">-{formattedDiscountAmount}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between mb-2">
                 <span className="text-text-secondary">Taxe</span>
                 <span>$0.00</span>
               </div>
+              
               <div className="flex justify-between font-bold text-lg mt-4">
                 <span>Total</span>
-                <span className="text-primary">{formattedTotalPrice}</span>
+                <span className="text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
               </div>
             </div>
 

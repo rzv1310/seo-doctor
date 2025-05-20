@@ -123,11 +123,11 @@ export default function ServicesPage() {
         <>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold mb-2">Servicii</h1>
-                <p className="text-text-secondary">Gestionează serviciile tale abonate</p>
+                <p className="text-text-secondary">Gestionează serviciile tale</p>
             </div>
 
             {/* Filters and search */}
-            <div className="dashboard-card mb-6">
+            {/* <div className="dashboard-card mb-6">
                 <div className="p-4 border-b border-border-color">
                     <h2 className="text-xl font-semibold">Filtre</h2>
                 </div>
@@ -166,7 +166,7 @@ export default function ServicesPage() {
                         </select>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Services Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">

@@ -22,6 +22,12 @@ type CartContextType = {
   itemCount: number;
   totalPrice: number;
   formattedTotalPrice: string;
+  couponCode: string;
+  setCouponCode: (code: string) => void;
+  discountAmount: number;
+  formattedDiscountAmount: string;
+  finalPrice: number;
+  formattedFinalPrice: string;
 };
 
 // Create the context with default values
@@ -34,6 +40,12 @@ const CartContext = createContext<CartContextType>({
   itemCount: 0,
   totalPrice: 0,
   formattedTotalPrice: '$0.00',
+  couponCode: '',
+  setCouponCode: () => {},
+  discountAmount: 0,
+  formattedDiscountAmount: '$0.00',
+  finalPrice: 0,
+  formattedFinalPrice: '$0.00',
 });
 
 // Custom hook to use the cart context
@@ -41,13 +53,16 @@ export const useCart = () => useContext(CartContext);
 
 // CartProvider component
 export function CartProvider({ children }: { children: ReactNode }) {
-  // Initialize cart from localStorage if available
+  // Initialize cart and coupon state from localStorage if available
   const [items, setItems] = useState<CartService[]>([]);
+  const [couponCode, setCouponCode] = useState('');
   const [initialized, setInitialized] = useState(false);
 
-  // Load cart from localStorage on component mount
+  // Load cart and coupon from localStorage on component mount
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
+    const storedCoupon = localStorage.getItem('couponCode');
+    
     if (storedCart) {
       try {
         setItems(JSON.parse(storedCart));
@@ -55,6 +70,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Failed to parse cart from localStorage:', error);
       }
     }
+    
+    if (storedCoupon) {
+      setCouponCode(storedCoupon);
+    }
+    
     setInitialized(true);
   }, []);
 
@@ -64,6 +84,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cart', JSON.stringify(items));
     }
   }, [items, initialized]);
+  
+  // Save coupon code to localStorage whenever it changes
+  useEffect(() => {
+    if (initialized && couponCode) {
+      localStorage.setItem('couponCode', couponCode);
+    } else if (initialized) {
+      localStorage.removeItem('couponCode');
+    }
+  }, [couponCode, initialized]);
 
   // Add an item to the cart
   const addItem = (service: CartService) => {
@@ -100,7 +129,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Format the total price as a string
   const formattedTotalPrice = `$${(totalPrice / 100).toFixed(2)}`;
-
+  
+  // Apply discount logic if there's a coupon code
+  // This is a simple example - in a real app, you'd validate against actual coupon codes
+  // For now, let's assume any non-empty coupon code gives 10% off
+  const applyCouponDiscount = (price: number, code: string): number => {
+    if (!code) return 0;
+    
+    // Here you would normally check against valid coupon codes
+    // For this example, any code gives 10% discount
+    return Math.round(price * 0.1); // 10% discount, rounded to nearest cent
+  };
+  
+  // Calculate discount amount
+  const discountAmount = applyCouponDiscount(totalPrice, couponCode);
+  const formattedDiscountAmount = `$${(discountAmount / 100).toFixed(2)}`;
+  
+  // Calculate final price after discount
+  const finalPrice = totalPrice - discountAmount;
+  const formattedFinalPrice = `$${(finalPrice / 100).toFixed(2)}`;
+  
   // Provide the cart context value
   const contextValue: CartContextType = {
     items,
@@ -111,6 +159,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     itemCount,
     totalPrice,
     formattedTotalPrice,
+    couponCode,
+    setCouponCode,
+    discountAmount,
+    formattedDiscountAmount,
+    finalPrice,
+    formattedFinalPrice,
   };
 
   return (

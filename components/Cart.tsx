@@ -10,7 +10,22 @@ type CartProps = {
 };
 
 export default function Cart({ isOpen, onClose }: CartProps) {
-  const { items, removeItem, clearCart, formattedTotalPrice } = useCart();
+  const { 
+    items, 
+    removeItem, 
+    clearCart, 
+    formattedTotalPrice, 
+    couponCode, 
+    setCouponCode, 
+    formattedDiscountAmount,
+    formattedFinalPrice
+  } = useCart();
+  
+  const [inputCoupon, setInputCoupon] = useState(couponCode);
+  
+  const handleApplyCoupon = () => {
+    setCouponCode(inputCoupon);
+  };
 
   if (!isOpen) return null;
 
@@ -101,10 +116,53 @@ export default function Cart({ isOpen, onClose }: CartProps) {
         {/* Footer with checkout */}
         {items.length > 0 && (
           <div className="p-4 border-t border-border-color bg-dark-blue-lighter">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-text-secondary">Total:</span>
-              <span className="text-lg font-bold text-primary">{formattedTotalPrice}</span>
+            {/* Coupon Code Input */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <input
+                  type="text"
+                  value={inputCoupon}
+                  onChange={(e) => setInputCoupon(e.target.value)}
+                  placeholder="Cod promoțional"
+                  className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
+                />
+                <button 
+                  onClick={handleApplyCoupon}
+                  className="px-3 py-2 bg-secondary hover:bg-secondary-dark text-white rounded text-sm transition-colors"
+                >
+                  Aplică
+                </button>
+              </div>
+              {couponCode && (
+                <div className="text-xs text-green-500 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Cod promoțional aplicat: {couponCode}
+                </div>
+              )}
             </div>
+            
+            {/* Price Summary */}
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-text-secondary">Subtotal:</span>
+                <span>{formattedTotalPrice}</span>
+              </div>
+              
+              {couponCode && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-text-secondary">Discount:</span>
+                  <span className="text-green-500">-{formattedDiscountAmount}</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary">Total:</span>
+                <span className="text-lg font-bold text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
+              </div>
+            </div>
+            
             <Link
               href="/dashboard/checkout"
               className="block w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors text-center font-medium"

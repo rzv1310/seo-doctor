@@ -65,7 +65,6 @@ export const footerData = {
         {
             title: 'Companie',
             links: [
-                { name: 'Despre Noi', href: '#' },
                 { name: 'Contact', href: '#' },
                 { name: 'Legal', href: '#' }
             ]

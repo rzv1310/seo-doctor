@@ -1,9 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import * as schema from './schema';
-import 'dotenv/config'; // Ensure environment variables are loaded
 
-// Check for environment variables
 const databaseUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
 const authToken = process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
 
@@ -28,7 +26,7 @@ export const {
   users,
   services,
   orders,
-  invoices, 
+  invoices,
   paymentMethods,
   subscriptions
 } = schema;

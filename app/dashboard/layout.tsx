@@ -47,6 +47,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             else if (path.includes('/dashboard/invoices')) setActiveItem('invoices');
             else if (path.includes('/dashboard/payment-methods')) setActiveItem('payment-methods');
             else if (path.includes('/dashboard/settings')) setActiveItem('settings');
+            else if (path.includes('/dashboard/chat')) setActiveItem('chat');
+            else if (path.includes('/dashboard/users')) setActiveItem('users');
         };
 
         // Set initial active item
@@ -54,9 +56,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         // Listen for route changes
         window.addEventListener('popstate', updateActiveItem);
+        
+        // Create a MutationObserver to detect navigation changes (for Next.js client-side navigation)
+        const observer = new MutationObserver(() => {
+            setTimeout(updateActiveItem, 0);
+        });
+        
+        // Observe document body for changes that might indicate navigation
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true 
+        });
 
         return () => {
             window.removeEventListener('popstate', updateActiveItem);
+            observer.disconnect();
         };
     }, []);
 
@@ -134,19 +148,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
 
                 <nav className="py-4 px-2">
-                    {sidebarItems.map((item) => (
-                        <div key={item.id}>
-                            {item.divider && <div className="mt-8 border-t border-border-color pt-4"></div>}
-                            <Link
-                                href={item.href}
-                                onClick={() => handleNavigation(item.id)}
-                                className={`sidebar-item ${activeItem === item.id ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
-                            >
-                                {item.icon}
-                                {item.label}
-                            </Link>
-                        </div>
-                    ))}
+                    {sidebarItems.map((item) => {
+                        // Skip admin-only items if user is not an admin
+                        if (item.adminOnly && !user?.admin) {
+                            return null;
+                        }
+                        
+                        return (
+                            <div key={item.id}>
+                                {item.divider && <div className="mt-8 border-t border-border-color pt-4"></div>}
+                                <Link
+                                    href={item.href}
+                                    onClick={() => handleNavigation(item.id)}
+                                    className={`sidebar-item ${activeItem === item.id ? 'active' : ''} px-4 py-3 flex items-center gap-3`}
+                                >
+                                    {item.icon}
+                                    {item.label}
+                                </Link>
+                            </div>
+                        );
+                    })}
 
                     <button
                         onClick={handleLogout}
@@ -232,7 +253,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-accent opacity-3 blur-2xl rounded-full -z-10"></div>
 
                     {/* Content */}
-                    <div className="relative z-10">
+                    <div className="relative z-10 h-full">
                         {children}
                     </div>
                 </main>

@@ -11,6 +11,7 @@ interface User {
   billingVat?: string;
   billingAddress?: string;
   billingPhone?: string;
+  admin?: boolean;
 }
 
 interface AuthContextType {

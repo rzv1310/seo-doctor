@@ -1,3 +1,5 @@
+// Import env loader first to ensure environment variables are loaded
+import '../utils/env';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import db from '../database';

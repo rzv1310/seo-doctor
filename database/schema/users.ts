@@ -1,6 +1,7 @@
 import {
     sqliteTable,
     text,
+    integer,
     uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 
@@ -20,6 +21,7 @@ export const users = sqliteTable(
         billingAddress: text('billing_address'),
         billingPhone: text('billing_phone'),
         stripeCustomerId: text('stripe_customer_id'),
+        admin: integer('admin', { mode: 'boolean' }).default(false),
     },
     (users) => ([
         uniqueIndex('emailIdx').on(users.email),
