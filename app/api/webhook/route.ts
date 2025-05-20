@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = headers().get('stripe-signature') || '';
+//   const signature = headers().get('stripe-signature') || '';
 
   try {
     // In a real app, you would:

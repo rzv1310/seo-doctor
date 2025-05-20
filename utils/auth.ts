@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import { getCookie, setCookie, deleteCookie } from 'cookies-next';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import type { cookies } from 'next/headers';
 import type { RequestCookies } from 'next/dist/compiled/@edge-runtime/cookies';
 import database, { users } from '@/database';
@@ -58,7 +58,7 @@ export function createAuthToken(user: AuthUser): string {
     user,
     exp: Math.floor(Date.now() / 1000) + COOKIE_MAX_AGE, // Expiry in seconds
   };
-  
+
   return CryptoJS.AES.encrypt(JSON.stringify(payload), SECRET_KEY).toString();
 }
 
@@ -70,12 +70,12 @@ export function verifyAuthToken(token: string): AuthUser | null {
     const bytes = CryptoJS.AES.decrypt(token, SECRET_KEY);
     const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
     const payload = JSON.parse(decryptedData) as TokenPayload;
-    
+
     // Check if token has expired
     if (payload.exp < Math.floor(Date.now() / 1000)) {
       return null;
     }
-    
+
     return payload.user;
   } catch (error) {
     return null;
@@ -89,7 +89,7 @@ export function verifyAuthToken(token: string): AuthUser | null {
 export function setAuthCookie(user: AuthUser): Response {
   try {
     const token = createAuthToken(user);
-    
+
     const response = NextResponse.json({
       success: true,
       user: {
@@ -98,7 +98,7 @@ export function setAuthCookie(user: AuthUser): Response {
         name: user.name,
       }
     });
-    
+
     // Set the cookie on the response
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
@@ -109,7 +109,7 @@ export function setAuthCookie(user: AuthUser): Response {
       sameSite: 'strict',
       path: '/',
     });
-    
+
     return response;
   } catch (error) {
     console.error('Error setting auth cookie:', error);
@@ -127,10 +127,10 @@ export function clearAuthCookie(): Response {
       success: true,
       message: 'Logged out successfully'
     });
-    
+
     // Clear the cookie
     response.cookies.delete(AUTH_COOKIE_NAME);
-    
+
     return response;
   } catch (error) {
     console.error('Error clearing auth cookie:', error);
@@ -144,13 +144,13 @@ export function clearAuthCookie(): Response {
 export function getAuthUser(): AuthUser | null {
   try {
     const token = getCookie(AUTH_COOKIE_NAME);
-    
+
     if (!token) {
       return null;
     }
-    
+
     const user = verifyAuthToken(token as string);
-    
+
     // If token is invalid or expired, clear the cookie
     if (!user) {
       try {
@@ -160,7 +160,7 @@ export function getAuthUser(): AuthUser | null {
         console.error('Error clearing invalid auth cookie:', clearError);
       }
     }
-    
+
     return user;
   } catch (error) {
     console.error('Error getting auth user:', error);
@@ -178,7 +178,7 @@ export function getAuthTokenFromRequest(request: Request): string | null {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       return authHeader.substring(7);
     }
-    
+
     // Try to get from cookie header
     const cookieHeader = request.headers.get('cookie');
     if (cookieHeader) {
@@ -190,7 +190,7 @@ export function getAuthTokenFromRequest(request: Request): string | null {
         }
       }
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error extracting auth token:', error);
@@ -205,7 +205,7 @@ export function verifyAuthFromRequest(request: Request): string | null {
   try {
     const token = getAuthTokenFromRequest(request);
     if (!token) return null;
-    
+
     const user = verifyAuthToken(token);
     return user?.id || null;
   } catch (error) {
@@ -232,7 +232,7 @@ export async function verifyAuth(request: Request | NextRequest | null): Promise
       const userId = verifyAuthFromRequest(request);
       if (userId) return userId;
     }
-    
+
     // If we're still in development, return test user as fallback
     if (process.env.NODE_ENV !== 'production') {
       const testId = getTestUserId();
@@ -241,7 +241,7 @@ export async function verifyAuth(request: Request | NextRequest | null): Promise
         return testId;
       }
     }
-    
+
     return null;
   } catch (error) {
     console.error('Auth verification error:', error);
@@ -256,11 +256,11 @@ export async function getAuthSession(request?: Request) {
   try {
     // Get user ID from auth token
     const userId = request ? await verifyAuth(request) : getAuthUser()?.id;
-    
+
     if (!userId) {
       return null;
     }
-    
+
     // Query database to get full user data
     const [user] = await database.select({
       id: users.id,
@@ -278,7 +278,7 @@ export async function getAuthSession(request?: Request) {
     }).from(users)
       .where(eq(users.id, userId))
       .limit(1);
-    
+
     return user ? { user } : null;
   } catch (error) {
     console.error('Error getting auth session:', error);

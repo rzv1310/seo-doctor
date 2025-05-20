@@ -7,18 +7,18 @@ import { verifyAuth } from '@/utils/auth';
 // POST /api/subscriptions/[id] - Subscribe to a service
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params } : { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the current user from the request
     const userId = await verifyAuth(request);
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const serviceId = params.id;
-    
+    const serviceId = (await params).id;
+
     // Check if service exists
     const service = await database.query.services.findFirst({
       where: eq(services.id, serviceId),
@@ -38,14 +38,14 @@ export async function POST(
     });
 
     if (existingSubscription) {
-      return NextResponse.json({ 
-        error: 'You already have an active subscription to this service' 
+      return NextResponse.json({
+        error: 'You already have an active subscription to this service'
       }, { status: 400 });
     }
 
     // Get subscription details from request body
     const body = await request.json();
-    const { 
+    const {
       planType = 'monthly',
       trialPeriod = 0, // Days of trial (0 means no trial)
       metadata = {},
@@ -56,7 +56,7 @@ export async function POST(
     // Calculate dates
     const now = new Date();
     const startDate = now.toISOString();
-    
+
     // Set renewal date based on plan type
     const renewalDate = new Date(now);
     if (planType === 'yearly') {
@@ -65,7 +65,7 @@ export async function POST(
       // Default to monthly
       renewalDate.setMonth(renewalDate.getMonth() + 1);
     }
-    
+
     // Calculate trial end date if applicable
     let trialEndDate = null;
     if (trialPeriod > 0) {
@@ -80,16 +80,16 @@ export async function POST(
       // Apply 10% discount for yearly subscriptions
       subscriptionPrice = Math.round(subscriptionPrice * 0.9 * 12);
     }
-    
+
     // Apply quantity multiplier
     subscriptionPrice = subscriptionPrice * quantity;
-    
+
     // Apply coupon discount if there's a valid coupon (placeholder for coupon logic)
     // Here you would need to implement coupon validation and discount calculation
-    
+
     // Determine status based on trial period
     const initialStatus = trialPeriod > 0 ? 'trial' : 'active';
-    
+
     // Create metadata object
     const subscriptionMetadata = {
       ...metadata,
@@ -97,7 +97,7 @@ export async function POST(
       quantity,
       couponCode,
     };
-    
+
     // Create new subscription
     const newSubscription = await database.insert(subscriptions).values({
       id: uuidv4(),
@@ -118,7 +118,7 @@ export async function POST(
     const orderId = uuidv4();
     const orderNotes = `${planType === 'yearly' ? 'Yearly' : 'Monthly'} subscription for ${service.name}${quantity > 1 ? ` (${quantity} licenses)` : ''}. Subscription ID: ${newSubscription[0].id}`;
     const orderStatus = initialStatus === 'trial' ? 'pending' : 'completed';
-    
+
     await database.insert(orders).values({
       id: orderId,
       userId,
@@ -126,13 +126,7 @@ export async function POST(
       createdAt: startDate,
       price: subscriptionPrice,
       status: orderStatus, // Order is pending for trials, completed for active
-      notes: orderNotes,
-      metadata: JSON.stringify({
-        subscriptionId: newSubscription[0].id,
-        planType,
-        quantity,
-        trialPeriod,
-      }),
+      notes: orderNotes
     });
 
     // Invoice handling: For trials, set due date to trial end date
@@ -159,14 +153,10 @@ export async function POST(
       dueDate: dueDate.toISOString(),
       amount: subscriptionPrice,
       status: invoiceStatus,
-      stripeInvoiceId: null,
-      metadata: JSON.stringify({
-        subscriptionId: newSubscription[0].id,
-        planType,
-      }),
+      stripeInvoiceId: null
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       subscription: newSubscription[0],
       orderId,
       invoiceId,
@@ -183,7 +173,7 @@ export async function POST(
         trialEndsAt: trialEndDate,
         renewalDate: renewalDate.toISOString(),
       },
-      message: initialStatus === 'trial' 
+      message: initialStatus === 'trial'
         ? `Successfully started ${trialPeriod}-day trial for ${service.name}`
         : `Successfully subscribed to ${service.name}`
     });
@@ -196,18 +186,18 @@ export async function POST(
 // PUT /api/subscriptions/[id] - Update subscription (e.g., cancel)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params } : { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the current user from the request
     const userId = await verifyAuth(request);
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const subscriptionId = params.id;
-    
+    const subscriptionId = (await params).id;
+
     // Check if subscription exists and belongs to user
     const existingSubscription = await database.query.subscriptions.findFirst({
       where: and(
@@ -222,8 +212,8 @@ export async function PUT(
 
     // Get update details from request body
     const body = await request.json();
-    const { 
-      status, 
+    const {
+      status,
       cancelReason,
       renewalDate,
       planType,
@@ -235,10 +225,10 @@ export async function PUT(
     } = body;
 
     const now = new Date().toISOString();
-    
+
     // Parse existing metadata
     const currentMetadata = JSON.parse(existingSubscription.metadata || '{}');
-    
+
     // Determine renewal date changes
     let newRenewalDate = existingSubscription.renewalDate;
     if (renewalDate) {
@@ -254,7 +244,7 @@ export async function PUT(
       }
       newRenewalDate = renewalDateObj.toISOString();
     }
-    
+
     // Build updated metadata
     const updatedMetadata = {
       ...currentMetadata,
@@ -263,42 +253,42 @@ export async function PUT(
       ...(notes && { notes }),
       ...additionalMetadata
     };
-    
+
     // Add cancel reason to metadata if cancelling
     if (status === 'cancelled' && cancelReason) {
       updatedMetadata.cancelReason = cancelReason;
     }
-    
+
     // If pausing, add pause information
     if (status === 'paused' && pauseUntil) {
       updatedMetadata.pauseReason = additionalMetadata.pauseReason || 'User requested';
       updatedMetadata.pausedAt = now;
       updatedMetadata.pauseUntil = pauseUntil;
     }
-    
+
     // Build update object
     const updateData: any = {
       updatedAt: now,
       metadata: JSON.stringify(updatedMetadata)
     };
-    
+
     // Only update fields that were provided
     if (status) {
       updateData.status = status;
     }
-    
+
     if (status === 'cancelled') {
       updateData.cancelledAt = now;
     }
-    
+
     if (renewalDate || planType) {
       updateData.renewalDate = newRenewalDate;
     }
-    
+
     if (usage !== undefined) {
       updateData.usage = usage;
     }
-    
+
     // Update subscription
     const updatedSubscription = await database
       .update(subscriptions)
@@ -318,7 +308,7 @@ export async function PUT(
       message = `Subscription quantity updated to ${quantity}`;
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       subscription: updatedSubscription[0],
       message,
       updatedFields: Object.keys(updateData).filter(key => key !== 'updatedAt' && key !== 'metadata')

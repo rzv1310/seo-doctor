@@ -6,19 +6,18 @@ import { verifyAuth } from '@/utils/auth';
 // GET /api/invoices/[id] - Get a specific invoice
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params } : { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the current user from the request
     const userId = await verifyAuth(request);
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // In Next.js App Router, we must access context.params directly
-    // without destructuring due to the asynchronous nature
-    const invoiceId = context.params.id;
+    // Get the invoice ID from the route parameters
+    const invoiceId = (await params).id;
 
     try {
       // Get the invoice with basic information first
@@ -42,13 +41,13 @@ export async function GET(
       if (!result || result.length === 0) {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
-      
+
       const invoice = result[0];
-      
+
       // Get related order and service information
       let serviceName = "Unknown Service";
       let serviceDescription = "No description available";
-      
+
       if (invoice.orderId) {
         const orderResult = await database
           .select({
@@ -56,10 +55,10 @@ export async function GET(
           })
           .from(orders)
           .where(eq(orders.id, invoice.orderId));
-          
+
         if (orderResult && orderResult.length > 0) {
           const serviceId = orderResult[0].serviceId;
-          
+
           if (serviceId) {
             const serviceResult = await database
               .select({
@@ -68,7 +67,7 @@ export async function GET(
               })
               .from(services)
               .where(eq(services.id, serviceId));
-              
+
             if (serviceResult && serviceResult.length > 0) {
               serviceName = serviceResult[0].name || serviceName;
               serviceDescription = serviceResult[0].description || serviceDescription;
@@ -76,20 +75,19 @@ export async function GET(
           }
         }
       }
-      
+
       // Get user info
       const userResult = await database
         .select({
           name: users.name,
           email: users.email,
-          address: users.address,
-          city: users.city,
-          country: users.country,
-          postalCode: users.postalCode
+          billingAddress: users.billingAddress,
+          billingName: users.billingName,
+          billingCompany: users.billingCompany
         })
         .from(users)
         .where(eq(users.id, userId));
-        
+
       const user = userResult && userResult.length > 0 ? userResult[0] : null;
 
       // Format the invoice for the client
@@ -98,12 +96,10 @@ export async function GET(
         serviceName,
         serviceDescription,
         billingAddress: {
-          name: user?.name || 'User',
+          name: user?.billingName || user?.name || 'User',
           email: user?.email || '',
-          address: user?.address || '',
-          city: user?.city || '',
-          country: user?.country || '',
-          postalCode: user?.postalCode || ''
+          address: user?.billingAddress || '',
+          company: user?.billingCompany || ''
         },
         // Add invoice item (just one item for subscription services)
         items: [{

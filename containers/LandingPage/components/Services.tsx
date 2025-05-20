@@ -52,7 +52,7 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
                                 </p>
 
                                 <Link
-                                    href={isAuthenticated ? service.url : service.unauthUrl}
+                                    href={isAuthenticated ? service.url || "#" : service.unauthUrl || "#"}
                                     className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 relative group overflow-hidden"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">

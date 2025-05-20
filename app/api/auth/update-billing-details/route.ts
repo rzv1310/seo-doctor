@@ -8,7 +8,7 @@ import { verifyAuth, verifyAuthToken } from '@/utils/auth';
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const userId = await verifyAuth(cookies());
+    const userId = await verifyAuth(request);
 
     if (!userId) {
       return NextResponse.json({ message: 'Neautentificat' }, { status: 401 });
