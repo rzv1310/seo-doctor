@@ -65,8 +65,8 @@ export const footerData = {
         {
             title: 'Companie',
             links: [
-                { name: 'Contact', href: '#' },
-                { name: 'Legal', href: '#' }
+                { name: 'Contact', href: '/contact' },
+                { name: 'Legal', href: '/legal' }
             ]
         }
     ],
