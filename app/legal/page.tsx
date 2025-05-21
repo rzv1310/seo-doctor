@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+
 function LegalTabs() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -229,7 +230,18 @@ function LegalTabs() {
                                     Continuând să accesați sau utilizați Serviciul nostru după ce aceste revizuiri devin efective, sunteți de acord să fiți legat de termenii revizuiți. Dacă nu sunteți de acord cu noii termeni, vă rugăm să încetați utilizarea Serviciului.
                                 </p>
 
-                                <h3 className="text-xl font-semibold">9. Legea aplicabilă</h3>
+                                <h3 id="refund-policy" className="text-xl font-semibold">9. Politica de rambursare</h3>
+                                <p>
+                                    SEO Doctor oferă servicii digitale care implică alocarea imediată de resurse și începerea muncii după procesarea plății. În consecință, toate plățile efectuate pentru serviciile noastre sunt nerambursabile.
+                                </p>
+                                <p>
+                                    După achiziționarea unui serviciu și confirmarea plății, echipa noastră începe să lucreze la implementarea soluțiilor personalizate pentru afacerea dumneavoastră. Datorită naturii acestor servicii și a resurselor dedicate, nu putem oferi rambursări pentru serviciile deja achiziționate, indiferent de stadiul implementării sau de rezultate.
+                                </p>
+                                <p>
+                                    Vă recomandăm să analizați cu atenție descrierile serviciilor și să ne contactați pentru orice întrebări înainte de a face o achiziție. Suntem dedicați să oferim valoare reală pentru investiția dumneavoastră și vom lucra pentru a asigura satisfacția dumneavoastră în limitele serviciului achiziționat.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">10. Legea aplicabilă</h3>
                                 <p>
                                     Acești Termeni vor fi guvernați și interpretați în conformitate cu legile României, fără a ține cont de prevederile sale privind conflictul de legi.
                                 </p>
@@ -237,7 +249,7 @@ function LegalTabs() {
                                     Incapacitatea noastră de a aplica orice drept sau prevedere a acestor Termeni nu va fi considerată o renunțare la aceste drepturi. Dacă orice prevedere a acestor Termeni este considerată a fi invalidă sau inaplicabilă de către o instanță, prevederile rămase ale acestor Termeni vor rămâne în vigoare.
                                 </p>
 
-                                <h3 className="text-xl font-semibold">10. Contactați-ne</h3>
+                                <h3 className="text-xl font-semibold">11. Contactați-ne</h3>
                                 <p>
                                     Dacă aveți întrebări despre acești Termeni, vă rugăm să ne contactați:
                                 </p>
@@ -375,6 +387,7 @@ function LegalTabs() {
                             <ul className="space-y-2 text-sm text-text-secondary">
                                 <li><Link href="/legal?tab=privacy" className="hover:text-primary transition-colors">Politici de confidențialitate</Link></li>
                                 <li><Link href="/legal?tab=terms" className="hover:text-primary transition-colors">Termeni și condiții</Link></li>
+                                <li><Link href="/legal?tab=terms#refund-policy" className="hover:text-primary transition-colors">Politica de rambursare</Link></li>
                                 <li><Link href="/legal?tab=gdpr" className="hover:text-primary transition-colors">GDPR</Link></li>
                             </ul>
                         </div>
