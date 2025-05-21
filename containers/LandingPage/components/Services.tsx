@@ -11,7 +11,7 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
             {/* Background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-dark-blue/40 to-transparent"></div>
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--primary-dark)_0%,_transparent_70%)] opacity-5"></div>
-            <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8">Serviciile Noastre</h2>
                 <p className="text-text-secondary text-sm sm:text-base text-center max-w-3xl mx-auto mb-8 sm:mb-16">
                     Soluții complete de optimizare pentru vizibilitatea afacerii tale în mediul online

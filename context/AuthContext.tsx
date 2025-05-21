@@ -6,12 +6,12 @@ interface User {
   id: string;
   email: string;
   name: string;
-  billingName?: string;
-  billingCompany?: string;
-  billingVat?: string;
-  billingAddress?: string;
-  billingPhone?: string;
-  admin?: boolean;
+  billingName?: string | null;
+  billingCompany?: string | null;
+  billingVat?: string | null;
+  billingAddress?: string | null;
+  billingPhone?: string | null;
+  admin?: boolean | null;
 }
 
 interface AuthContextType {
@@ -25,21 +25,40 @@ interface AuthContextType {
   clearError: () => void;
 }
 
+// Create a context with undefined default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+interface AuthProviderProps {
+  children: ReactNode;
+  initialUser?: User | null;
+  initialAuth?: boolean;
+}
+
+export function AuthProvider({ 
+  children, 
+  initialUser = null, 
+  initialAuth = false 
+}: AuthProviderProps) {
+  // Initialize state with server-provided values if available
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const [error, setError] = useState<string | null>(null);
 
   // Clear any error
   const clearError = () => setError(null);
 
   // Check auth status on initial load - only on client side to prevent hydration errors
+  // Only perform this check if we don't have initial server data
   useEffect(() => {
     // Skip auth check during SSR
     if (typeof window === 'undefined') {
+      return;
+    }
+    
+    // Skip checking if we already have user data from the server
+    if (initialUser) {
+      setIsLoading(false);
       return;
     }
     
@@ -73,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuth();
-  }, []);
+  }, [initialUser]);
 
   // Login with email and password
   const login = async (email: string, password: string) => {

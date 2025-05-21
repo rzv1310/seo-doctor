@@ -1,23 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import LandingPage from '../containers/LandingPage';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
+    // Use auth status from the context which is initialized from server-side props
     const { isAuthenticated } = useAuth();
-    const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        // This ensures authentication check happens on client side
-        setIsMounted(true);
-    }, []);
-
-    // Before hydration, show nothing to avoid content flash
-    if (!isMounted) {
-        return null;
-    }
-
-    // Always show the landing page, whether authenticated or not
+    // Render the landing page with auth status from context
     return <LandingPage isAuthenticated={isAuthenticated} />;
 }

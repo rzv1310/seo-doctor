@@ -3,6 +3,7 @@ import { Space_Grotesk, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
+import { getServerAuthUser } from "../utils/serverAuth";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",
@@ -61,12 +62,16 @@ export const metadata: Metadata = {
     }
 };
 
+export const dynamic = 'force-dynamic';
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    // Fetch authentication status and user data from the server
+    const { isAuthenticated, user } = await getServerAuthUser();
+
     return (
         <html
             lang="ro"
@@ -78,7 +83,7 @@ export default function RootLayout({
                 <div
                     className="font-sans"
                 >
-                    <AuthProvider>
+                    <AuthProvider initialUser={user} initialAuth={isAuthenticated}>
                         <CartProvider>
                             {children}
                         </CartProvider>

@@ -16,18 +16,12 @@ interface FooterProps {
   };
 }
 
-export default function Footer({
-  companyName = defaultFooterData.companyName,
-  companyDescription = defaultFooterData.companyDescription,
-  services = defaultFooterData.services,
-  legalLinks = defaultFooterData.infoLinks,
-  contactInfo = defaultFooterData.contactInfo
-}: FooterProps) {
+// Interactive link that handles special links requiring redirection
+function InteractiveLink({ href, children }: { href: string; children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  // Function to handle special links that require redirecting to home page with anchors
-  const handleLinkClick = (href: string, e: React.MouseEvent) => {
+  const handleLinkClick = (e: React.MouseEvent) => {
     // Check if this is a link to a home page section (starts with '/#')
     if (href.startsWith('/#') && pathname !== '/') {
       e.preventDefault();
@@ -40,6 +34,27 @@ export default function Footer({
       sessionStorage.setItem('scrollToSection', anchor);
     }
   };
+
+  return (
+    <a 
+      href={href} 
+      className="hover:text-primary transition-colors cursor-pointer" 
+      onClick={handleLinkClick}
+    >
+      {children}
+    </a>
+  );
+}
+
+export default function Footer({
+  companyName = defaultFooterData.companyName,
+  companyDescription = defaultFooterData.companyDescription,
+  services = defaultFooterData.services,
+  legalLinks = defaultFooterData.infoLinks,
+  contactInfo = defaultFooterData.contactInfo
+}: FooterProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   
   // Handle scroll to section on page load
   useEffect(() => {
@@ -66,9 +81,10 @@ export default function Footer({
       }, 500); // Half-second delay to ensure the page is loaded
     }
   }, [pathname]);
+  
   return (
     <footer className="bg-dark-blue-lighter border-t border-border-color py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">{companyName}</h3>
@@ -82,13 +98,9 @@ export default function Footer({
               {services.map((service, index) => (
                 <li key={index}>
                   {service.href.startsWith('/#') ? (
-                    <a 
-                      href={service.href} 
-                      className="hover:text-primary transition-colors cursor-pointer" 
-                      onClick={(e) => handleLinkClick(service.href, e)}
-                    >
+                    <InteractiveLink href={service.href}>
                       {service.name}
-                    </a>
+                    </InteractiveLink>
                   ) : (
                     <Link href={service.href} className="hover:text-primary transition-colors">
                       {service.name}
@@ -104,13 +116,9 @@ export default function Footer({
               {legalLinks.map((link, index) => (
                 <li key={index}>
                   {link.href.startsWith('/#') ? (
-                    <a 
-                      href={link.href} 
-                      className="hover:text-primary transition-colors cursor-pointer" 
-                      onClick={(e) => handleLinkClick(link.href, e)}
-                    >
+                    <InteractiveLink href={link.href}>
                       {link.name}
-                    </a>
+                    </InteractiveLink>
                   ) : (
                     <Link href={link.href} className="hover:text-primary transition-colors">
                       {link.name}
@@ -145,7 +153,7 @@ export default function Footer({
                 </svg>
                 <Link
                   href="/contact"
-                  className="ml-2 bg-gradient-to-r from-primary to-primary-dark text-white py-2 rounded-md text-sm font-medium hover:shadow-md hover:shadow-primary/20 transition-all"
+                  className="ml-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium hover:shadow-md hover:shadow-primary/20 transition-all"
                 >
                   Contactează-ne
                 </Link>

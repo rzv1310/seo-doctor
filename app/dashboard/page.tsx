@@ -5,7 +5,7 @@ import { useSubscriptions } from '@/hooks/useSubscriptions';
 
 // Main dashboard page showing overview and recent orders
 export default function Dashboard() {
-  const { 
+  const {
     subscriptions,
     isLoading,
     error,
@@ -38,8 +38,8 @@ export default function Dashboard() {
         <div className="p-8 bg-slate-800 rounded-lg text-center">
           <div className="text-xl font-semibold mb-2">Nu ai servicii active</div>
           <p className="text-slate-300 mb-6">Explorează și abonează-te la serviciile noastre.</p>
-          <Link 
-            href="/dashboard/services" 
+          <Link
+            href="/dashboard/services"
             onClick={() => {
               // Force sidebar update when navigating programmatically
               const servicesItem = document.querySelector('.sidebar-item[href="/dashboard/services"]');
@@ -64,13 +64,13 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold">{subscription.service?.name}</h3>
                   <p className="text-sm text-slate-400">{subscription.service?.description}</p>
                 </div>
-                
+
                 <div className="text-right">
                   <div className="font-bold text-green-400 text-lg">
                     {/* Format price appropriately */}
-                    {new Intl.NumberFormat('ro-RO', { 
-                      style: 'currency', 
-                      currency: 'EUR' 
+                    {new Intl.NumberFormat('ro-RO', {
+                      style: 'currency',
+                      currency: 'EUR'
                     }).format(subscription.price / 100)}
                     <span className="text-xs text-slate-400">/lună</span>
                   </div>
@@ -88,9 +88,9 @@ export default function Dashboard() {
           <div className="mt-6 p-4 bg-slate-800 rounded-lg flex justify-between items-center">
             <h3 className="text-lg font-semibold">Total Plată Lunară</h3>
             <p className="text-xl font-bold text-green-400">
-              {new Intl.NumberFormat('ro-RO', { 
-                style: 'currency', 
-                currency: 'EUR' 
+              {new Intl.NumberFormat('ro-RO', {
+                style: 'currency',
+                currency: 'EUR'
               }).format(calculateTotalMonthlySpend() / 100)}
             </p>
           </div>

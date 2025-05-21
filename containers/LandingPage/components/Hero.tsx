@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { heroData } from '../data';
 
@@ -5,10 +7,11 @@ interface HeroProps {
     isAuthenticated?: boolean;
 }
 
-export default function Hero({ isAuthenticated = false }: HeroProps) {
+// Client component for scroll behavior
+function ScrollButton({ children }: { children: React.ReactNode }) {
     const handleScrollToFeatures = (e: React.MouseEvent) => {
         e.preventDefault();
-        const targetElement = document.getElementById('features');
+        const targetElement = document.getElementById('services');
         if (targetElement) {
             const offset = 90; // Same offset as in the header links
             const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - offset;
@@ -19,6 +22,18 @@ export default function Hero({ isAuthenticated = false }: HeroProps) {
         }
     };
 
+    return (
+        <a
+            href="#services"
+            className="border border-border-color text-white hover:bg-dark-blue-lighter text-lg font-medium rounded-full px-8 py-3 transition-all shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30 js-scroll-trigger"
+            onClick={handleScrollToFeatures}
+        >
+            {children}
+        </a>
+    );
+}
+
+export default function Hero({ isAuthenticated = false }: HeroProps) {
     return (
         <section className="py-16 sm:py-24 md:py-32 min-h-[80vh] flex-1 flex flex-col items-center justify-center text-center px-4 relative overflow-hidden">
             {/* Wave/Flow Background Effects */}
@@ -58,13 +73,7 @@ export default function Hero({ isAuthenticated = false }: HeroProps) {
                         </span>
                         <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
                     </Link>
-                    <a
-                        href="#features"
-                        className="border border-border-color text-white hover:bg-dark-blue-lighter text-lg font-medium rounded-full px-8 py-3 transition-all shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30 js-scroll-trigger"
-                        onClick={handleScrollToFeatures}
-                    >
-                        {heroData.secondaryButtonText}
-                    </a>
+                    <ScrollButton>{heroData.secondaryButtonText}</ScrollButton>
                 </div>
             </div>
         </section>

@@ -11,7 +11,7 @@ export default function CTA({ isAuthenticated = false }: CTAProps) {
             {/* Background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-dark-blue via-dark-blue-lighter to-dark-blue opacity-50"></div>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_50%)] opacity-10"></div>
-            <div className="container mx-auto px-4 text-center max-w-3xl relative z-10">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-6">{ctaData.title}</h2>
                 <p className="text-text-secondary mb-5 sm:mb-8 text-base sm:text-lg md:text-xl">
                     {ctaData.subtitle}

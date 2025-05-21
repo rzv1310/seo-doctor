@@ -11,7 +11,7 @@ export default function Pricing({ isAuthenticated = false }: PricingProps) {
             {/* Background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-bl from-accent/5 to-transparent"></div>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--primary)_0%,_transparent_60%)] opacity-5"></div>
-            <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">Pachete și Prețuri</h2>
                 <p className="text-text-secondary text-sm sm:text-base text-center max-w-2xl mx-auto mb-8 sm:mb-16">
                     Alegeți pachetul potrivit afacerii dumneavoastră, fără taxe ascunse sau surprize.

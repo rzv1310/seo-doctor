@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Header, Footer } from '../../components/layout';
 import { useAuth } from '../../context/AuthContext';
 
+export const dynamic = 'force-dynamic';
 
-function LegalTabs() {
+function LegalPage() {
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'privacy';
-    const { isAuthenticated } = useAuth();
 
     // Tabs for the legal page
     const tabs = [
@@ -31,7 +32,7 @@ function LegalTabs() {
             <Header isSimplified={true} isAuthenticated={isAuthenticated} />
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <h1 className="text-3xl font-bold mb-8 text-center">Informații Legale</h1>
 
                 {/* Tabs */}
@@ -42,8 +43,8 @@ function LegalTabs() {
                                 key={t.id}
                                 onClick={() => handleTabChange(t.id)}
                                 className={`inline-block py-4 px-6 text-sm font-medium ${tab === t.id
-                                        ? 'text-primary border-b-2 border-primary'
-                                        : 'text-text-secondary hover:text-text-primary hover:border-border-color border-b-2 border-transparent'
+                                    ? 'text-primary border-b-2 border-primary'
+                                    : 'text-text-secondary hover:text-text-primary hover:border-border-color border-b-2 border-transparent'
                                     } transition-colors`}
                             >
                                 {t.label}
@@ -347,11 +348,4 @@ function LegalTabs() {
     );
 }
 
-
-export default function Page() {
-    return (
-        <Suspense>
-            <LegalTabs />
-        </Suspense>
-    );
-}
+export default LegalPage;

@@ -6,7 +6,7 @@ export default function Testimonials() {
             {/* Background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent mix-blend-overlay"></div>
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent)_0%,_transparent_70%)] opacity-5"></div>
-            <div className="container mx-auto px-4 text-center relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ce Spun Clienții Noștri</h2>
                 <p className="text-text-secondary text-sm sm:text-base text-center max-w-2xl mx-auto mb-8 sm:mb-16">
                     Rezultate reale de la afaceri care au ales serviciile noastre de optimizare

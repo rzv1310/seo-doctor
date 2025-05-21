@@ -12,6 +12,8 @@ interface DashboardLayoutProps {
     children: React.ReactNode;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
     const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -56,16 +58,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         // Listen for route changes
         window.addEventListener('popstate', updateActiveItem);
-        
+
         // Create a MutationObserver to detect navigation changes (for Next.js client-side navigation)
         const observer = new MutationObserver(() => {
             setTimeout(updateActiveItem, 0);
         });
-        
+
         // Observe document body for changes that might indicate navigation
-        observer.observe(document.body, { 
-            childList: true, 
-            subtree: true 
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
         });
 
         return () => {
@@ -153,7 +155,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         if (item.adminOnly && !user?.admin) {
                             return null;
                         }
-                        
+
                         return (
                             <div key={item.id}>
                                 {item.divider && <div className="mt-8 border-t border-border-color pt-4"></div>}

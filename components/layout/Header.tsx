@@ -66,8 +66,8 @@ export default function Header({ isAuthenticated = false, isSimplified = false, 
   // Simplified header for pages like contact and legal
   if (isSimplified) {
     return (
-      <header className="border-b border-border-color">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="border-b border-border-color w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 font-bold text-lg">
               <span className="bg-clip-text bg-gradient-to-r from-primary to-accent">SEO Doctor</span>
@@ -109,7 +109,7 @@ export default function Header({ isAuthenticated = false, isSimplified = false, 
       <div className="absolute top-0 right-0 w-1/3 h-24 bg-primary opacity-5 blur-3xl rounded-full"></div>
       <div className="absolute bottom-0 left-0 w-1/4 h-12 bg-accent opacity-10 blur-2xl rounded-full"></div>
 
-      <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center relative z-10">
         <div />
 
         {/* Desktop Navigation - Hidden on mobile */}
@@ -178,7 +178,7 @@ export default function Header({ isAuthenticated = false, isSimplified = false, 
       <div
         className={`mobile-menu absolute top-full left-0 w-full max-h-[80vh] overflow-y-auto bg-dark-blue-lighter backdrop-filter backdrop-blur-xl bg-opacity-80 md:hidden z-40 ${mobileMenuOpen ? 'visible' : ''}`}
       >
-        <div className="container mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <nav className="flex flex-col space-y-4">
             {navLinks.map(link => (
               <a
