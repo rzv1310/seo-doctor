@@ -3,12 +3,15 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Header, Footer } from '../../components/layout';
+import { useAuth } from '../../context/AuthContext';
 
 
 function LegalTabs() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'privacy';
+    const { isAuthenticated } = useAuth();
 
     // Tabs for the legal page
     const tabs = [
@@ -25,34 +28,7 @@ function LegalTabs() {
     return (
         <div className="min-h-screen bg-dark-blue text-text-primary pb-16">
             {/* Header */}
-            <header className="border-b border-border-color">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <nav className="flex items-center justify-between">
-                        <Link href="/" className="flex items-center gap-3 font-bold text-lg">
-                            <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <span className="bg-clip-text bg-gradient-to-r from-primary to-accent">SEO Doctor</span>
-                        </Link>
-                        <div className="flex items-center gap-4">
-                            <Link
-                                href="/login"
-                                className="text-sm text-text-secondary hover:text-primary transition-colors"
-                            >
-                                Autentificare
-                            </Link>
-                            <Link
-                                href="/dashboard"
-                                className="text-sm bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors"
-                            >
-                                Panou Control
-                            </Link>
-                        </div>
-                    </nav>
-                </div>
-            </header>
+            <Header isSimplified={true} isAuthenticated={isAuthenticated} />
 
             {/* Main Content */}
             <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -366,54 +342,7 @@ function LegalTabs() {
             </main>
 
             {/* Footer */}
-            <footer className="bg-dark-blue-lighter border-t border-border-color py-8">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4">SEO Doctor</h3>
-                            <p className="text-text-secondary text-sm">
-                                Oferim servicii de optimizare SEO pentru a ajuta afacerea dumneavoastră să crească online.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4">Servicii</h3>
-                            <ul className="space-y-2 text-sm text-text-secondary">
-                                <li><Link href="/services/google-organic" className="hover:text-primary transition-colors">SEO Google Organic</Link></li>
-                                <li><Link href="/services/gmb-max" className="hover:text-primary transition-colors">Google Business Pro</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4">Legal</h3>
-                            <ul className="space-y-2 text-sm text-text-secondary">
-                                <li><Link href="/legal?tab=privacy" className="hover:text-primary transition-colors">Politici de confidențialitate</Link></li>
-                                <li><Link href="/legal?tab=terms" className="hover:text-primary transition-colors">Termeni și condiții</Link></li>
-                                <li><Link href="/legal?tab=terms#refund-policy" className="hover:text-primary transition-colors">Politica de rambursare</Link></li>
-                                <li><Link href="/legal?tab=gdpr" className="hover:text-primary transition-colors">GDPR</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-4">Contact</h3>
-                            <ul className="space-y-2 text-sm text-text-secondary">
-                                <li className="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>contact@seodoctor.ro</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                    </svg>
-                                    <span>+40 721 234 567</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="mt-8 pt-6 border-t border-border-color text-center text-sm text-text-secondary">
-                        <p>&copy; {new Date().getFullYear()} SEO Doctor. Toate drepturile rezervate.</p>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

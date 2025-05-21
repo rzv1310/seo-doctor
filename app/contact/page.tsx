@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Header, Footer } from '../../components/layout';
+import { useAuth } from '../../context/AuthContext';
 
 interface FormData {
   name: string;
@@ -20,6 +22,7 @@ interface FormErrors {
 }
 
 export default function ContactPage() {
+  const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -27,7 +30,7 @@ export default function ContactPage() {
     subject: '',
     message: ''
   });
-  
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -37,7 +40,7 @@ export default function ContactPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error on field change
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => {
@@ -51,36 +54,36 @@ export default function ContactPage() {
   // Validate form
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    
+
     // Name validation
     if (!formData.name.trim()) {
       newErrors.name = 'Numele este obligatoriu';
     }
-    
+
     // Email validation
     if (!formData.email.trim()) {
       newErrors.email = 'Email-ul este obligatoriu';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Adresa de email nu este validă';
     }
-    
+
     // Phone validation - optional but validate format if provided
     if (formData.phone && !/^(\+4|)?(07[0-8]{1}[0-9]{1}|02[0-9]{2}|03[0-9]{2}){1}?(\s|\.|\-)?([0-9]{3}(\s|\.|\-|)){2}$/.test(formData.phone)) {
       newErrors.phone = 'Numărul de telefon nu este valid';
     }
-    
+
     // Subject validation
     if (!formData.subject.trim()) {
       newErrors.subject = 'Subiectul este obligatoriu';
     }
-    
+
     // Message validation
     if (!formData.message.trim()) {
       newErrors.message = 'Mesajul este obligatoriu';
     } else if (formData.message.trim().length < 10) {
       newErrors.message = 'Mesajul trebuie să conțină cel puțin 10 caractere';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -88,15 +91,15 @@ export default function ContactPage() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setSubmitMessage('');
-    
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -105,17 +108,17 @@ export default function ContactPage() {
         },
         body: JSON.stringify(formData)
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'A apărut o eroare la trimiterea mesajului');
       }
-      
+
       // Success
       setSubmitStatus('success');
       setSubmitMessage(data.message || 'Mesajul a fost trimis cu succes!');
-      
+
       // Reset form on successful submission
       setFormData({
         name: '',
@@ -124,7 +127,7 @@ export default function ContactPage() {
         subject: '',
         message: ''
       });
-      
+
     } catch (error) {
       // Error
       setSubmitStatus('error');
@@ -137,40 +140,13 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-dark-blue text-text-primary pb-16">
       {/* Header */}
-      <header className="border-b border-border-color">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 font-bold text-lg">
-              <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="bg-clip-text bg-gradient-to-r from-primary to-accent">SEO Doctor</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/login" 
-                className="text-sm text-text-secondary hover:text-primary transition-colors"
-              >
-                Autentificare
-              </Link>
-              <Link 
-                href="/dashboard" 
-                className="text-sm bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors"
-              >
-                Panou Control
-              </Link>
-            </div>
-          </nav>
-        </div>
-      </header>
+      <Header isSimplified={true} isAuthenticated={isAuthenticated} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold mb-2 text-center">Contactează-ne</h1>
         <p className="text-text-secondary text-center mb-12">Suntem aici pentru a te ajuta. Trimite-ne un mesaj și vom reveni în cel mai scurt timp posibil.</p>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div className="bg-dark-blue-lighter rounded-lg p-6 border border-border-color">
@@ -183,7 +159,7 @@ export default function ContactPage() {
                 <p className="text-text-secondary mb-6">
                   {submitMessage || 'Îți mulțumim pentru mesaj! Vom reveni cu un răspuns în cel mai scurt timp.'}
                 </p>
-                <button 
+                <button
                   onClick={() => setSubmitStatus('idle')}
                   className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
                 >
@@ -197,7 +173,7 @@ export default function ContactPage() {
                     {submitMessage || 'A apărut o eroare la trimiterea mesajului. Te rugăm să încerci din nou.'}
                   </div>
                 )}
-                
+
                 <div className="mb-4">
                   <label htmlFor="name" className="block text-sm font-medium mb-1">Nume complet <span className="text-danger">*</span></label>
                   <input
@@ -213,7 +189,7 @@ export default function ContactPage() {
                   />
                   {errors.name && <p className="mt-1 text-sm text-danger">{errors.name}</p>}
                 </div>
-                
+
                 <div className="mb-4">
                   <label htmlFor="email" className="block text-sm font-medium mb-1">Email <span className="text-danger">*</span></label>
                   <input
@@ -229,7 +205,7 @@ export default function ContactPage() {
                   />
                   {errors.email && <p className="mt-1 text-sm text-danger">{errors.email}</p>}
                 </div>
-                
+
                 <div className="mb-4">
                   <label htmlFor="phone" className="block text-sm font-medium mb-1">Telefon</label>
                   <input
@@ -245,7 +221,7 @@ export default function ContactPage() {
                   />
                   {errors.phone && <p className="mt-1 text-sm text-danger">{errors.phone}</p>}
                 </div>
-                
+
                 <div className="mb-4">
                   <label htmlFor="subject" className="block text-sm font-medium mb-1">Subiect <span className="text-danger">*</span></label>
                   <select
@@ -266,7 +242,7 @@ export default function ContactPage() {
                   </select>
                   {errors.subject && <p className="mt-1 text-sm text-danger">{errors.subject}</p>}
                 </div>
-                
+
                 <div className="mb-6">
                   <label htmlFor="message" className="block text-sm font-medium mb-1">Mesaj <span className="text-danger">*</span></label>
                   <textarea
@@ -282,7 +258,7 @@ export default function ContactPage() {
                   ></textarea>
                   {errors.message && <p className="mt-1 text-sm text-danger">{errors.message}</p>}
                 </div>
-                
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -295,14 +271,14 @@ export default function ContactPage() {
                     </>
                   ) : 'Trimite mesajul'}
                 </button>
-                
+
                 <p className="mt-4 text-xs text-text-secondary">
                   Câmpurile marcate cu <span className="text-danger">*</span> sunt obligatorii.
                 </p>
               </form>
             )}
           </div>
-          
+
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
@@ -320,7 +296,7 @@ export default function ContactPage() {
                     <p className="text-text-secondary">suport@seodoctor.ro</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4">
                   <div className="bg-dark-blue-lighter p-3 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -333,7 +309,7 @@ export default function ContactPage() {
                     <p className="text-text-secondary">+40 21 123 4567</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4">
                   <div className="bg-dark-blue-lighter p-3 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -349,27 +325,7 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-            
-            <div>
-              <h2 className="text-xl font-bold mb-4">Program de lucru</h2>
-              <div className="bg-dark-blue-lighter rounded-lg p-4 border border-border-color">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Luni - Vineri:</span>
-                    <span>09:00 - 18:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sâmbătă:</span>
-                    <span>10:00 - 14:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Duminică:</span>
-                    <span>Închis</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
+
             <div>
               <h2 className="text-xl font-bold mb-4">Urmărește-ne</h2>
               <div className="flex gap-4">
@@ -402,53 +358,7 @@ export default function ContactPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-dark-blue-lighter border-t border-border-color py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">SEO Doctor</h3>
-              <p className="text-text-secondary text-sm">
-                Oferim servicii de optimizare SEO pentru a ajuta afacerea dumneavoastră să crească online.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Servicii</h3>
-              <ul className="space-y-2 text-sm text-text-secondary">
-                <li><Link href="/services/google-organic" className="hover:text-primary transition-colors">SEO Google Organic</Link></li>
-                <li><Link href="/services/gmb-max" className="hover:text-primary transition-colors">Google Business Pro</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-text-secondary">
-                <li><Link href="/legal?tab=privacy" className="hover:text-primary transition-colors">Politici de confidențialitate</Link></li>
-                <li><Link href="/legal?tab=terms" className="hover:text-primary transition-colors">Termeni și condiții</Link></li>
-                <li><Link href="/legal?tab=gdpr" className="hover:text-primary transition-colors">GDPR</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Contact</h3>
-              <ul className="space-y-2 text-sm text-text-secondary">
-                <li className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>contact@seodoctor.ro</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span>+40 721 234 567</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 pt-6 border-t border-border-color text-center text-sm text-text-secondary">
-            <p>&copy; {new Date().getFullYear()} SEO Doctor. Toate drepturile rezervate.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

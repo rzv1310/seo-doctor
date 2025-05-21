@@ -7,7 +7,7 @@ interface ServicesProps {
 
 export default function Services({ isAuthenticated = false }: ServicesProps) {
     return (
-        <section id="features" className="py-10 sm:py-16 md:py-20 bg-dark-blue-lighter relative overflow-hidden">
+        <section id="services" className="py-10 sm:py-16 md:py-20 bg-dark-blue-lighter relative overflow-hidden">
             {/* Background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-dark-blue/40 to-transparent"></div>
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--primary-dark)_0%,_transparent_70%)] opacity-5"></div>
@@ -28,7 +28,6 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
                                         <span className="absolute -inset-1 bg-green-500 opacity-20 blur-md rounded-full -z-10 animate-pulse"></span>
                                     </span>
                                 </div>
-                                <div className="mt-4 mb-2 text-3xl font-bold text-primary">{service.price}<span className="text-sm text-text-secondary">{service.period}</span></div>
                             </div>
 
                             <div className="p-6 flex-1 flex flex-col">

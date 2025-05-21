@@ -1,12 +1,12 @@
 import {
-    Header,
     Hero,
     Services,
     Pricing,
     Testimonials,
-    CTA,
-    Footer
+    CTA
 } from './components';
+import { Header, Footer } from '../../components/layout';
+import { navLinks, footerData } from '../../data/layout';
 
 interface LandingPageProps {
     isAuthenticated?: boolean;
@@ -15,7 +15,7 @@ interface LandingPageProps {
 export default function LandingPage({ isAuthenticated = false }: LandingPageProps) {
     return (
         <div className="min-h-screen bg-dark-blue flex flex-col">
-            <Header isAuthenticated={isAuthenticated} />
+            <Header isAuthenticated={isAuthenticated} navLinks={navLinks} />
             <Hero isAuthenticated={isAuthenticated} />
             <Services isAuthenticated={isAuthenticated} />
             <Pricing isAuthenticated={isAuthenticated} />
