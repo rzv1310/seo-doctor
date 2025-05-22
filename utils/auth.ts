@@ -1,10 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 import { NextResponse, NextRequest } from 'next/server';
-import type { cookies } from 'next/headers';
-import type { RequestCookies } from 'next/dist/compiled/@edge-runtime/cookies';
 import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
 

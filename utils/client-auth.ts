@@ -1,9 +1,8 @@
 import CryptoJS from 'crypto-js';
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 
 // Cookie names
 const AUTH_COOKIE_NAME = 'minidash_auth';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
 // Secret key for token encryption - in production, this would be an environment variable
 const SECRET_KEY = process.env.NEXT_PUBLIC_AUTH_SECRET || 'your-secret-key-change-in-production';
