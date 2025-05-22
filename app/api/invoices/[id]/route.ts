@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import database, { invoices, orders, services, users } from '@/database';
-import { verifyAuth } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 // GET /api/invoices/[id] - Get a specific invoice
 export async function GET(
@@ -10,9 +10,9 @@ export async function GET(
 ) {
   try {
     // Get the current user from the request
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -35,7 +35,7 @@ export async function GET(
         .from(invoices)
         .where(and(
           eq(invoices.id, invoiceId),
-          eq(invoices.userId, userId)
+          eq(invoices.userId, session.user.id)
         ));
 
       if (!result || result.length === 0) {
@@ -86,7 +86,7 @@ export async function GET(
           billingCompany: users.billingCompany
         })
         .from(users)
-        .where(eq(users.id, userId));
+        .where(eq(users.id, session.user.id));
 
       const user = userResult && userResult.length > 0 ? userResult[0] : null;
 

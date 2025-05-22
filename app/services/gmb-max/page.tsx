@@ -2,19 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAuthUser } from '@/utils/client-auth';
+import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
 
 export default function GmbMaxServicePage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const service = services.find(s => s.name === 'GMB MAX');
 
   useEffect(() => {
-    // Check if user is authenticated
-    const user = getAuthUser();
-    setIsAuthenticated(!!user);
-    
     // Simulate loading
     setLoading(true);
     setTimeout(() => {

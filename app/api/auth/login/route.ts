@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { z } from 'zod';
 import db from '@/database';
 import { users } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
-import { verifyPassword, setAuthCookie } from '@/utils/auth';
+import { verifyPassword, createAuthResponse } from '@/lib/auth';
 
 // Validation schema for login
 const loginSchema = z.object({
@@ -62,44 +61,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Set auth cookie and return response with full user data
+    // Create auth response with full user data (excluding password)
     try {
-      const response = setAuthCookie({
+      const userData = {
         id: user.id,
         email: user.email,
         name: user.name,
-      });
-
-      // Modify the response to include full user data (excluding password)
-      const responseData = {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          picture: user.picture,
-          createdAt: user.createdAt,
-          billingName: user.billingName,
-          billingCompany: user.billingCompany,
-          billingVat: user.billingVat,
-          billingAddress: user.billingAddress,
-          billingPhone: user.billingPhone,
-          stripeCustomerId: user.stripeCustomerId,
-        }
+        picture: user.picture,
+        createdAt: user.createdAt,
+        billingName: user.billingName,
+        billingCompany: user.billingCompany,
+        billingVat: user.billingVat,
+        billingAddress: user.billingAddress,
+        billingPhone: user.billingPhone,
+        stripeCustomerId: user.stripeCustomerId,
+        admin: user.admin,
       };
 
-      // We need to extract the cookie from the original response
-      const cookieHeader = response.headers.get('set-cookie');
-
-      // Create a new response with the same cookie but updated body
-      const newResponse = NextResponse.json(responseData, { status: 200 });
-
-      // Set the cookie header if it exists
-      if (cookieHeader) {
-        newResponse.headers.set('set-cookie', cookieHeader);
-      }
-
-      return newResponse;
+      return createAuthResponse(userData);
     } catch (cookieError) {
       console.error('Cookie setting error:', cookieError);
       return NextResponse.json(

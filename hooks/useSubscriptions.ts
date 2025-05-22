@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAuthUser } from '@/utils/client-auth';
 
 // Define subscription types
 export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired';
@@ -43,17 +42,10 @@ export type Subscription = {
   parsedMetadata?: SubscriptionMetadata;
 };
 
-export function useSubscriptions() {
+export function useSubscriptions(isAuthenticated: boolean = true) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  // Check authentication status
-  useEffect(() => {
-    const user = getAuthUser();
-    setIsAuthenticated(!!user);
-  }, []);
 
   // Parse metadata for a subscription
   const parseSubscriptionMetadata = (subscription: Subscription): Subscription => {
@@ -323,7 +315,6 @@ export function useSubscriptions() {
     subscriptions,
     isLoading,
     error,
-    isAuthenticated,
     
     // Core methods
     fetchSubscriptions,

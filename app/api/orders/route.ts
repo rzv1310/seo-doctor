@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import database, { orders, services } from '@/database';
-import { verifyAuth } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 // GET /api/orders - Get all orders for the current user
 export async function GET(request: NextRequest) {
   try {
     // Get the current user from the request
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
     
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       serviceName: services.name,
     })
     .from(orders)
-    .where(eq(orders.userId, userId))
+    .where(eq(orders.userId, session.user.id))
     .leftJoin(services, eq(orders.serviceId, services.id));
 
     return NextResponse.json({ 

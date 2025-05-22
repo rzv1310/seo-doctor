@@ -1,22 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/database';
 import { users } from '@/database/schema';
 import { eq } from 'drizzle-orm';
-import { verifyAuth } from '@/utils/auth';
-import bcrypt from 'bcryptjs';
+import { verifyApiAuth, verifyPassword, hashPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ message: 'Neautentificat' }, { status: 401 });
     }
 
     // Get user from database
-    const userResult = await db.select().from(users).where(eq(users.id, userId));
+    const userResult = await db.select().from(users).where(eq(users.id, session.user.id));
     const user = userResult[0];
 
     if (!user) {
@@ -32,20 +30,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify current password
-    const passwordValid = await bcrypt.compare(currentPassword, user.password);
+    const passwordValid = await verifyPassword(currentPassword, user.password);
 
     if (!passwordValid) {
       return NextResponse.json({ message: 'Parola actuală este incorectă' }, { status: 400 });
     }
 
     // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+    const newPasswordHash = await hashPassword(newPassword);
 
     // Update password in database
     await db.update(users)
       .set({ password: newPasswordHash })
-      .where(eq(users.id, userId));
+      .where(eq(users.id, session.user.id));
 
     return NextResponse.json({ message: 'Parola a fost actualizată cu succes' });
   } catch (error) {

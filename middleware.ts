@@ -1,9 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAuthToken } from './utils/auth';
+import CryptoJS from 'crypto-js';
 
-// Auth cookie name
+// Auth cookie name and secret
 const AUTH_COOKIE_NAME = 'minidash_auth';
+const SECRET_KEY = process.env.AUTH_SECRET || 'your-secret-key-change-in-production';
+
+function verifyAuthToken(token: string): string | null {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, SECRET_KEY);
+    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    const payload = JSON.parse(decryptedData) as { userId: string; exp: number };
+
+    if (payload.exp < Math.floor(Date.now() / 1000)) {
+      return null;
+    }
+
+    return payload.userId;
+  } catch (error) {
+    return null;
+  }
+}
 
 // Routes that require authentication
 const PROTECTED_ROUTES = [
@@ -37,8 +54,8 @@ export function middleware(request: NextRequest) {
 
   // Check for auth cookie
   const authCookie = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-  const user = authCookie ? verifyAuthToken(authCookie) : null;
-  const isAuthenticated = !!user;
+  const userId = authCookie ? verifyAuthToken(authCookie) : null;
+  const isAuthenticated = !!userId;
 
   // Check if it's a protected route
   const isProtectedRoute = PROTECTED_ROUTES.some(route =>

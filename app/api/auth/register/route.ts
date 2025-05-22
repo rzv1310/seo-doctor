@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { z } from 'zod';
 import db from '@/database';
 import { users } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
-import { generateUserId, hashPassword, setAuthCookie } from '@/utils/auth';
+import { generateUserId, hashPassword, createAuthResponse } from '@/lib/auth';
 
 // Validation schema for registration
 const registerSchema = z.object({
@@ -87,16 +86,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Set auth cookie and return response
+    // Create auth response with user data
     try {
-      return setAuthCookie({
+      const userData = {
         id: userId,
         email,
         name,
-      });
+        picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+        createdAt: new Date().toISOString(),
+        billingName: null,
+        billingCompany: null,
+        billingVat: null,
+        billingAddress: null,
+        billingPhone: null,
+        stripeCustomerId: null,
+        admin: false,
+      };
+
+      return createAuthResponse(userData);
     } catch (cookieError) {
       console.error('Cookie setting error:', cookieError);
-      // Even though user is created, we should return an error if the session can't be established
       return NextResponse.json(
         {
           success: false,

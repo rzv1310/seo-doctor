@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
-import { getAuthSession } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 // This route is admin-only
 export async function GET(req: NextRequest) {
   try {
     // Get the current user session
-    const session = await getAuthSession();
+    const session = await verifyApiAuth(req);
 
     // Not authenticated
-    if (!session) {
+    if (!session.isAuthenticated) {
       return NextResponse.json(
         { success: false, error: 'Not authenticated' },
         { status: 401 }

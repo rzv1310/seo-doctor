@@ -104,6 +104,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setCartOpen(!cartOpen);
     };
 
+    // Don't render anything when not authenticated (redirect will happen)
+    if (!isAuthenticated && !isLoading) {
+        return null;
+    }
+
     // Show loading spinner when authentication state is being checked
     if (isLoading) {
         return (
@@ -111,11 +116,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             </div>
         );
-    }
-
-    // Don't render anything when not authenticated (redirect will happen)
-    if (!isAuthenticated) {
-        return null;
     }
 
     const toggleSidebar = () => {

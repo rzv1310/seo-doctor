@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { clearAuthCookie } from '@/utils/auth';
+import { createLogoutResponse } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
-    // Clear the auth cookie and return response
-    try {
-      return clearAuthCookie();
-    } catch (cookieError) {
-      console.error('Cookie clearing error:', cookieError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to clear authentication session'
-        },
-        { status: 500 }
-      );
-    }
-
+    return createLogoutResponse();
   } catch (error) {
     console.error('Logout error:', error);
     return NextResponse.json(

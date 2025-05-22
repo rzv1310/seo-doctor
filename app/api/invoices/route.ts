@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, desc, sql } from 'drizzle-orm';
 import database, { invoices, orders, services } from '@/database';
-import { verifyAuth } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 // GET /api/invoices - Get invoices for the current user with pagination
 export async function GET(request: NextRequest) {
   try {
     // Get the current user from the request
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
     
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const countResult = await database
       .select({ count: sql<number>`count(*)` })
       .from(invoices)
-      .where(eq(invoices.userId, userId));
+      .where(eq(invoices.userId, session.user.id));
     
     const totalItems = countResult[0].count;
     const totalPages = Math.ceil(totalItems / limit);
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       serviceName: services.name,
     })
     .from(invoices)
-    .where(eq(invoices.userId, userId))
+    .where(eq(invoices.userId, session.user.id))
     .leftJoin(orders, eq(invoices.orderId, orders.id))
     .leftJoin(services, eq(orders.serviceId, services.id))
     .orderBy(desc(invoices.createdAt))

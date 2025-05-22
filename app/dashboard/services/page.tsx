@@ -3,21 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { getAuthUser } from '@/utils/client-auth';
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();
-    const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false);
-
-    // Check authentication on component mount
-    useEffect(() => {
-        const user = getAuthUser();
-        setIsUserLoggedIn(!!user);
-    }, []);
+    const { isAuthenticated } = useAuth();
 
     const {
         subscriptions,
@@ -25,9 +19,8 @@ export default function ServicesPage() {
         isSubscribed,
         getSubscription,
         subscribeToService,
-        cancelSubscription,
-        isAuthenticated
-    } = useSubscriptions();
+        cancelSubscription
+    } = useSubscriptions(isAuthenticated);
 
     // State for filters
     const [statusFilter, setStatusFilter] = useState('all');
@@ -90,7 +83,7 @@ export default function ServicesPage() {
 
     // Handle subscribing to a service
     const handleSubscribe = async (serviceId: number) => {
-        if (!isUserLoggedIn) {
+        if (!isAuthenticated) {
             // Redirect to login if not authenticated
             window.location.href = `/login?redirect=/dashboard/services`;
             return;

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import database, { subscriptions, services, orders, invoices } from '@/database';
-import { verifyAuth } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 // POST /api/subscriptions/[id] - Subscribe to a service
 export async function POST(
@@ -11,9 +11,9 @@ export async function POST(
 ) {
   try {
     // Get the current user from the request
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -31,7 +31,7 @@ export async function POST(
     // Check if user already has an active subscription to this service
     const existingSubscription = await database.query.subscriptions.findFirst({
       where: and(
-        eq(subscriptions.userId, userId),
+        eq(subscriptions.userId, session.user.id),
         eq(subscriptions.serviceId, serviceId),
         eq(subscriptions.status, 'active')
       ),
@@ -101,7 +101,7 @@ export async function POST(
     // Create new subscription
     const newSubscription = await database.insert(subscriptions).values({
       id: uuidv4(),
-      userId,
+      userId: session.user.id,
       serviceId,
       status: initialStatus,
       startDate,
@@ -121,7 +121,7 @@ export async function POST(
 
     await database.insert(orders).values({
       id: orderId,
-      userId,
+      userId: session.user.id,
       serviceId,
       createdAt: startDate,
       price: subscriptionPrice,
@@ -147,7 +147,7 @@ export async function POST(
     const invoiceId = uuidv4();
     await database.insert(invoices).values({
       id: invoiceId,
-      userId,
+      userId: session.user.id,
       orderId,
       createdAt: startDate,
       dueDate: dueDate.toISOString(),
@@ -190,9 +190,9 @@ export async function PUT(
 ) {
   try {
     // Get the current user from the request
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -202,7 +202,7 @@ export async function PUT(
     const existingSubscription = await database.query.subscriptions.findFirst({
       where: and(
         eq(subscriptions.id, subscriptionId),
-        eq(subscriptions.userId, userId)
+        eq(subscriptions.userId, session.user.id)
       ),
     });
 

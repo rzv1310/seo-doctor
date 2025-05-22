@@ -1,18 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  billingName?: string | null;
-  billingCompany?: string | null;
-  billingVat?: string | null;
-  billingAddress?: string | null;
-  billingPhone?: string | null;
-  admin?: boolean | null;
-}
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { User } from '@/lib/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -23,9 +12,9 @@ interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  setUser: (user: User | null) => void;
 }
 
-// Create a context with undefined default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -39,62 +28,18 @@ export function AuthProvider({
   initialUser = null, 
   initialAuth = false 
 }: AuthProviderProps) {
-  // Initialize state with server-provided values if available
-  const [user, setUser] = useState<User | null>(initialUser);
+  const [user, setUserState] = useState<User | null>(initialUser);
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
-  const [isLoading, setIsLoading] = useState(!initialUser);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Clear any error
   const clearError = () => setError(null);
 
-  // Check auth status on initial load - only on client side to prevent hydration errors
-  // Only perform this check if we don't have initial server data
-  useEffect(() => {
-    // Skip auth check during SSR
-    if (typeof window === 'undefined') {
-      return;
-    }
-    
-    // Skip checking if we already have user data from the server
-    if (initialUser) {
-      setIsLoading(false);
-      return;
-    }
-    
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Include cookies in the request
-        });
+  const setUser = (newUser: User | null) => {
+    setUserState(newUser);
+    setIsAuthenticated(!!newUser);
+  };
 
-        const data = await res.json();
-
-        if (res.ok && data.success === true && data.authenticated) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-        } else {
-          // Not authenticated
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-      } catch (err) {
-        // Error checking auth status
-        setUser(null);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [initialUser]);
-
-  // Login with email and password
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
@@ -102,25 +47,21 @@ export function AuthProvider({
 
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include', // Include cookies in the request
+        credentials: 'include',
       });
 
       const data = await res.json();
 
-      if (!res.ok || data.success === false) {
+      if (!res.ok || !data.success) {
         const errorMessage = data.error || 'Login failed';
         setError(errorMessage);
         throw new Error(errorMessage);
       }
 
       setUser(data.user);
-      setIsAuthenticated(true);
     } catch (err) {
-      // If the error was already set (by the condition above), we don't need to set it again
       if (!error) {
         setError(err instanceof Error ? err.message : 'Login failed');
       }
@@ -130,7 +71,6 @@ export function AuthProvider({
     }
   };
 
-  // Register new user
   const signup = async (email: string, password: string, name: string) => {
     try {
       setIsLoading(true);
@@ -138,25 +78,21 @@ export function AuthProvider({
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
-        credentials: 'include', // Include cookies in the request
+        credentials: 'include',
       });
 
       const data = await res.json();
 
-      if (!res.ok || data.success === false) {
+      if (!res.ok || !data.success) {
         const errorMessage = data.error || 'Registration failed';
         setError(errorMessage);
         throw new Error(errorMessage);
       }
 
       setUser(data.user);
-      setIsAuthenticated(true);
     } catch (err) {
-      // If the error was already set (by the condition above), we don't need to set it again
       if (!error) {
         setError(err instanceof Error ? err.message : 'Registration failed');
       }
@@ -166,7 +102,6 @@ export function AuthProvider({
     }
   };
 
-  // Logout
   const logout = async () => {
     try {
       setIsLoading(true);
@@ -174,55 +109,30 @@ export function AuthProvider({
 
       const res = await fetch('/api/auth/logout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies in the request
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
 
       const data = await res.json();
 
-      if (!res.ok || data.success === false) {
-        throw new Error(data.error || 'Logout failed');
+      if (!res.ok || !data.success) {
+        console.error('Logout API error:', data.error);
       }
 
+      // Always clear local state regardless of API response
       setUser(null);
-      setIsAuthenticated(false);
-
+      
       // Redirect to home page
       window.location.href = '/';
     } catch (err) {
       console.error('Logout error:', err);
-      // Even if there's an error, we still want to clear the local state
+      // Clear local state even on error
       setUser(null);
-      setIsAuthenticated(false);
-
-      // Redirect to home page even on error
       window.location.href = '/';
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Show loading state while checking authentication on initial load
-  // Avoid using window.location during SSR to prevent hydration errors
-  const [pathname, setPathname] = useState('');
-  
-  // Set pathname only on client side to avoid hydration mismatch
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setPathname(window.location.pathname);
-    }
-  }, []);
-  
-  // Only show loading screen if we're still loading, not on a services page, and not during SSR
-  if (isLoading && !user && pathname && !pathname.startsWith('/services')) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-dark-blue">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <AuthContext.Provider
@@ -235,6 +145,7 @@ export function AuthProvider({
         signup,
         logout,
         clearError,
+        setUser,
       }}
     >
       {children}

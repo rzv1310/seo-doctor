@@ -3,14 +3,14 @@ import { cookies } from 'next/headers';
 import db from '@/database';
 import { users } from '@/database/schema';
 import { eq } from 'drizzle-orm';
-import { verifyAuth, verifyPassword } from '@/utils/auth';
+import { verifyApiAuth, verifyPassword } from '@/lib/auth';
 
 export async function DELETE(request: NextRequest) {
   try {
     // Verify authentication
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ message: 'Neautentificat' }, { status: 401 });
     }
 
@@ -22,7 +22,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Get user from database
-    const userResult = await db.select().from(users).where(eq(users.id, userId));
+    const userResult = await db.select().from(users).where(eq(users.id, session.user.id));
     const user = userResult[0];
 
     if (!user) {
@@ -37,7 +37,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete user account
-    await db.delete(users).where(eq(users.id, userId));
+    await db.delete(users).where(eq(users.id, session.user.id));
 
     // Create response with message
     const response = NextResponse.json({ message: 'Contul a fost șters cu succes' });

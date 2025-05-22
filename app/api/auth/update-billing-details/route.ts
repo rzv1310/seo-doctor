@@ -3,14 +3,14 @@ import { cookies } from 'next/headers';
 import db from '@/database';
 import { users } from '@/database/schema';
 import { eq } from 'drizzle-orm';
-import { verifyAuth, verifyAuthToken } from '@/utils/auth';
+import { verifyApiAuth } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const userId = await verifyAuth(request);
+    const session = await verifyApiAuth(request);
 
-    if (!userId) {
+    if (!session.isAuthenticated) {
       return NextResponse.json({ message: 'Neautentificat' }, { status: 401 });
     }
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user from database
-    const userResult = await db.select().from(users).where(eq(users.id, userId));
+    const userResult = await db.select().from(users).where(eq(users.id, session.user.id));
     const user = userResult[0];
 
     if (!user) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         billingAddress,
         billingPhone
       })
-      .where(eq(users.id, userId));
+      .where(eq(users.id, session.user.id));
 
     return NextResponse.json({
       message: 'Detaliile de facturare au fost actualizate cu succes',
