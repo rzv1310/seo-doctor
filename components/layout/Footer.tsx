@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { footerData as defaultFooterData } from '../../data/layout';
+import { ActionButton } from '@/components/ui';
 
 interface FooterProps {
   companyName?: string;
@@ -20,15 +21,15 @@ interface FooterProps {
 function InteractiveLink({ href, children }: { href: string; children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const handleLinkClick = (e: React.MouseEvent) => {
     // Check if this is a link to a home page section (starts with '/#')
     if (href.startsWith('/#') && pathname !== '/') {
       e.preventDefault();
-      
+
       // Navigate to home page
       router.push('/');
-      
+
       // Store the anchor in sessionStorage to use after navigation
       const anchor = href.substring(2); // Remove the '/#' part
       sessionStorage.setItem('scrollToSection', anchor);
@@ -36,9 +37,9 @@ function InteractiveLink({ href, children }: { href: string; children: React.Rea
   };
 
   return (
-    <a 
-      href={href} 
-      className="hover:text-primary transition-colors cursor-pointer" 
+    <a
+      href={href}
+      className="hover:text-primary transition-colors cursor-pointer"
       onClick={handleLinkClick}
     >
       {children}
@@ -55,24 +56,24 @@ export default function Footer({
 }: FooterProps) {
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // Handle scroll to section on page load
   useEffect(() => {
     if (pathname === '/' && sessionStorage.getItem('scrollToSection')) {
       const sectionId = sessionStorage.getItem('scrollToSection');
-      
+
       setTimeout(() => {
         const element = document.getElementById(sectionId || '');
         if (element) {
           // Calculate position with offset (header height + extra padding)
           const offset = 90; // Adjust based on header height
           const targetPosition = element.getBoundingClientRect().top + window.scrollY - offset;
-          
+
           window.scrollTo({
             top: targetPosition,
             behavior: 'smooth'
           });
-          
+
           // Clear the stored section
           sessionStorage.removeItem('scrollToSection');
         } else {
@@ -81,7 +82,7 @@ export default function Footer({
       }, 500); // Half-second delay to ensure the page is loaded
     }
   }, [pathname]);
-  
+
   return (
     <footer className="bg-dark-blue-lighter border-t border-border-color py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -147,16 +148,14 @@ export default function Footer({
                   <span>{contactInfo.phone}</span>
                 </li>
               )}
-              <li className="flex items-center mt-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary flex-shrink-0 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                <Link
+              <li className="mt-4">
+                <ActionButton
                   href="/contact"
-                  className="ml-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium hover:shadow-md hover:shadow-primary/20 transition-all"
+                  className="text-sm px-4 py-2 rounded-md"
+                  showArrow={false}
                 >
                   Contactează-ne
-                </Link>
+                </ActionButton>
               </li>
             </ul>
           </div>

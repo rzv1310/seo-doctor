@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { ctaData } from '../data';
 import { ActionButton } from '@/components/ui';
 

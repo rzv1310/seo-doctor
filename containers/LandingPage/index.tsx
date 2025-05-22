@@ -5,7 +5,7 @@ import {
     CTA
 } from './components';
 import { Header, Footer } from '../../components/layout';
-import { navLinks, footerData } from '../../data/layout';
+import { navLinks } from '../../data/layout';
 
 import {
     Hero,

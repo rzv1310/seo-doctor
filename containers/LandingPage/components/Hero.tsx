@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { heroData } from '../data';
 import { ActionButton } from '@/components/ui';
 
