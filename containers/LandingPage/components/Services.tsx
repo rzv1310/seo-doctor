@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { services } from '@/data/services';
+import { Button } from '@/components/ui/Button';
 
 interface ServicesProps {
     isAuthenticated?: boolean;
@@ -50,18 +50,15 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
                                     {service.details}
                                 </p>
 
-                                <Link
+                                <Button
                                     href={service.url || "#"}
-                                    className="mt-auto block text-center bg-gradient-to-r from-primary to-primary-dark text-white font-medium py-3 px-6 rounded-md transition-all w-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 relative group overflow-hidden"
+                                    className="mt-auto w-full"
                                 >
-                                    <span className="relative z-10 flex items-center justify-center gap-2 mx-auto w-fit">
-                                        {isAuthenticated ? service.buttonText : service.buttonTextUnauth}
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                        </svg>
-                                    </span>
-                                    <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                                </Link>
+                                    {isAuthenticated ? service.buttonText : service.buttonTextUnauth}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </Button>
                             </div>
                         </div>
                     ))}

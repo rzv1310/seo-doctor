@@ -2,14 +2,11 @@ import {
     Services,
     Pricing,
     Testimonials,
-    CTA
+    CTA,
+    Hero,
 } from './components';
 import { Header, Footer } from '../../components/layout';
-import { navLinks, footerData } from '../../data/layout';
-
-import {
-    Hero,
-} from '@/components/Hero';
+import { navLinks } from '../../data/layout';
 
 interface LandingPageProps {
     isAuthenticated?: boolean;
