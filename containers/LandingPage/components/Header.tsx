@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { navLinks } from '../data';
+import { LinkButton, ActionButton } from '@/components/ui';
 
 interface HeaderProps {
     isAuthenticated?: boolean;
@@ -72,34 +73,26 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                 {/* Desktop Navigation - Hidden on mobile */}
                 <nav className="hidden md:flex items-center gap-8">
                     {navLinks.map(link => (
-                        <a
+                        <LinkButton
                             key={link.id}
                             href={link.href}
-                            className="text-text-secondary font-bold hover:text-primary transition-all"
                         >
                             {link.name}
-                        </a>
+                        </LinkButton>
                     ))}
                     {isAuthenticated ? (
-                        <Link
+                        <ActionButton
                             href="/dashboard"
-                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
                         >
-                            <span>Profil</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
+                            Profil
+                        </ActionButton>
                     ) : (
-                        <Link
+                        <ActionButton
                             href="/login"
-                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
+                            animate
                         >
-                            <span>Autentificare</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
+                            Autentificare
+                        </ActionButton>
                     )}
                 </nav>
 
@@ -138,44 +131,32 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                 <div className="container mx-auto px-6 py-6">
                     <nav className="flex flex-col space-y-4">
                         {navLinks.map(link => (
-                            <a
+                            <LinkButton
                                 key={link.id}
                                 href={link.href}
-                                className="text-text-primary font-bold hover:text-primary transition-all py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
+                                className="text-text-primary py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 <span>{link.name}</span>
-                            </a>
+                            </LinkButton>
                         ))}
                         <div className="pt-3 mt-3 w-full">
                             {isAuthenticated ? (
-                                <Link
+                                <ActionButton
                                     href="/dashboard"
-                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
+                                    className="w-full py-3.5 px-4 justify-center"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <span className="font-medium relative z-10">
-                                        Accesează Profil
-                                        <span className="absolute inset-0 bg-primary opacity-20 blur-md rounded-full -z-10"></span>
-                                    </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </Link>
+                                    Accesează Profil
+                                </ActionButton>
                             ) : (
-                                <Link
+                                <ActionButton
                                     href="/login"
-                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
+                                    className="w-full py-3.5 px-4 justify-center"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <span className="font-medium relative z-10">
-                                        Autentificare
-                                        <span className="absolute inset-0 bg-primary opacity-20 blur-md rounded-full -z-10"></span>
-                                    </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </Link>
+                                    Autentificare
+                                </ActionButton>
                             )}
                         </div>
                     </nav>

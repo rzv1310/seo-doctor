@@ -1,4 +1,6 @@
 export { Button } from './Button';
+export { LinkButton } from './LinkButton';
+export { ActionButton } from './ActionButton';
 export { Card, DashboardCard } from './Card';
 export { Spinner } from './Spinner';
 export { StatusBadge } from './StatusBadge';

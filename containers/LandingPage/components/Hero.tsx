@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { heroData } from '../data';
+import { ActionButton } from '@/components/ui';
 
 interface HeroProps {
     isAuthenticated?: boolean;
@@ -23,13 +24,14 @@ function ScrollButton({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <a
+        <ActionButton
             href="#services"
-            className="border border-border-color text-white hover:bg-dark-blue-lighter text-lg font-medium rounded-full px-8 py-3 transition-all shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30 js-scroll-trigger"
+            className="bg-transparent hover:bg-dark-blue-lighter border border-border-color text-white text-lg font-medium px-8 py-3 shadow-lg shadow-dark-blue-lighter/20 hover:shadow-xl hover:shadow-dark-blue-lighter/30"
             onClick={handleScrollToFeatures}
+            showArrow={false}
         >
             {children}
-        </a>
+        </ActionButton>
     );
 }
 
@@ -61,18 +63,12 @@ export default function Hero({ isAuthenticated = false }: HeroProps) {
                     {heroData.subtitle}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md mx-auto">
-                    <Link
+                    <ActionButton
                         href={isAuthenticated ? heroData.primaryUrlAuth : heroData.primaryUrl}
-                        className="bg-gradient-to-r from-primary to-primary-dark text-white text-lg font-medium rounded-full px-10 py-3.5 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 relative group overflow-hidden"
+                        className="text-lg font-medium px-10 py-3.5"
                     >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            {isAuthenticated ? heroData.primaryButtonTextAuth : heroData.primaryButtonText}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    </Link>
+                        {isAuthenticated ? heroData.primaryButtonTextAuth : heroData.primaryButtonText}
+                    </ActionButton>
                     <ScrollButton>{heroData.secondaryButtonText}</ScrollButton>
                 </div>
             </div>
