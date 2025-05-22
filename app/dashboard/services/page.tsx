@@ -8,6 +8,7 @@ import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
+import { PageHeader, Card, Grid, Button, Spinner, StatusBadge } from '@/components/ui';
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();
@@ -114,10 +115,10 @@ export default function ServicesPage() {
 
     return (
         <>
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">Servicii</h1>
-                <p className="text-text-secondary">Gestionează serviciile tale</p>
-            </div>
+            <PageHeader
+                title="Servicii"
+                subtitle="Gestionează serviciile tale și explorează ofertele disponibile"
+            />
 
             {/* Filters and search */}
             {/* <div className="dashboard-card mb-6">
@@ -161,27 +162,18 @@ export default function ServicesPage() {
                 </div>
             </div> */}
 
-            {/* Services Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <Grid cols={3} gap="md" className="mb-6">
                 {filteredServices.map(service => {
                     const isUserSubscribed = isSubscribed(service.id.toString());
                     const subscription = getSubscription(service.id.toString());
                     const inCart = isInCart(service.id);
 
                     return (
-                        <div key={service.id} className="dashboard-card overflow-hidden flex flex-col">
+                        <Card key={service.id} className="overflow-hidden flex flex-col">
                             <div className="p-4 border-b border-border-color">
                                 <div className="flex justify-between items-start">
                                     <h3 className="text-lg font-semibold">{service.name}</h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs ${
-                                        service.status === 'active' ? 'bg-green-900/30 text-green-300' :
-                                        service.status === 'trial' ? 'bg-amber-900/30 text-amber-300' :
-                                        service.status === 'cancelled' ? 'bg-red-900/30 text-red-300' :
-                                        service.status === 'available' ? 'bg-blue-900/30 text-blue-300' :
-                                        'bg-slate-900/30 text-slate-300'
-                                    }`}>
-                                        {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
-                                    </span>
+                                    <StatusBadge status={service.status} />
                                 </div>
                                 <p className="text-text-secondary text-sm mt-2">{service.description}</p>
                             </div>
@@ -214,7 +206,6 @@ export default function ServicesPage() {
                                     </ul>
                                 </div>
 
-                                {/* Special offers */}
                                 {service.offers && service.offers.length > 0 && service.offers.map((offer, index) => (
                                     <span key={index} className={`inline-block mb-4 text-xs ${offer.bgClass} ${offer.textClass} px-2 py-1 rounded`}>
                                         {offer.text}
@@ -229,88 +220,66 @@ export default function ServicesPage() {
                                         )}
                                     </div>
                                     <div className="flex gap-2">
-                                        <Link
+                                        <Button
                                             href={service.url || `/dashboard/services/${service.id}`}
-                                            className="bg-primary/20 hover:bg-primary/30 text-primary px-4 py-1 rounded text-sm transition-colors"
+                                            variant="ghost"
+                                            size="sm"
                                         >
                                             Detalii
-                                        </Link>
+                                        </Button>
 
                                         {isUserSubscribed ? (
-                                            <button
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
                                                 onClick={() => subscription && handleCancelSubscriptionClick(subscription)}
-                                                className="text-sm bg-danger/20 hover:bg-danger/30 text-danger px-3 py-1 rounded transition-colors flex items-center justify-center gap-1"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
                                                 Anulează
-                                            </button>
+                                            </Button>
                                         ) : (
-                                            <button
+                                            <Button
+                                                variant={inCart ? "danger" : "primary"}
+                                                size="sm"
                                                 onClick={() => handleToggleCartItem(service)}
-                                                className={`text-sm transition-colors cursor-pointer flex items-center justify-center gap-1 px-3 py-1 rounded ${
-                                                    inCart
-                                                    ? 'bg-danger text-white hover:bg-danger/90'
-                                                    : 'bg-primary text-white hover:bg-primary/90'
-                                                }`}
                                             >
-                                                {inCart ? (
-                                                    <>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                        Elimină din Coș
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                        </svg>
-                                                        Adaugă în Coș
-                                                    </>
-                                                )}
-                                            </button>
+                                                {inCart ? 'Elimină din Coș' : 'Adaugă în Coș'}
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </Card>
                     );
                 })}
-            </div>
+            </Grid>
 
             {filteredServices.length === 0 && !subscriptionsLoading && (
-                <div className="dashboard-card p-8 text-center">
+                <Card className="p-8 text-center">
                     <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
                     <p className="text-text-secondary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
-                    <button
+                    <Button
                         onClick={() => setStatusFilter('available')}
-                        className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors">
+                    >
                         Explorează Servicii Disponibile
-                    </button>
-                </div>
+                    </Button>
+                </Card>
             )}
 
             {subscriptionsLoading && (
-                <div className="dashboard-card p-8 text-center">
+                <Card className="p-8 text-center">
                     <div className="flex justify-center mb-4">
-                        <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <Spinner size="lg" />
                     </div>
                     <div className="text-xl font-semibold mb-2">Încărcare servicii...</div>
                     <p className="text-text-secondary">Se încarcă datele serviciilor și abonamentelor tale.</p>
-                </div>
+                </Card>
             )}
 
-            {/* Checkout Button - Fixed at bottom right when cart has items */}
             {items.length > 0 && (
                 <div className="fixed bottom-8 right-8 z-10">
-                    <Link
+                    <Button
                         href="/dashboard/checkout"
-                        className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md shadow-lg transition-colors flex items-center gap-2"
+                        className="shadow-lg flex items-center gap-2"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -319,7 +288,7 @@ export default function ServicesPage() {
                         <span className="inline-flex items-center justify-center bg-white text-primary rounded-full w-6 h-6 text-sm font-semibold ml-1">
                             {items.length}
                         </span>
-                    </Link>
+                    </Button>
                 </div>
             )}
 
