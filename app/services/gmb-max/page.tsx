@@ -1,33 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
 
 export default function GmbMaxServicePage() {
   const { isAuthenticated } = useAuth();
-  const [loading, setLoading] = useState(true);
   const service = services.find(s => s.name === 'GMB MAX');
-
-  useEffect(() => {
-    // Simulate loading
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
-  }, []);
-
-  // These functions are now simplified since we'll redirect to login
-  // instead of using the cart directly
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[50vh]">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
-    );
-  }
 
   if (!service) {
     return (
