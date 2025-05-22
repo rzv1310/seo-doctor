@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
 
 interface FormData {
   name: string;
@@ -145,11 +145,12 @@ export default function ContactForm() {
           <p className="text-text-secondary mb-6">
             {submitMessage || 'Îți mulțumim pentru mesaj! Vom reveni cu un răspuns în cel mai scurt timp.'}
           </p>
-          <Button
+          <button
             onClick={() => setSubmitStatus('idle')}
+            className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
           >
             Trimite alt mesaj
-          </Button>
+          </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -244,14 +245,18 @@ export default function ContactForm() {
             {errors.message && <p className="mt-1 text-sm text-danger">{errors.message}</p>}
           </div>
 
-          <Button
+          <button
             type="submit"
             disabled={isSubmitting}
-            loading={isSubmitting}
-            className="w-full"
+            className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors font-medium disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {isSubmitting ? 'Se trimite...' : 'Trimite mesajul'}
-          </Button>
+            {isSubmitting ? (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
+                Se trimite...
+              </>
+            ) : 'Trimite mesajul'}
+          </button>
 
           <p className="mt-4 text-xs text-text-secondary">
             Câmpurile marcate cu <span className="text-danger">*</span> sunt obligatorii.

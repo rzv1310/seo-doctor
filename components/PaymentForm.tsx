@@ -8,7 +8,6 @@ import {
     StripeElementsOptions,
 } from '@stripe/stripe-js';
 import stripePromise from '../utils/stripe';
-import { Button } from '@/components/ui/Button';
 
 // Stripe Payment Element form
 const StripeForm = ({
@@ -73,14 +72,16 @@ const StripeForm = ({
                 <div className="mt-4 text-danger text-sm">{errorMessage}</div>
             )}
 
-            <Button
+            <button
                 type="submit"
                 disabled={!stripe || isProcessing}
-                loading={isProcessing}
-                className="w-full mt-6"
+                className={`w-full mt-6 py-2 px-4 rounded-md text-white ${!stripe || isProcessing
+                        ? 'bg-primary/50 cursor-not-allowed'
+                        : 'bg-primary hover:bg-primary-dark'
+                    } transition-colors`}
             >
                 {isProcessing ? 'Se procesează...' : buttonText}
-            </Button>
+            </button>
         </form>
     );
 };

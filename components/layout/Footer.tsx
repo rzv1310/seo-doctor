@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { footerData as defaultFooterData } from '../../data/layout';
-import { Button } from '@/components/ui/Button';
 
 interface FooterProps {
   companyName?: string;
@@ -152,13 +151,12 @@ export default function Footer({
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary flex-shrink-0 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
-                <Button
+                <Link
                   href="/contact"
-                  size="sm"
-                  className="ml-2"
+                  className="ml-2 bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-md text-sm font-medium hover:shadow-md hover:shadow-primary/20 transition-all"
                 >
                   Contactează-ne
-                </Button>
+                </Link>
               </li>
             </ul>
           </div>

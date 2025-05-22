@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
-import { Button } from '@/components/ui/Button';
 
 type CartProps = {
   isOpen: boolean;
@@ -67,11 +66,12 @@ export default function Cart({ isOpen, onClose }: CartProps) {
               </svg>
               <h3 className="text-lg font-medium mb-2">Coșul tău este gol</h3>
               <p className="text-text-secondary mb-6">Adaugă servicii în coș pentru a continua.</p>
-              <Button
+              <button
                 onClick={onClose}
+                className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
               >
                 Continuă Cumpărăturile
-              </Button>
+              </button>
             </div>
           ) : (
             <div className="p-4 space-y-4">
@@ -126,13 +126,12 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   placeholder="Cod promoțional"
                   className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
                 />
-                <Button 
+                <button 
                   onClick={handleApplyCoupon}
-                  variant="secondary"
-                  size="sm"
+                  className="px-3 py-2 bg-secondary hover:bg-secondary-dark text-white rounded text-sm transition-colors"
                 >
                   Aplică
-                </Button>
+                </button>
               </div>
               {couponCode && (
                 <div className="text-xs text-green-500 flex items-center gap-1">
@@ -164,13 +163,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
               </div>
             </div>
             
-            <Button
+            <Link
               href="/dashboard/checkout"
-              className="w-full"
+              className="block w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors text-center font-medium"
               onClick={onClose}
             >
               Finalizează Comanda
-            </Button>
+            </Link>
           </div>
         )}
       </div>

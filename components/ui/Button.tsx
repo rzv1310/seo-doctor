@@ -1,7 +1,5 @@
 import { forwardRef } from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { StarBorder } from './star-border';
 import { Spinner } from './Spinner';
 
 export interface ButtonProps {
@@ -15,81 +13,59 @@ export interface ButtonProps {
   className?: string;
   type?: 'button' | 'submit' | 'reset';
   target?: string;
-  color?: string;
-  speed?: string;
 }
 
 const buttonVariants = {
-  primary: 'bg-[#1e3a8a] text-white border-[#0ea5e9]/30 hover:bg-[#1d4ed8]',
-  secondary: 'bg-[#1e40af] text-[#f8fafc] border-[#334155]/60 hover:bg-[#2563eb]',
-  danger: 'bg-[#1e3a8a] text-[#ef4444] border-[#dc2626]/30 hover:bg-[#1d4ed8]',
-  ghost: 'bg-transparent border-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1e3a8a]/20',
-  outline: 'bg-transparent border-[#334155]/60 text-[#94a3b8] hover:bg-[#1e3a8a] hover:text-[#f8fafc]'
+  primary: 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40',
+  secondary: 'bg-dark-blue-lighter hover:bg-primary/20 text-white border border-border-color',
+  danger: 'bg-danger hover:bg-danger/90 text-white',
+  ghost: 'text-primary hover:bg-primary/10',
+  outline: 'border border-primary text-primary hover:bg-primary hover:text-white'
 };
 
 const buttonSizes = {
-  sm: 'py-2 px-4 text-sm',
-  md: 'py-3 px-6 text-base',
-  lg: 'py-4 px-8 text-lg'
-};
-
-const variantColors = {
-  primary: '#0ea5e9',
-  secondary: '#94a3b8',
-  danger: '#dc2626',
-  ghost: '#94a3b8',
-  outline: '#334155'
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg'
 };
 
 export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
-  ({
-    children,
-    variant = 'primary',
-    size = 'md',
-    href,
-    onClick,
-    disabled = false,
-    loading = false,
-    className = '',
+  ({ 
+    children, 
+    variant = 'primary', 
+    size = 'md', 
+    href, 
+    onClick, 
+    disabled = false, 
+    loading = false, 
+    className = '', 
     type = 'button',
     target,
-    color,
-    speed = "6s",
-    ...props
+    ...props 
   }, ref) => {
+    const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-dark-blue';
     const variantClasses = buttonVariants[variant];
     const sizeClasses = buttonSizes[size];
-    const buttonColor = color || variantColors[variant];
-
-    const disabledClasses = (disabled || loading)
-      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+    
+    const disabledClasses = (disabled || loading) 
+      ? 'opacity-50 cursor-not-allowed pointer-events-none' 
       : 'hover:transform hover:-translate-y-0.5';
 
-    const content = (
-      <div className="flex items-center justify-center gap-2">
-        {loading && <Spinner size="sm" />}
-        {children}
-      </div>
-    );
+    const finalClassName = `${baseClasses} ${variantClasses} ${sizeClasses} ${disabledClasses} ${className}`.trim();
 
     if (href && !disabled && !loading) {
       if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {
         return (
-          <StarBorder
-            as="a"
-            color={buttonColor}
-            speed={speed}
-            className={cn(
-              'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background font-medium cursor-pointer',
-              disabledClasses,
-              className
-            )}
+          <a
+            ref={ref as React.ForwardedRef<HTMLAnchorElement>}
             href={href}
             target={target}
+            className={finalClassName}
             {...props}
           >
-            {content}
-          </StarBorder>
+            {loading && <Spinner size="sm" />}
+            {children}
+          </a>
         );
       }
 
@@ -98,40 +74,27 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
           ref={ref as React.ForwardedRef<HTMLAnchorElement>}
           href={href}
           target={target}
-          className="inline-block"
+          className={finalClassName}
+          {...props}
         >
-          <StarBorder
-            color={buttonColor}
-            speed={speed}
-            className={cn(
-              'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background font-medium cursor-pointer',
-              disabledClasses,
-              className
-            )}
-          >
-            {content}
-          </StarBorder>
+          {loading && <Spinner size="sm" />}
+          {children}
         </Link>
       );
     }
 
     return (
-      <StarBorder
-        as="button"
-        color={buttonColor}
-        speed={speed}
-        className={cn(
-          'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background font-medium cursor-pointer',
-          disabledClasses,
-          className
-        )}
-        onClick={onClick}
+      <button
+        ref={ref as React.ForwardedRef<HTMLButtonElement>}
         type={type}
+        onClick={onClick}
         disabled={disabled || loading}
+        className={finalClassName}
         {...props}
       >
-        {content}
-      </StarBorder>
+        {loading && <Spinner size="sm" />}
+        {children}
+      </button>
     );
   }
 );

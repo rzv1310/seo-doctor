@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { navLinks } from '../data';
-import { Button } from '@/components/ui/Button';
 
 interface HeaderProps {
     isAuthenticated?: boolean;
@@ -82,29 +81,34 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                         </a>
                     ))}
                     {isAuthenticated ? (
-                        <Button href="/dashboard" size="sm">
-                            Profil
+                        <Link
+                            href="/dashboard"
+                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
+                        >
+                            <span>Profil</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
-                        </Button>
+                        </Link>
                     ) : (
-                        <Button href="/login" size="sm">
-                            Autentificare
+                        <Link
+                            href="/login"
+                            className="bg-gradient-to-r font-bold from-primary to-primary-dark text-white rounded-full px-6 py-2.5 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2 border-2 border-primary/30 relative group overflow-hidden animate-pulse hover:animate-none"
+                        >
+                            <span>Autentificare</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
-                        </Button>
+                        </Link>
                     )}
                 </nav>
 
                 {/* Mobile Menu Button - Visible only on mobile */}
                 <div className="md:hidden flex items-center">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-12 h-12 p-2 mobile-menu-button z-50"
+                    <button
+                        className="flex items-center justify-center w-12 h-12 text-text-primary hover:text-primary transition-colors mobile-menu-button z-50 p-2"
                         onClick={toggleMobileMenu}
+                        aria-label="Toggle menu"
                         type="button"
                     >
                         {mobileMenuOpen ? (
@@ -116,7 +120,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         )}
-                    </Button>
+                    </button>
                 </div>
             </div>
 
@@ -145,27 +149,33 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
                         ))}
                         <div className="pt-3 mt-3 w-full">
                             {isAuthenticated ? (
-                                <Button
+                                <Link
                                     href="/dashboard"
-                                    className="w-full"
+                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    Accesează Profil
+                                    <span className="font-medium relative z-10">
+                                        Accesează Profil
+                                        <span className="absolute inset-0 bg-primary opacity-20 blur-md rounded-full -z-10"></span>
+                                    </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
-                                </Button>
+                                </Link>
                             ) : (
-                                <Button
+                                <Link
                                     href="/login"
-                                    className="w-full"
+                                    className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-full w-full py-3.5 px-4 transition-all flex items-center justify-center gap-2 shadow-lg backdrop-blur-md relative overflow-hidden border border-primary/30"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    Autentificare
+                                    <span className="font-medium relative z-10">
+                                        Autentificare
+                                        <span className="absolute inset-0 bg-primary opacity-20 blur-md rounded-full -z-10"></span>
+                                    </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
-                                </Button>
+                                </Link>
                             )}
                         </div>
                     </nav>

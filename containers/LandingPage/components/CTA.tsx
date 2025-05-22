@@ -1,5 +1,5 @@
+import Link from 'next/link';
 import { ctaData } from '../data';
-import { Button } from '@/components/ui/Button';
 
 interface CTAProps {
     isAuthenticated?: boolean;
@@ -16,16 +16,18 @@ export default function CTA({ isAuthenticated = false }: CTAProps) {
                 <p className="text-text-secondary mb-5 sm:mb-8 text-base sm:text-lg md:text-xl">
                     {ctaData.subtitle}
                 </p>
-                <Button
+                <Link
                     href={isAuthenticated ? ctaData.urlAuth : ctaData.url}
-                    size="lg"
-                    className="w-full sm:w-auto max-w-xs mx-auto"
+                    className="bg-gradient-to-r from-primary to-primary-dark text-white text-base sm:text-lg font-medium rounded-full px-6 sm:px-10 py-3.5 sm:py-3.5 transition-all inline-block shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 relative group overflow-hidden w-full sm:w-auto max-w-xs mx-auto"
                 >
-                    {isAuthenticated ? ctaData.buttonTextAuth : ctaData.buttonText}
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                </Button>
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                        {isAuthenticated ? ctaData.buttonTextAuth : ctaData.buttonText}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                </Link>
             </div>
         </section>
     );

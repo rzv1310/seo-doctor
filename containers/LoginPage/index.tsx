@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '@/components/ui/Button';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -132,21 +131,26 @@ export default function LoginPage() {
           )}
 
           {/* Submit button */}
-          <Button
+          <button
             type="submit"
             disabled={isSubmitting}
-            loading={isSubmitting}
-            className="w-full text-lg sm:text-base py-3.5 sm:py-3"
+            className="w-full bg-primary hover:bg-primary-dark text-white cursor-pointer font-medium py-3.5 sm:py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed text-lg sm:text-base"
           >
-            {isLoggingIn ? 'Conectare' : 'Creare Cont'}
-          </Button>
+            <span className="absolute inset-0 bg-gradient-to-r from-accent/40 to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            <span className="relative z-10 flex items-center justify-center mx-auto w-fit">
+              {isSubmitting ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
+              ) : null}
+              {isLoggingIn ? 'Conectare' : 'Creare Cont'}
+            </span>
+          </button>
         </form>
 
         {/* Toggle between login and signup */}
         <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border-color text-center">
           <p className="text-text-secondary text-sm sm:text-base flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-0">
             {isLoggingIn ? "Nu ai un cont?" : "Ai deja un cont?"}
-            <Button
+            <button
               onClick={() => {
                 setIsLoggingIn(!isLoggingIn);
                 clearError();
@@ -154,12 +158,10 @@ export default function LoginPage() {
                 // No need to clear them when we're just switching modes
               }}
               disabled={isSubmitting}
-              variant="secondary"
-              size="sm"
-              className="sm:ml-2 w-full sm:w-auto mt-2 sm:mt-0"
+              className="sm:ml-2 px-4 py-2 sm:px-3 sm:py-1 bg-dark-blue-lighter cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-dark rounded-md border border-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto mt-2 sm:mt-0"
             >
               {isLoggingIn ? 'Înregistrare' : 'Conectare'}
-            </Button>
+            </button>
           </p>
         </div>
 
