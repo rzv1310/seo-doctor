@@ -2,12 +2,7 @@ import { pageMetadata } from '@/data/metadata';
 import { Suspense } from 'react';
 import { getServerSession } from '../../lib/auth';
 import { redirect } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-const DashboardContent = dynamic(
-    () => import('../dashboard/data').then(mod => mod.default),
-    { ssr: false }
-);
+import DashboardContent from './DashboardContent';
 
 export const metadata = pageMetadata.dashboard;
 

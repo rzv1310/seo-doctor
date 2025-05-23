@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/database';
+import db from '@/database';
 import { users, passwordResets } from '@/database/schema';
 import { eq, and, gt, isNull } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
             .set({ usedAt: new Date().toISOString() })
             .where(eq(passwordResets.token, token));
 
-        return NextResponse.json({ 
-            message: 'Parola a fost resetată cu succes' 
+        return NextResponse.json({
+            message: 'Parola a fost resetată cu succes'
         });
 
     } catch (error) {
