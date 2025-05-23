@@ -33,7 +33,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
       transition-all hover:shadow-lg hover:shadow-primary/30 flex items-center gap-2
       border-2 border-primary/30 relative group overflow-hidden inline-flex justify-center
       hover:border-accent/50 hover:from-accent hover:to-primary
-      ${animate ? 'animate-pulse hover:animate-none' : ''}
+      ${animate ? 'animate-pulse-slow hover:animate-none' : ''}
       ${(disabled || loading) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:transform hover:-translate-y-0.5'}`;
 
     const content = (

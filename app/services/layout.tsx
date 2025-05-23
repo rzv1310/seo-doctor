@@ -1,5 +1,8 @@
 import { Header, Footer } from '@/components/layout';
 import { getServerSession } from '@/lib/auth';
+import { pageMetadata } from '@/data/metadata';
+
+export const metadata = pageMetadata.services;
 
 export default async function ServiceLayout({
   children,

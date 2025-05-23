@@ -8,6 +8,13 @@
       "when": 1747755306916,
       "tag": "0000_left_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1747975600103,
+      "tag": "0001_flimsy_living_lightning",
+      "breakpoints": true
     }
   ]
 }

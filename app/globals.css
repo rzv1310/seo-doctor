@@ -35,7 +35,7 @@
 
   /* Borders and highlights */
   --border-color: rgba(51, 65, 85, 0.6);
-  --highlight-color: rgba(14, 165, 233, 0.2); /* Subtle blue highlight */
+  --highlight-color: rgba(14, 165, 233, 0.3); /* Subtle blue highlight */
 
   /* Glass effect variables */
   --glass-bg: rgba(15, 23, 42, 0.7);
@@ -379,6 +379,20 @@ body::before {
   100% {
     box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
   }
+}
+
+/* Custom slower pulse animation for authentication button */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes fadeInUp {

@@ -4,3 +4,4 @@ export * from './orders';
 export * from './invoices';
 export * from './paymentMethods';
 export * from './subscriptions';
+export * from './passwordResets';
