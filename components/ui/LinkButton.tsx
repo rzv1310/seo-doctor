@@ -10,7 +10,7 @@ export interface LinkButtonProps {
 
 export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
   ({ children, href, className = '', onClick, ...props }, ref) => {
-    const baseClasses = 'text-text-secondary font-bold hover:text-primary transition-all';
+    const baseClasses = 'text-text-secondary font-bold hover:text-white hover:underline transition-all';
 
     return (
       <Link

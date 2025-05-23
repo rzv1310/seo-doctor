@@ -5,7 +5,7 @@ import { Spinner } from './Spinner';
 export interface ActionButtonProps {
   children: React.ReactNode;
   href?: string;
-  onClick?: () => void;
+  onClick?: (e?: any) => void;
   disabled?: boolean;
   loading?: boolean;
   className?: string;

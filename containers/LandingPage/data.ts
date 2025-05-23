@@ -2,23 +2,23 @@
 export const testimonials = [
     {
         id: 1,
-        content: '"De când am început să lucrez cu echipa MiniDash pentru optimizarea profilului Google Business, numărul de apeluri și solicitări de oferte a crescut cu peste 70%. Sunt extrem de mulțumit de rezultate!"',
-        author: 'Mihai Popescu',
-        role: 'Proprietar, Studio Foto MP',
+        content: "„Suntem pe primul loc în harta Google și pe primul loc organic, iar luna trecută (aprilie 2025) am avut cu 252 de apeluri mai mult pentru unul dintre serviciile importante ale clinicii!”",
+        author: 'Anca Banc',
+        role: 'Manager, MedLife Cluj',
         rating: 5
     },
     {
         id: 2,
-        content: '"Am investit în pachetul Google Organic și în doar 3 luni am ajuns pe prima pagină pentru majoritatea cuvintelor cheie importante pentru afacerea noastră. Traficul organic a crescut cu 125%!"',
-        author: 'Elena Ionescu',
-        role: 'Marketing Manager, Mobila Design SRL',
+        content: "„Colaborăm de aproape doi ani cu SEO Doctor. Suntem în top 3 pentru majoritatea cuvintelor-cheie importante. Numărul de pacienți a crescut, atât prin CAS, cât și cu plată!”",
+        author: 'Oana Balint',
+        role: 'Manager, Biomed Scan București',
         rating: 5
     },
     {
         id: 3,
-        content: '"Folosim pachetul GBP MAX de aproape un an și vizibilitatea locală a restaurantului nostru s-a îmbunătățit considerabil. Rapoartele lunare ne ajută să înțelegem performanța și să luăm decizii mai bune."',
-        author: 'Alexandru Marin',
-        role: 'Proprietar, Restaurant Gourmet',
+        content: "„Folosim pachetele GMB MAX și Google Organic de aproape un an, iar vizibilitatea locală a cabinetului nostru s-a îmbunătățit considerabil. Recomand cu drag – comunicare excepțională!”",
+        author: 'dr. Mihaela Popovici',
+        role: 'Proprietar, Biomedica Piatra Neamț',
         rating: 5
     },
 ];
@@ -33,8 +33,8 @@ export const navLinks = [
 // Hero section data
 export const heroData = {
     title: 'SEO Doctor',
-    subtitle: 'Soluții profesionale de optimizare pentru Google, care aduc clienți reali afacerii tale. Atingeți obiectivele de business prin vizibilitate crescută și trafic de calitate.',
-    primaryButtonText: 'Începe Acum',
+    subtitle: 'Solutii garantate de optimizare SEO, mai multi pacienti în clinica ta.',
+    primaryButtonText: 'Start aici',
     primaryButtonTextAuth: 'Accesează Profil',
     secondaryButtonText: 'Vezi Serviciile',
     primaryUrl: '/login',
@@ -77,8 +77,9 @@ export const footerData = {
 
 // Call to action section data
 export const ctaData = {
-    title: 'Gata să creșteți vizibilitatea online?',
-    subtitle: 'Alăturați-vă sutelor de afaceri care au ales serviciile noastre de optimizare pentru Google.',
+    title: 'Ești gata să îți crești vizibilitatea online?',
+    subtitle1: '88% dintre utilizatori folosesc Google Maps pentru a găsi afaceri locale.',
+    subtitle2: '78% dintre persoanele care fac căutări locale ajung sã facă o achiziție în decurs de o zi.',
     buttonText: 'Începe Acum',
     buttonTextAuth: 'Accesează Profil',
     url: '/login',

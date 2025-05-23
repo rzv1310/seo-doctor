@@ -14,7 +14,7 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8">Serviciile Noastre</h2>
                 <p className="text-text-secondary text-sm sm:text-base text-center max-w-3xl mx-auto mb-8 sm:mb-16">
-                    Soluții complete de optimizare pentru vizibilitatea afacerii tale în mediul online
+                    Soluții „la cheie” de creștere a vizibilității afacerii tale în mediul online
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-5xl mx-auto">
@@ -38,7 +38,7 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
                                 <ul className="space-y-3 mb-6">
                                     {service.features.map((feature, index) => (
                                         <li key={index} className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                             </svg>
                                             <span>{feature}</span>

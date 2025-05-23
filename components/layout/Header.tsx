@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { navLinks as defaultNavLinks } from '../../data/layout';
+import { navLinks as defaultNavLinks } from '@/data/layout';
 import { LinkButton, ActionButton } from '@/components/ui';
 
 interface HeaderProps {
@@ -160,7 +160,7 @@ export default function Header({ isAuthenticated = false, isSimplified = false, 
               <LinkButton
                 key={link.id}
                 href={link.href}
-                className="text-text-primary py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
+                className="text-text-primary py-3 px-4 hover:bg-glass-bg hover:backdrop-blur-md hover:bg-opacity-60 hover:text-white hover:underline rounded-md flex items-center justify-between border border-transparent hover:border-glass-border"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <span>{link.name}</span>

@@ -30,7 +30,7 @@ export const services: Service[] = [
     {
         id: 1,
         name: 'GMB MAX',
-        tag: 'Recomandat',
+        tag: 'Premium',
         tagClass: 'bg-green-900/30 text-green-300',
         price: '1000 €',
         priceValue: 100000, // 1000 EUR in cents
@@ -41,13 +41,13 @@ export const services: Service[] = [
         usage: 73,
         features: [
             'Creare profil Google My Business nou',
-            'Optimizare completă cu datele afacerii',
-            'Recenzii de la subiecți reali',
+            'Optimizare completă cu datele clinicii tale',
+            'Recenzii reale de la persoane din orașul tău',
             'Backlink-uri dofollow locale',
-            'Indexare forțată',
-            'Exclusivitate geografică'
+            'Exclusivitate geografică',
+            'Reducere până la 75% in primele 3 luni!',
         ],
-        details: 'GMB MAX este arma ta secretă pentru a domina Pachetul de hărți Google și pentru a aduce mai mulți pacienți către clinica ta! Prin strategia noastră te ajutăm ca afacerea ta să apară mai sus în căutările locale.',
+        details: 'GMB MAX este arma ta secretă pentru a domina Pachetul de hărți Google și pentru a aduce mai mulți pacienți către clinica ta! Cu SEO Doctor vei apărea în primele 3 locuri din hartă în căutările locale',
         buttonText: 'Descoperă mai multe',
         buttonTextUnauth: 'Începe Acum',
         url: '/services/gmb-max',
@@ -64,7 +64,7 @@ export const services: Service[] = [
         id: 2,
         name: 'GOOGLE ORGANIC',
         tag: 'Premium',
-        tagClass: 'bg-blue-900/30 text-blue-300',
+        tagClass: 'bg-green-900/30 text-green-300',
         price: '1000 €',
         priceValue: 100000, // 1000 EUR in cents
         period: '/lună',
@@ -73,14 +73,14 @@ export const services: Service[] = [
         renewalDate: 'July 2, 2025',
         usage: 45,
         features: [
-            'Website nou, optimizat',
-            'Strategie SEO avansată',
+            'Website nou, dedicat cabinetului tău',
+            'Strategie SEO unică',
             'Off-page cu backlink-uri de calitate',
-            'Optimizare pentru dispozitive mobile',
+            'Optimizare dispozitive mobile',
             'Monitorizare și raportare transparentă',
-            'Plătești doar după ce ajungi în Top 3'
+            'Reducere până la 75% in primele 3 luni!',
         ],
-        details: 'GOOGLE ORGANIC este soluția ta completă pentru a domina rezultatele organice. Prin strategia noastră avansată SEO, creăm un website nou special pentru tine, optimizat pentru a urca rapid în Google pentru serviciul medical pe care îl dorești.',
+        details: 'GOOGLE ORGANIC este soluția ta completă pentru a domina rezultatele organice locale. Prin strategia noastră unică SEO, vei urca rapid in Google pentru serviciul medical pe care îl dorești.',
         buttonText: 'Descoperă mai multe',
         buttonTextUnauth: 'Începe Acum',
         url: '/services/google-organic',
