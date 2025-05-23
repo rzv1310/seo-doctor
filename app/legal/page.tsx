@@ -43,7 +43,7 @@ function LegalPage() {
                                 key={t.id}
                                 onClick={() => handleTabChange(t.id)}
                                 className={`inline-block py-4 px-6 text-sm font-medium ${tab === t.id
-                                    ? 'text-primary border-b-2 border-primary'
+                                    ? 'text-white border-b-2 border-white bg-dark-blue-lighter rounded-t-lg'
                                     : 'text-text-secondary hover:text-text-primary hover:border-border-color border-b-2 border-transparent'
                                     } transition-colors`}
                             >
@@ -64,7 +64,7 @@ function LegalPage() {
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Introducere</h3>
                                 <p>
-                                    Această Politică de Confidențialitate descrie modul în care SEO Doctor colectează, utilizează și divulgă informațiile dumneavoastră atunci când utilizați serviciul nostru.
+                                    Această Politică de Confidențialitate descrie modul în care SEO Doctor SRL colectează, utilizează și divulgă informațiile dumneavoastră atunci când utilizați serviciul nostru.
                                 </p>
                                 <p>
                                     Colectăm și utilizăm datele dumneavoastră personale pentru a furniza și îmbunătăți Serviciul. Prin utilizarea Serviciului, sunteți de acord cu colectarea și utilizarea informațiilor în conformitate cu această politică.
@@ -112,7 +112,7 @@ function LegalPage() {
                                 <p>Putem dezvălui informațiile dumneavoastră personale în următoarele situații:</p>
                                 <ul className="list-disc pl-6 space-y-2">
                                     <li>Pentru a respecta o obligație legală</li>
-                                    <li>Pentru a proteja și apăra drepturile sau proprietatea SEO Doctor</li>
+                                    <li>Pentru a proteja și apăra drepturile sau proprietatea SEO Doctor SRL</li>
                                     <li>Pentru a preveni sau investiga posibile abateri în legătură cu Serviciul</li>
                                     <li>Pentru a proteja siguranța personală a utilizatorilor Serviciului sau a publicului</li>
                                     <li>Pentru a proteja împotriva răspunderii legale</li>
@@ -136,8 +136,8 @@ function LegalPage() {
                                     Dacă aveți întrebări despre această Politică de Confidențialitate, vă rugăm să ne contactați:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: privacy@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 721 234 567</li>
+                                    <li>Prin email: contact@seodoctor.ro</li>
+                                    <li>Prin telefon: +40 742 702 982</li>
                                 </ul>
                             </div>
                         </div>
@@ -152,7 +152,7 @@ function LegalPage() {
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Introducere</h3>
                                 <p>
-                                    Bine ați venit la SEO Doctor. Acești Termeni și Condiții guvernează utilizarea de către dumneavoastră a serviciului nostru, operat de SEO Doctor SRL.
+                                    Bine ați venit la SEO Doctor. Acești Termeni și Condiții guvernează utilizarea de către dumneavoastră a serviciului nostru, operat de SEO Doctor SRL, Cod Unic de Înregistrare 49345207, cu sediul în Str. Campia Libertății 33, sector 3, București.
                                 </p>
                                 <p>
                                     Prin accesarea sau utilizarea Serviciului, sunteți de acord să respectați acești Termeni. Dacă nu sunteți de acord cu vreo parte a termenilor, atunci nu aveți permisiunea de a accesa Serviciul.
@@ -161,7 +161,7 @@ function LegalPage() {
                                 <h3 className="text-xl font-semibold">2. Definiții</h3>
                                 <ul className="list-disc pl-6 space-y-2">
                                     <li><strong>Serviciu</strong> se referă la site-ul web și serviciile oferite de SEO Doctor.</li>
-                                    <li><strong>Termeni și Condiții</strong> (denumiți și "Termeni") reprezintă aceste Termeni și Condiții care formează întregul acord între dumneavoastră și SEO Doctor cu privire la utilizarea Serviciului.</li>
+                                    <li><strong>Termeni și Condiții</strong> (denumiți și "Termeni") reprezintă aceste Termeni și Condiții care formează întregul acord între dumneavoastră și SEO Doctor SRL cu privire la utilizarea Serviciului.</li>
                                     <li><strong>Conținut</strong> se referă la conținutul cum ar fi text, imagini sau alte informații care pot fi postate, încărcate, legate de sau puse la dispoziție prin Serviciu.</li>
                                 </ul>
 
@@ -175,15 +175,15 @@ function LegalPage() {
 
                                 <h3 className="text-xl font-semibold">4. Proprietate intelectuală</h3>
                                 <p>
-                                    Serviciul și conținutul său original, caracteristicile și funcționalitatea sunt și vor rămâne proprietatea exclusivă a SEO Doctor și a licențiatorilor săi. Serviciul este protejat de drepturi de autor, mărci comerciale și alte legi atât din România, cât și din străinătate.
+                                    Serviciul și conținutul său original, caracteristicile și funcționalitatea sunt și vor rămâne proprietatea exclusivă a SEO Doctor SRL și a licențiatorilor săi. Serviciul este protejat de drepturi de autor, mărci comerciale și alte legi atât din România, cât și din străinătate.
                                 </p>
                                 <p>
-                                    Mărcile noastre comerciale și aspectul comercial nu pot fi utilizate în legătură cu niciun produs sau serviciu fără acordul prealabil scris al SEO Doctor.
+                                    Mărcile noastre comerciale și aspectul comercial nu pot fi utilizate în legătură cu niciun produs sau serviciu fără acordul prealabil scris al SEO Doctor SRL.
                                 </p>
 
                                 <h3 className="text-xl font-semibold">5. Limitarea răspunderii</h3>
                                 <p>
-                                    În niciun caz SEO Doctor, directorii, angajații, partenerii, agenții, furnizorii sau afiliații săi nu vor fi răspunzători pentru orice daune indirecte, incidentale, speciale, exemplare sau de consecință, inclusiv fără limitare, pierderea de profit, date, utilizare, bunăvoință sau alte pierderi intangibile, rezultate din: (i) accesul dumneavoastră la sau utilizarea sau imposibilitatea de a accesa sau utiliza Serviciul; (ii) orice conduită sau conținut al oricărei terțe părți pe Serviciu; (iii) orice conținut obținut de la Serviciu; și (iv) acces neautorizat, utilizare sau modificare a transmisiilor sau conținutului dumneavoastră, fie bazate pe garanție, contract, delict (inclusiv neglijență) sau orice altă teorie juridică, indiferent dacă am fost informați sau nu de posibilitatea unor astfel de daune.
+                                    În niciun caz SEO Doctor SRL, directorii, angajații, partenerii, agenții, furnizorii sau afiliații săi nu vor fi răspunzători pentru orice daune indirecte, incidentale, speciale, exemplare sau de consecință, inclusiv fără limitare, pierderea de profit, date, utilizare, bunăvoință sau alte pierderi intangibile, rezultate din: (i) accesul dumneavoastră la sau utilizarea sau imposibilitatea de a accesa sau utiliza Serviciul; (ii) orice conduită sau conținut al oricărei terțe părți pe Serviciu; (iii) orice conținut obținut de la Serviciu; și (iv) acces neautorizat, utilizare sau modificare a transmisiilor sau conținutului dumneavoastră, fie bazate pe garanție, contract, delict (inclusiv neglijență) sau orice altă teorie juridică, indiferent dacă am fost informați sau nu de posibilitatea unor astfel de daune.
                                 </p>
 
                                 <h3 className="text-xl font-semibold">6. Reziliere</h3>
@@ -209,7 +209,7 @@ function LegalPage() {
 
                                 <h3 id="refund-policy" className="text-xl font-semibold">9. Politica de rambursare</h3>
                                 <p>
-                                    SEO Doctor oferă servicii digitale care implică alocarea imediată de resurse și începerea muncii după procesarea plății. În consecință, toate plățile efectuate pentru serviciile noastre sunt nerambursabile.
+                                    SEO Doctor SRL oferă servicii digitale care implică alocarea imediată de resurse și începerea muncii după procesarea plății. În consecință, toate plățile efectuate pentru serviciile noastre sunt nerambursabile.
                                 </p>
                                 <p>
                                     După achiziționarea unui serviciu și confirmarea plății, echipa noastră începe să lucreze la implementarea soluțiilor personalizate pentru afacerea dumneavoastră. Datorită naturii acestor servicii și a resurselor dedicate, nu putem oferi rambursări pentru serviciile deja achiziționate, indiferent de stadiul implementării sau de rezultate.
@@ -231,8 +231,8 @@ function LegalPage() {
                                     Dacă aveți întrebări despre acești Termeni, vă rugăm să ne contactați:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: terms@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 721 234 567</li>
+                                    <li>Prin email: contact@seodoctor.ro</li>
+                                    <li>Prin telefon: +40 742 702 982</li>
                                 </ul>
                             </div>
                         </div>
@@ -247,21 +247,22 @@ function LegalPage() {
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Conformitate GDPR</h3>
                                 <p>
-                                    SEO Doctor respectă Regulamentul General privind Protecția Datelor (GDPR) al Uniunii Europene, care a intrat în vigoare la 25 mai 2018. Această secțiune GDPR face parte din Politica noastră de Confidențialitate și explică drepturile dumneavoastră în ceea ce privește datele dumneavoastră personale și modul în care ne conformăm acestor reglementări.
+                                    SEO Doctor SRL respectă Regulamentul General privind Protecția Datelor (GDPR) al Uniunii Europene, care a intrat în vigoare la 25 mai 2018. Această secțiune GDPR face parte din Politica noastră de Confidențialitate și explică drepturile dumneavoastră în ceea ce privește datele dumneavoastră personale și modul în care ne conformăm acestor reglementări.
                                 </p>
 
                                 <h3 className="text-xl font-semibold">2. Operatorul de date</h3>
                                 <p>
-                                    SEO Doctor acționează în calitate de "operator de date" pentru orice date personale colectate prin Serviciul nostru. Acest lucru înseamnă că determinăm scopurile și mijloacele de prelucrare a datelor dumneavoastră personale.
+                                    SEO Doctor SRL acționează în calitate de "operator de date" pentru orice date personale colectate prin Serviciul nostru. Acest lucru înseamnă că determinăm scopurile și mijloacele de prelucrare a datelor dumneavoastră personale.
                                 </p>
                                 <p>
                                     <strong>Date de contact ale Operatorului:</strong>
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
                                     <li>Nume: SEO Doctor SRL</li>
-                                    <li>Adresă: Strada Exemplu nr. 123, București, România</li>
-                                    <li>Email: dpo@seodoctor.ro</li>
-                                    <li>Telefon: +40 721 234 567</li>
+                                    <li>Cod Unic de Înregistrare: 49345207</li>
+                                    <li>Adresă: Str. Campia Libertății 33, sector 3, București</li>
+                                    <li>Email: contact@seodoctor.ro</li>
+                                    <li>Telefon: +40 742 702 982</li>
                                 </ul>
 
                                 <h3 className="text-xl font-semibold">3. Temeiurile juridice pentru prelucrare</h3>
@@ -333,8 +334,8 @@ function LegalPage() {
                                     Dacă aveți întrebări sau preocupări despre modul în care prelucrăm datele dumneavoastră personale sau doriți să vă exercitați drepturile GDPR, vă rugăm să ne contactați:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: dpo@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 721 234 567</li>
+                                    <li>Prin email: contact@seodoctor.ro</li>
+                                    <li>Prin telefon: +40 742 702 982</li>
                                 </ul>
                             </div>
                         </div>
