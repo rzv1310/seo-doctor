@@ -91,11 +91,6 @@ export const services: Service[] = [
                 bgClass: 'bg-green-900/30',
                 textClass: 'text-green-300'
             },
-            {
-                text: 'Plătești doar după ce ajungi în Top 3!',
-                bgClass: 'bg-blue-900/30',
-                textClass: 'text-blue-300'
-            }
         ]
     },
 ];

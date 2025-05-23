@@ -92,7 +92,7 @@ export default function InvoicesPage() {
   const generatePaginationButtons = () => {
     const buttons = [];
     const totalPages = pagination.totalPages;
-    
+
     // Add previous page button
     buttons.push(
       <button
@@ -101,7 +101,7 @@ export default function InvoicesPage() {
         disabled={currentPage === 1}
         className={`px-3 py-1 rounded-md ${
           currentPage === 1
-            ? 'text-text-secondary cursor-not-allowed'
+            ? 'text-text-primary opacity-50 cursor-not-allowed'
             : 'text-text-primary hover:bg-dark-blue-lighter'
         }`}
       >
@@ -170,7 +170,7 @@ export default function InvoicesPage() {
         disabled={currentPage === totalPages}
         className={`px-3 py-1 rounded-md ${
           currentPage === totalPages
-            ? 'text-text-secondary cursor-not-allowed'
+            ? 'text-text-primary opacity-50 cursor-not-allowed'
             : 'text-text-primary hover:bg-dark-blue-lighter'
         }`}
       >
@@ -185,7 +185,7 @@ export default function InvoicesPage() {
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Facturi</h1>
-        <p className="text-text-secondary">Vizualizează și gestionează istoricul facturilor</p>
+        <p className="text-text-primary">Vizualizează și gestionează istoricul facturilor</p>
       </div>
 
       {/* Filters and search */}
@@ -195,7 +195,7 @@ export default function InvoicesPage() {
         </div>
         <div className="p-4 flex flex-col md:flex-row md:items-end gap-4">
           <div className="md:flex-1">
-            <label htmlFor="search-input" className="block text-sm text-text-secondary mb-1">Căutare</label>
+            <label htmlFor="search-input" className="block text-sm text-text-primary mb-1">Căutare</label>
             <div className="relative">
               <input
                 id="search-input"
@@ -205,14 +205,14 @@ export default function InvoicesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
               />
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute right-3 top-3 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute right-3 top-3 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </div>
 
           <div className="max-w-[300px]">
-            <label htmlFor="status-filter" className="block text-sm text-text-secondary mb-1">Status</label>
+            <label htmlFor="status-filter" className="block text-sm text-text-primary mb-1">Status</label>
             <select
               id="status-filter"
               value={statusFilter}
@@ -233,7 +233,7 @@ export default function InvoicesPage() {
       <div className="dashboard-card">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Istoric Facturi</h2>
-          <div className="text-text-secondary text-sm">
+          <div className="text-text-primary text-sm">
             {loading ? (
               'Se încarcă...'
             ) : (
@@ -255,9 +255,9 @@ export default function InvoicesPage() {
               <table className="min-w-full divide-y divide-border-color">
                 <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Factură</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Factură</th>
                     <th
-                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSortClick('date')}
                     >
                       <div className="flex items-center">
@@ -269,22 +269,9 @@ export default function InvoicesPage() {
                         )}
                       </div>
                     </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Serviciu</th>
                     <th
-                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSortClick('dueDate')}
-                    >
-                      <div className="flex items-center">
-                        Data Scadentă
-                        {sortBy === 'dueDate' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                          </svg>
-                        )}
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Serviciu</th>
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider cursor-pointer"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSortClick('amount')}
                     >
                       <div className="flex items-center">
@@ -296,8 +283,8 @@ export default function InvoicesPage() {
                         )}
                       </div>
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Acțiuni</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Acțiuni</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-color">
@@ -306,13 +293,12 @@ export default function InvoicesPage() {
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <Link
                           href={`/dashboard/invoices/${invoice.id}`}
-                          className="text-primary hover:text-primary-dark transition-colors"
+                          className="text-text-primary hover:text-primary-dark transition-colors"
                         >
                           {invoice.id}
                         </Link>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.createdAt)}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.dueDate)}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.serviceName || 'N/A'}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(invoice.amount)}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
@@ -328,11 +314,11 @@ export default function InvoicesPage() {
                         <div className="flex gap-3">
                           <Link
                             href={`/dashboard/invoices/${invoice.id}`}
-                            className="text-primary hover:text-primary-dark transition-colors"
+                            className="text-text-primary hover:text-sky-300 transition-colors"
                           >
                             Vizualizare
                           </Link>
-                          <button className="text-primary hover:text-primary-dark transition-colors">
+                          <button className="text-text-primary hover:text-sky-300 transition-colors">
                             Descărcare
                           </button>
                         </div>
@@ -345,7 +331,7 @@ export default function InvoicesPage() {
           )}
 
           {!loading && !error && sortedInvoices.length === 0 && (
-            <div className="text-center py-8 text-text-secondary">
+            <div className="text-center py-8 text-text-primary">
               Nu s-au găsit facturi care să corespundă filtrelor tale.
             </div>
           )}
@@ -353,7 +339,7 @@ export default function InvoicesPage() {
           {/* Pagination */}
           {!loading && !error && pagination.totalPages > 1 && (
             <div className="mt-6 flex justify-between items-center">
-              <div className="text-sm text-text-secondary">
+              <div className="text-sm text-text-primary">
                 Afișez {(currentPage - 1) * PAGE_SIZE + 1}-
                 {Math.min(currentPage * PAGE_SIZE, pagination.totalItems)} din {pagination.totalItems} rezultate
               </div>

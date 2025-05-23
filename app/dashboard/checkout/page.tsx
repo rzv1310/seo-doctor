@@ -69,7 +69,7 @@ export default function CheckoutPage() {
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Finalizează Comanda</h1>
-        <p className="text-text-secondary">Completează plata pentru serviciile selectate</p>
+        <p className="text-text-primary">Completează plata pentru serviciile selectate</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -85,10 +85,10 @@ export default function CheckoutPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <h3 className="text-xl font-semibold text-green-300 mb-2">Plată Reușită!</h3>
-                  <p className="text-text-secondary mb-6">
+                  <p className="text-text-primary mb-6">
                     Plata pentru {items.length === 1 ? `serviciul ${items[0].name}` : `${items.length} servicii`} a fost procesată cu succes.
                   </p>
-                  <p className="text-sm text-text-secondary mb-6">
+                  <p className="text-sm text-text-primary mb-6">
                     ID Plată: {paymentIntentId}
                   </p>
                   <button
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <>
-                  <p className="mb-6 text-text-secondary">
+                  <p className="mb-6 text-text-primary">
                     Te rugăm să introduci detaliile de plată pentru a finaliza achiziția.
                   </p>
 
@@ -133,11 +133,11 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.id} className="pb-3 border-b border-border-color last:border-0">
                   <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-text-secondary text-sm mb-2">
+                  <p className="text-text-primary text-sm mb-2">
                     {item.description}
                   </p>
                   <div className="flex justify-between text-sm">
-                    <span className="text-text-secondary">Abonament lunar</span>
+                    <span className="text-text-primary">Abonament lunar</span>
                     <span>{item.price}</span>
                   </div>
                 </div>
@@ -176,39 +176,39 @@ export default function CheckoutPage() {
             {/* Price Summary */}
             <div className="py-2 border-t border-border-color">
               <div className="flex justify-between mb-2">
-                <span className="text-text-secondary">Subtotal</span>
+                <span className="text-text-primary">Subtotal</span>
                 <span>{formattedTotalPrice}</span>
               </div>
               
               {couponCode && (
                 <div className="flex justify-between mb-2">
-                  <span className="text-text-secondary">Discount</span>
+                  <span className="text-text-primary">Discount</span>
                   <span className="text-green-500">-{formattedDiscountAmount}</span>
                 </div>
               )}
               
               <div className="flex justify-between mb-2">
-                <span className="text-text-secondary">Taxe</span>
+                <span className="text-text-primary">Taxe</span>
                 <span>$0.00</span>
               </div>
               
               <div className="flex justify-between font-bold text-lg mt-4">
                 <span>Total</span>
-                <span className="text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
+                <span className="text-sky-400">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
               </div>
             </div>
 
-            <div className="mt-6 text-xs text-text-secondary">
+            <div className="mt-6 text-xs text-text-primary">
               <p className="mb-2">Finalizând achiziția, ești de acord cu:</p>
               <ul className="space-y-1">
                 <li>
-                  <a href="#" className="text-primary hover:text-primary-dark">Termenii de Serviciu</a>
+                  <a href="#" className="text-sky-400 hover:text-sky-300">Termenii de Serviciu</a>
                 </li>
                 <li>
-                  <a href="#" className="text-primary hover:text-primary-dark">Politica de Confidențialitate</a>
+                  <a href="#" className="text-sky-400 hover:text-sky-300">Politica de Confidențialitate</a>
                 </li>
                 <li>
-                  <a href="#" className="text-primary hover:text-primary-dark">Politica de Rambursare</a>
+                  <a href="#" className="text-sky-400 hover:text-sky-300">Politica de Rambursare</a>
                 </li>
               </ul>
             </div>
@@ -219,7 +219,7 @@ export default function CheckoutPage() {
       <div className="mt-6">
         <Link
           href="/dashboard/services"
-          className="text-text-secondary hover:text-primary transition-colors"
+          className="text-text-primary hover:text-sky-400 transition-colors"
         >
           ← Înapoi la Servicii
         </Link>

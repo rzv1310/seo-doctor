@@ -284,7 +284,7 @@ export default function PaymentMethodsPage() {
         );
       default:
         return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
         );
@@ -318,7 +318,7 @@ export default function PaymentMethodsPage() {
                     <div className="flex items-center mb-4 md:mb-0">
                       <div className="w-12 h-12 flex items-center justify-center mr-4">
                         {method.cardBrand ? getCardIcon(method.cardBrand) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                           </svg>
                         )}
@@ -327,7 +327,7 @@ export default function PaymentMethodsPage() {
                         <div className="flex items-center">
                           <h3 className="font-medium">•••• {method.lastFour}</h3>
                           {method.isDefault && (
-                            <span className="ml-2 bg-primary/20 text-primary text-xs px-2 py-1 rounded">
+                            <span className="ml-2 bg-primary/20 text-text-primary text-xs px-2 py-1 rounded">
                               Implicit
                             </span>
                           )}
@@ -339,7 +339,7 @@ export default function PaymentMethodsPage() {
                       {!method.isDefault && (
                         <button
                           onClick={() => setDefaultMethod(method.id)}
-                          className="text-primary hover:text-primary-dark transition-colors text-sm"
+                          className="text-text-primary hover:text-text-primary-dark transition-colors text-sm"
                         >
                           Setează ca Implicit
                         </button>
@@ -507,7 +507,7 @@ export default function PaymentMethodsPage() {
           {!isEditingBilling && (
             <button
               onClick={() => setIsEditingBilling(true)}
-              className="text-primary hover:text-primary-dark transition-colors text-sm flex items-center"
+              className="text-text-primary hover:text-text-primary-dark transition-colors text-sm flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />

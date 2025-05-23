@@ -115,7 +115,7 @@ export function PageHeader({
             {title}
           </h1>
           {subtitle && (
-            <p className="text-text-secondary text-sm sm:text-base">
+            <p className="text-text-primary text-sm sm:text-base">
               {subtitle}
             </p>
           )}

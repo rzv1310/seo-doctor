@@ -39,7 +39,7 @@ export default function ChatPage() {
     if (lastMessage && lastMessage.sender === 'user') {
       // Show typing indicator after user sends a message
       setIsTyping(true);
-      
+
       // Simulate admin response after delay
       typingTimeout = setTimeout(() => {
         const responses = [
@@ -48,9 +48,9 @@ export default function ChatPage() {
           'Înțelegem solicitarea dumneavoastră. Un specialist va reveni cu informații suplimentare.',
           'Apreciem mesajul dumneavoastră. Vom reveni cu un răspuns detaliat în cel mai scurt timp.'
         ];
-        
+
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        
+
         responseTimeout = setTimeout(() => {
           setIsTyping(false);
           addMessage('admin', randomResponse);
@@ -75,15 +75,15 @@ export default function ChatPage() {
       content,
       timestamp: new Date()
     };
-    
+
     setMessages(prevMessages => [...prevMessages, newMessage]);
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (inputMessage.trim() === '') return;
-    
+
     addMessage('user', inputMessage);
     setInputMessage('');
   };
@@ -97,7 +97,7 @@ export default function ChatPage() {
       <div className="h-screen flex flex-col">
         <div className="pb-4">
           <h1 className="text-2xl font-bold mb-2">Chat cu Asistență</h1>
-          <p className="text-text-secondary">Contactați echipa noastră pentru orice întrebare sau asistență</p>
+          <p className="text-text-primary">Contactați echipa noastră pentru orice întrebare sau asistență</p>
         </div>
 
         <div className="dashboard-card flex flex-col flex-grow overflow-hidden">
@@ -109,48 +109,48 @@ export default function ChatPage() {
             </div>
             <div className="ml-3">
               <h2 className="text-lg font-semibold">Asistență SEO Doctor</h2>
-              <p className="text-xs text-text-secondary">Online acum</p>
+              <p className="text-xs text-text-primary">Online acum</p>
             </div>
           </div>
-          
+
           {/* Messages container */}
           <div className="flex-grow overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
-              <div 
-                key={message.id} 
+              <div
+                key={message.id}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div 
+                <div
                   className={`max-w-[80%] p-3 rounded-lg ${
-                    message.sender === 'user' 
-                      ? 'bg-primary text-white rounded-tr-none' 
+                    message.sender === 'user'
+                      ? 'bg-primary text-white rounded-tr-none'
                       : 'bg-dark-blue-lighter rounded-tl-none'
                   }`}
                 >
                   <p>{message.content}</p>
-                  <div className={`text-xs mt-1 ${message.sender === 'user' ? 'text-white/70' : 'text-text-secondary'}`}>
+                  <div className={`text-xs mt-1 ${message.sender === 'user' ? 'text-white/70' : 'text-text-primary'}`}>
                     {formatTime(message.timestamp)}
                   </div>
                 </div>
               </div>
             ))}
-            
+
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] p-3 rounded-lg bg-dark-blue-lighter rounded-tl-none">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-text-secondary animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-text-secondary animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-text-secondary animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-text-primary animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-text-primary animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-text-primary animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
-          
+
           {/* Message input */}
           <form onSubmit={handleSendMessage} className="p-4 border-t border-border-color flex gap-2 shrink-0">
             <input
@@ -172,30 +172,30 @@ export default function ChatPage() {
             </button>
           </form>
         </div>
-        
+
         <div className="mt-4 p-4 bg-dark-blue-lighter rounded-lg">
           <h3 className="text-lg font-semibold mb-2">Alte modalități de contact</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
               <div className="bg-dark-blue p-3 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Email</p>
-                <p className="font-medium">suport@seodoctor.ro</p>
+                <p className="text-sm text-text-primary">Email</p>
+                <p className="font-medium">contact@seodoctor.ro</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="bg-dark-blue p-3 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Telefon</p>
-                <p className="font-medium">+40 721 234 567</p>
+                <p className="text-sm text-text-primary">Telefon</p>
+                <p className="font-medium">+40 742 702 982</p>
               </div>
             </div>
           </div>

@@ -175,25 +175,25 @@ export default function ServicesPage() {
                                     <h3 className="text-lg font-semibold">{service.name}</h3>
                                     <StatusBadge status={service.status} />
                                 </div>
-                                <p className="text-text-secondary text-sm mt-2">{service.description}</p>
+                                <p className="text-text-primary text-sm mt-2">{service.description}</p>
                             </div>
 
                             <div className="p-4 flex-1">
                                 {service.status && service.status !== 'available' && service.usage !== undefined && (
                                     <div className="mb-4">
-                                        <div className="text-sm text-text-secondary mb-1">Utilizare</div>
+                                        <div className="text-sm text-text-primary mb-1">Utilizare</div>
                                         <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
                                             <div
                                                 className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`}
                                                 style={{ width: `${service.usage}%` }}>
                                             </div>
                                         </div>
-                                        <div className="text-xs text-text-secondary">{service.usage}%</div>
+                                        <div className="text-xs text-text-primary">{service.usage}%</div>
                                     </div>
                                 )}
 
                                 <div className="mb-4">
-                                    <div className="text-sm text-text-secondary mb-1">Caracteristici</div>
+                                    <div className="text-sm text-text-primary mb-1">Caracteristici</div>
                                     <ul className="text-sm space-y-1">
                                         {service.features.map((feature, index) => (
                                             <li key={index} className="flex items-center">
@@ -214,9 +214,9 @@ export default function ServicesPage() {
 
                                 <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                                     <div>
-                                        <div className="font-bold text-primary text-lg">{service.price}<span className="text-xs text-text-secondary">{service.period || '/mo'}</span></div>
+                                        <div className="font-bold text-white text-lg">{service.price}<span className="text-xs text-text-primary">{service.period || '/mo'}</span></div>
                                         {service.renewalDate && (
-                                            <div className="text-xs text-text-secondary">Reînnoiește: {service.renewalDate}</div>
+                                            <div className="text-xs text-text-primary">Reînnoiește: {service.renewalDate}</div>
                                         )}
                                     </div>
                                     <div className="flex gap-2">
@@ -224,6 +224,7 @@ export default function ServicesPage() {
                                             href={service.url || `/dashboard/services/${service.id}`}
                                             variant="ghost"
                                             size="sm"
+                                            className="text-white"
                                         >
                                             Detalii
                                         </Button>
@@ -256,7 +257,7 @@ export default function ServicesPage() {
             {filteredServices.length === 0 && !subscriptionsLoading && (
                 <Card className="p-8 text-center">
                     <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
-                    <p className="text-text-secondary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
+                    <p className="text-text-primary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
                     <Button
                         onClick={() => setStatusFilter('available')}
                     >
@@ -271,7 +272,7 @@ export default function ServicesPage() {
                         <Spinner size="lg" />
                     </div>
                     <div className="text-xl font-semibold mb-2">Încărcare servicii...</div>
-                    <p className="text-text-secondary">Se încarcă datele serviciilor și abonamentelor tale.</p>
+                    <p className="text-text-primary">Se încarcă datele serviciilor și abonamentelor tale.</p>
                 </Card>
             )}
 
