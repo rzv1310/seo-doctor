@@ -161,7 +161,7 @@ export default function ServicesPage() {
                 </div>
             </div> */}
 
-            <Grid cols={3} gap="md" className="mb-6">
+            <Grid cols={2} gap="md" className="mb-6">
                 {filteredServices.map(service => {
                     const isUserSubscribed = isSubscribed(service.id.toString());
                     const subscription = getSubscription(service.id.toString());
@@ -212,16 +212,17 @@ export default function ServicesPage() {
                                 ))}
 
                                 <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
-                                    <div>
+                                    <div className="flex-1">
                                         <div className="font-bold text-white text-lg">{service.price}<span className="text-xs text-text-primary">{service.period || '/mo'}</span></div>
                                         {service.renewalDate && (
                                             <div className="text-xs text-text-primary">Reînnoiește: {service.renewalDate}</div>
                                         )}
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 items-center">
                                         <Link
                                             href={service.url || `/dashboard/services/${service.id}`}
                                             variant="primary"
+                                            className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors"
                                         >
                                             Detalii
                                         </Link>

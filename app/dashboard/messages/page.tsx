@@ -262,7 +262,7 @@ export default function MessagesPage() {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleDeleteConversation(selectedUser)}
+                                    onClick={() => handleDeleteConversation(selectedUser || '')}
                                     className="text-red-500 hover:text-red-600 transition-colors cursor-pointer"
                                     title="Șterge conversația"
                                 >

@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `default_payment_method_id` text;

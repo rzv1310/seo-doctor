@@ -21,6 +21,7 @@ export const users = sqliteTable(
         billingAddress: text('billing_address'),
         billingPhone: text('billing_phone'),
         stripeCustomerId: text('stripe_customer_id'),
+        defaultPaymentMethodId: text('default_payment_method_id'),
         admin: integer('admin', { mode: 'boolean' }).default(false),
     },
     (users) => ([

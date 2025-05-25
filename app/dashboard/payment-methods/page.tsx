@@ -3,15 +3,30 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { ActionButton, LinkButton } from '@/components/ui';
+import dynamic from 'next/dynamic';
+
+const StripeCardElement = dynamic(
+  () => import('@/components/StripeCardElement'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="text-center py-8">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
+        <p className="mt-2 text-text-secondary">Se încarcă formularul...</p>
+      </div>
+    )
+  }
+);
 
 type PaymentMethod = {
-  id: number;
-  type: string;
-  lastFour: string;
-  expiryMonth: number;
-  expiryYear: number;
+  id: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
   isDefault: boolean;
-  cardBrand?: string;
+  funding?: string;
+  country?: string;
 };
 
 export default function PaymentMethodsPage() {
@@ -38,6 +53,31 @@ export default function PaymentMethodsPage() {
       setBillingPhone(user.billingPhone || '');
     }
   }, [user]);
+
+  // Fetch payment methods from Stripe
+  const fetchPaymentMethods = async () => {
+    try {
+      setIsLoadingCards(true);
+      setCardsError('');
+      const response = await fetch('/api/payment-methods');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch payment methods');
+      }
+
+      setPaymentMethods(data.cards);
+    } catch (error) {
+      setCardsError(error instanceof Error ? error.message : 'Failed to fetch payment methods');
+    } finally {
+      setIsLoadingCards(false);
+    }
+  };
+
+  // Fetch payment methods on mount
+  useEffect(() => {
+    fetchPaymentMethods();
+  }, []);
 
   // Handle billing details update
   const handleBillingUpdate = async () => {
@@ -99,176 +139,76 @@ export default function PaymentMethodsPage() {
     }
   };
 
-  // Mock data for payment methods
-  const initialPaymentMethods: PaymentMethod[] = [
-    {
-      id: 1,
-      type: 'card',
-      lastFour: '4242',
-      expiryMonth: 3,
-      expiryYear: 27,
-      isDefault: true,
-      cardBrand: 'visa'
-    },
-    {
-      id: 2,
-      type: 'card',
-      lastFour: '1234',
-      expiryMonth: 11,
-      expiryYear: 26,
-      isDefault: false,
-      cardBrand: 'mastercard'
-    }
-  ];
-
-  const [paymentMethods, setPaymentMethods] = useState(initialPaymentMethods);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [isLoadingCards, setIsLoadingCards] = useState(true);
+  const [cardsError, setCardsError] = useState('');
   const [showAddCard, setShowAddCard] = useState(false);
-  const [addCardForm, setAddCardForm] = useState({
-    cardNumber: '',
-    nameOnCard: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: '',
-    setDefault: false
-  });
+  const [cardError, setCardError] = useState('');
+  const [cardSuccess, setCardSuccess] = useState('');
 
-  // Form state for add card
-  const [formErrors, setFormErrors] = useState({
-    cardNumber: '',
-    nameOnCard: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: ''
-  });
-
-  // Handle form input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : false;
-
-    setAddCardForm({
-      ...addCardForm,
-      [name]: type === 'checkbox' ? checked : value
-    });
-
-    // Clear error when user types
-    setFormErrors({
-      ...formErrors,
-      [name]: ''
-    });
+  // Handle successful card addition
+  const handleCardAdded = (cardId: string) => {
+    fetchPaymentMethods();
+    setShowAddCard(false);
+    setCardSuccess('Cardul a fost adăugat cu succes');
+    setTimeout(() => setCardSuccess(''), 5000);
   };
 
   // Set default payment method
-  const setDefaultMethod = (id: number) => {
-    setPaymentMethods(methods =>
-      methods.map(method => ({
-        ...method,
-        isDefault: method.id === id
-      }))
-    );
-  };
+  const setDefaultMethod = async (cardId: string) => {
+    try {
+      setCardsError('');
+      const response = await fetch('/api/payment-methods', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cardId }),
+      });
 
-  // Delete payment method
-  const deleteMethod = (id: number) => {
-    setPaymentMethods(methods => methods.filter(method => method.id !== id));
-  };
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update default payment method');
+      }
 
-  // Validate form
-  const validateForm = () => {
-    let valid = true;
-    const errors = {
-      cardNumber: '',
-      nameOnCard: '',
-      expiryMonth: '',
-      expiryYear: '',
-      cvv: ''
-    };
-
-    if (!addCardForm.cardNumber.trim()) {
-      errors.cardNumber = 'Numărul cardului este obligatoriu';
-      valid = false;
-    } else if (!/^\d{16}$/.test(addCardForm.cardNumber.replace(/\s/g, ''))) {
-      errors.cardNumber = 'Numărul cardului trebuie să aibă 16 cifre';
-      valid = false;
-    }
-
-    if (!addCardForm.nameOnCard.trim()) {
-      errors.nameOnCard = 'Numele este obligatoriu';
-      valid = false;
-    }
-
-    if (!addCardForm.expiryMonth) {
-      errors.expiryMonth = 'Luna este obligatorie';
-      valid = false;
-    }
-
-    if (!addCardForm.expiryYear) {
-      errors.expiryYear = 'Anul este obligatoriu';
-      valid = false;
-    }
-
-    if (!addCardForm.cvv.trim()) {
-      errors.cvv = 'CVV este obligatoriu';
-      valid = false;
-    } else if (!/^\d{3,4}$/.test(addCardForm.cvv)) {
-      errors.cvv = 'CVV trebuie să aibă 3 sau 4 cifre';
-      valid = false;
-    }
-
-    setFormErrors(errors);
-    return valid;
-  };
-
-  // Submit new card form
-  const handleAddCard = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    // In a real app, we would call Stripe API to create a payment method
-    // For demo, just add a new card to the list
-    const newCard: PaymentMethod = {
-      id: Date.now(), // use timestamp as ID
-      type: 'card',
-      lastFour: addCardForm.cardNumber.slice(-4),
-      expiryMonth: parseInt(addCardForm.expiryMonth),
-      expiryYear: parseInt(addCardForm.expiryYear),
-      isDefault: addCardForm.setDefault,
-      cardBrand: 'visa' // Assuming Visa for demo
-    };
-
-    // If new card is default, update all other cards
-    if (newCard.isDefault) {
+      // Update local state
       setPaymentMethods(methods =>
         methods.map(method => ({
           ...method,
-          isDefault: false
+          isDefault: method.id === cardId
         }))
       );
+    } catch (error) {
+      setCardsError(error instanceof Error ? error.message : 'Failed to update default payment method');
     }
-
-    // Add new card to list
-    setPaymentMethods(methods => [...methods, newCard]);
-
-    // Reset form
-    setAddCardForm({
-      cardNumber: '',
-      nameOnCard: '',
-      expiryMonth: '',
-      expiryYear: '',
-      cvv: '',
-      setDefault: false
-    });
-
-    // Hide form
-    setShowAddCard(false);
   };
+
+  // Delete payment method
+  const deleteMethod = async (cardId: string) => {
+    try {
+      setCardsError('');
+      const response = await fetch(`/api/payment-methods?cardId=${cardId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete payment method');
+      }
+
+      // Update local state
+      setPaymentMethods(methods => methods.filter(method => method.id !== cardId));
+      setCardSuccess('Cardul a fost șters cu succes');
+    } catch (error) {
+      setCardsError(error instanceof Error ? error.message : 'Failed to delete payment method');
+    }
+  };
+
 
   // Get card brand icon
   const getCardIcon = (brand: string) => {
-    switch (brand) {
+    const brandLower = brand.toLowerCase();
+    switch (brandLower) {
       case 'visa':
         return (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#1434CB">
@@ -281,6 +221,19 @@ export default function PaymentMethodsPage() {
             <circle cx="7" cy="12" r="7" fill="#EB001B" />
             <circle cx="17" cy="12" r="7" fill="#F79E1B" />
             <path d="M12 17.5a7 7 0 010-11c1.94 1.94 1.94 9.06 0 11z" fill="#FF5F00" />
+          </svg>
+        );
+      case 'amex':
+      case 'american express':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#2E77BB">
+            <rect width="24" height="24" rx="2" />
+          </svg>
+        );
+      case 'discover':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#FF6000">
+            <rect width="24" height="24" rx="2" />
           </svg>
         );
       default:
@@ -313,29 +266,51 @@ export default function PaymentMethodsPage() {
           </ActionButton>
         </div>
         <div className="p-4">
-          {paymentMethods.length > 0 ? (
+          {cardsError && (
+            <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {cardsError}
+            </div>
+          )}
+
+          {cardSuccess && (
+            <div className="bg-success/10 border border-success/30 text-success px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {cardSuccess}
+            </div>
+          )}
+
+          {isLoadingCards ? (
+            <div className="text-center py-8">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+              <p className="mt-2 text-text-secondary">Se încarcă metodele de plată...</p>
+            </div>
+          ) : paymentMethods.length > 0 ? (
             <div className="space-y-4">
               {paymentMethods.map((method) => (
                 <div key={method.id} className="p-4 border border-border-color rounded-lg">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center mb-4 md:mb-0">
                       <div className="w-12 h-12 flex items-center justify-center mr-4">
-                        {method.cardBrand ? getCardIcon(method.cardBrand) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                          </svg>
-                        )}
+                        {getCardIcon(method.brand)}
                       </div>
                       <div>
                         <div className="flex items-center">
-                          <h3 className="font-medium">•••• {method.lastFour}</h3>
+                          <h3 className="font-medium">•••• {method.last4}</h3>
                           {method.isDefault && (
                             <span className="ml-2 bg-primary/20 text-text-primary text-xs px-2 py-1 rounded">
                               Implicit
                             </span>
                           )}
                         </div>
-                        <p className="text-text-secondary text-sm">Expiră în {method.expiryMonth}/{method.expiryYear}</p>
+                        <p className="text-text-secondary text-sm">
+                          Expiră în {method.expMonth}/{method.expYear}
+                          {method.funding && ` • ${method.funding === 'credit' ? 'Credit' : method.funding === 'debit' ? 'Debit' : method.funding}`}
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -370,139 +345,14 @@ export default function PaymentMethodsPage() {
           {showAddCard && (
             <div className="mt-6 p-4 border border-border-color rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Adaugă Card Nou</h3>
-              <form onSubmit={handleAddCard}>
-                <div className="mb-4">
-                  <label htmlFor="cardNumber" className="block text-sm text-text-secondary mb-1">
-                    Număr Card
-                  </label>
-                  <input
-                    type="text"
-                    id="cardNumber"
-                    name="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    value={addCardForm.cardNumber}
-                    onChange={handleInputChange}
-                    className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                  />
-                  {formErrors.cardNumber && (
-                    <p className="text-danger text-xs mt-1">{formErrors.cardNumber}</p>
-                  )}
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="nameOnCard" className="block text-sm text-text-secondary mb-1">
-                    Nume pe Card
-                  </label>
-                  <input
-                    type="text"
-                    id="nameOnCard"
-                    name="nameOnCard"
-                    placeholder="John Doe"
-                    value={addCardForm.nameOnCard}
-                    onChange={handleInputChange}
-                    className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                  />
-                  {formErrors.nameOnCard && (
-                    <p className="text-danger text-xs mt-1">{formErrors.nameOnCard}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label htmlFor="expiryMonth" className="block text-sm text-text-secondary mb-1">
-                      Luna
-                    </label>
-                    <select
-                      id="expiryMonth"
-                      name="expiryMonth"
-                      value={addCardForm.expiryMonth}
-                      onChange={handleInputChange}
-                      className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                    >
-                      <option value="">MM</option>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                        <option key={month} value={month}>{month.toString().padStart(2, '0')}</option>
-                      ))}
-                    </select>
-                    {formErrors.expiryMonth && (
-                      <p className="text-danger text-xs mt-1">{formErrors.expiryMonth}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="expiryYear" className="block text-sm text-text-secondary mb-1">
-                      Anul
-                    </label>
-                    <select
-                      id="expiryYear"
-                      name="expiryYear"
-                      value={addCardForm.expiryYear}
-                      onChange={handleInputChange}
-                      className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                    >
-                      <option value="">YY</option>
-                      {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() % 100 + i).map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
-                    {formErrors.expiryYear && (
-                      <p className="text-danger text-xs mt-1">{formErrors.expiryYear}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="cvv" className="block text-sm text-text-secondary mb-1">
-                      CVV
-                    </label>
-                    <input
-                      type="text"
-                      id="cvv"
-                      name="cvv"
-                      placeholder="123"
-                      value={addCardForm.cvv}
-                      onChange={handleInputChange}
-                      className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-                    />
-                    {formErrors.cvv && (
-                      <p className="text-danger text-xs mt-1">{formErrors.cvv}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="setDefault"
-                      checked={addCardForm.setDefault}
-                      onChange={handleInputChange}
-                      className="h-4 w-4 bg-dark-blue-lighter border border-border-color rounded focus:ring-primary"
-                    />
-                    <span className="ml-2 text-sm text-text-secondary">
-                      Setează ca metodă de plată implicită
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <LinkButton
-                    type="button"
-                    onClick={() => setShowAddCard(false)}
-                    variant="default"
-                    size="sm"
-                  >
-                    Anulare
-                  </LinkButton>
-                  <ActionButton
-                    type="submit"
-                    size="sm"
-                    showArrow={false}
-                    fullRounded={false}
-                  >
-                    Adaugă Card
-                  </ActionButton>
-                </div>
-              </form>
+              <StripeCardElement
+                onSuccess={handleCardAdded}
+                onCancel={() => {
+                  setShowAddCard(false);
+                  setCardError('');
+                }}
+                setAsDefault={paymentMethods.length === 0}
+              />
             </div>
           )}
         </div>

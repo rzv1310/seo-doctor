@@ -15,7 +15,8 @@ export const orders = sqliteTable(
         serviceId: text('service_id').notNull().references(() => services.id),
         createdAt: text('created_at').notNull(),
         price: real('price').notNull(),
-        status: text('status').notNull(), // 'pending', 'completed', 'cancelled'
+        status: text('status').notNull(), // 'pending', 'paid', 'completed', 'cancelled'
         notes: text('notes'),
+        stripePaymentId: text('stripe_payment_id'),
     }
 );
