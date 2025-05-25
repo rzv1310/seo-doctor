@@ -52,7 +52,9 @@ export default function Services({ isAuthenticated = false }: ServicesProps) {
 
                                 <ActionButton
                                     href={service.url || "#"}
-                                    className="mt-auto w-full rounded-md py-3 px-6"
+                                    fullWidth
+                                    size="md"
+                                    fullRounded={false}
                                 >
                                     {isAuthenticated ? service.buttonText : service.buttonTextUnauth}
                                 </ActionButton>

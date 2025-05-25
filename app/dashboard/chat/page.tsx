@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui';
+import { ActionButton } from '@/components/ui';
 
 // Message interface
 interface Message {
@@ -161,17 +161,18 @@ export default function ChatPage() {
               placeholder="Scrieți un mesaj..."
               className="flex-1 bg-dark-blue-lighter border border-border-color rounded-md px-4 py-2 focus:outline-none focus:border-primary"
             />
-            <Button
+            <ActionButton
               type="submit"
-              variant="primary"
               size="sm"
               disabled={inputMessage.trim() === ''}
+              showArrow={false}
+              fullRounded={false}
             >
-              <span className="mr-2">Trimite</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              Trimite
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-            </Button>
+            </ActionButton>
           </form>
         </div>
 

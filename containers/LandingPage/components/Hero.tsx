@@ -14,11 +14,12 @@ export default function Hero() {
             </p>
             <ActionButton
                 href="/dashboard"
-                className="mb-12"
+                size="lg"
+                animate
             >
                 Start aici
             </ActionButton>
-            <div className="w-[40rem] h-40 relative">
+            <div className="w-[40rem] h-40 relative mt-12">
                 {/* Gradients */}
                 <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
                 <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-3/4" />

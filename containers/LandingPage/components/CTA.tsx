@@ -21,7 +21,8 @@ export default function CTA({ isAuthenticated = false }: CTAProps) {
                 </p>
                 <ActionButton
                     href={isAuthenticated ? ctaData.urlAuth : ctaData.url}
-                    className="mt-8 text-base sm:text-lg font-medium px-6 sm:px-10 py-3.5 sm:py-3.5 w-full sm:w-auto max-w-xs mx-auto"
+                    size="lg"
+                    animate
                 >
                     {isAuthenticated ? ctaData.buttonTextAuth : ctaData.buttonText}
                 </ActionButton>

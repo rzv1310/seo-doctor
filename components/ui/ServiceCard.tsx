@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Button } from './Button';
+import { ActionButton } from './ActionButton';
 import { Card } from './Card';
 
 interface ServiceCardProps {
@@ -79,13 +79,15 @@ export function ServiceCard({
         </ul>
       </div>
       
-      <Button
+      <ActionButton
         href={href}
-        variant={popular ? 'primary' : 'outline'}
-        className="w-full"
+        fullWidth
+        size="md"
+        fullRounded={false}
+        showArrow={false}
       >
         Choose Plan
-      </Button>
+      </ActionButton>
     </Card>
   );
 }
@@ -162,13 +164,15 @@ export function PricingCard({ plan, className = '' }: PricingCardProps) {
           ))}
         </ul>
         
-        <Button
+        <ActionButton
           href={plan.buttonHref}
-          variant={plan.popular ? 'primary' : 'outline'}
-          className="w-full"
+          fullWidth
+          size="md"
+          fullRounded={false}
+          showArrow={false}
         >
           {plan.buttonText || 'Get Started'}
-        </Button>
+        </ActionButton>
       </Card>
     </div>
   );

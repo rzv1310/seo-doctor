@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { PageHeader, Card, Grid, Button, Spinner, StatusBadge } from '@/components/ui';
+import { PageHeader, Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();
@@ -220,31 +219,31 @@ export default function ServicesPage() {
                                         )}
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button
+                                        <Link
                                             href={service.url || `/dashboard/services/${service.id}`}
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-white"
+                                            variant="primary"
                                         >
                                             Detalii
-                                        </Button>
+                                        </Link>
 
                                         {isUserSubscribed ? (
-                                            <Button
+                                            <LinkButton
                                                 variant="danger"
                                                 size="sm"
                                                 onClick={() => subscription && handleCancelSubscriptionClick(subscription)}
                                             >
                                                 Anulează
-                                            </Button>
+                                            </LinkButton>
                                         ) : (
-                                            <Button
-                                                variant={inCart ? "danger" : "primary"}
+                                            <ActionButton
+                                                variant={inCart ? "danger" : "default"}
                                                 size="sm"
                                                 onClick={() => handleToggleCartItem(service)}
+                                                showArrow={false}
+                                                fullRounded={false}
                                             >
                                                 {inCart ? 'Elimină din Coș' : 'Adaugă în Coș'}
-                                            </Button>
+                                            </ActionButton>
                                         )}
                                     </div>
                                 </div>
@@ -258,11 +257,13 @@ export default function ServicesPage() {
                 <Card className="p-8 text-center">
                     <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
                     <p className="text-text-primary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
-                    <Button
+                    <ActionButton
                         onClick={() => setStatusFilter('available')}
+                        size="md"
+                        showArrow={false}
                     >
                         Explorează Servicii Disponibile
-                    </Button>
+                    </ActionButton>
                 </Card>
             )}
 
@@ -278,9 +279,10 @@ export default function ServicesPage() {
 
             {items.length > 0 && (
                 <div className="fixed bottom-8 right-8 z-10">
-                    <Button
+                    <ActionButton
                         href="/dashboard/checkout"
-                        className="shadow-lg flex items-center gap-2"
+                        size="md"
+                        animate
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -289,7 +291,7 @@ export default function ServicesPage() {
                         <span className="inline-flex items-center justify-center bg-white text-primary rounded-full w-6 h-6 text-sm font-semibold ml-1">
                             {items.length}
                         </span>
-                    </Button>
+                    </ActionButton>
                 </div>
             )}
 

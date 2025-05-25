@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
-import { Button } from '@/components/ui';
+import { LinkButton } from '@/components/ui';
 
 interface DashboardContentProps {
     children: React.ReactNode;
@@ -34,26 +34,27 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     return (
         <div className="flex h-screen bg-dark-blue relative">
             {/* Mobile menu button */}
-            <Button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                variant="ghost"
-                size="sm"
-                className="md:hidden fixed top-4 left-4 z-50 !p-2"
-            >
-                <svg
-                    className="w-6 h-6 text-text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            <div className="md:hidden fixed top-4 left-4 z-50">
+                <LinkButton
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    variant="default"
+                    size="lg"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                    />
-                </svg>
-            </Button>
+                    <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                        />
+                    </svg>
+                </LinkButton>
+            </div>
 
             {/* Sidebar */}
             <aside className={`sidebar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-transform duration-300 ease-in-out`}>
@@ -92,21 +93,22 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         </div>
                     ))}
                     <hr className="my-2 border-glass-border" />
-                    <Button
-                        onClick={async () => {
-                            await fetch('/api/auth/logout', { method: 'POST' });
-                            window.location.href = '/';
-                        }}
-                        variant="ghost"
-                        className="sidebar-item w-full !justify-start group !px-3 !py-2.5 text-sm font-medium"
-                    >
-                        <span className="text-text-primary group-hover:text-sky-400 transition-colors">
-                            {logoutButton.icon}
-                        </span>
-                        <span className="ml-3 text-text-primary group-hover:text-sky-400 transition-colors">
-                            {logoutButton.label}
-                        </span>
-                    </Button>
+                    <div>
+                        <button
+                            onClick={async () => {
+                                await fetch('/api/auth/logout', { method: 'POST' });
+                                window.location.href = '/';
+                            }}
+                            className="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium w-full text-left cursor-pointer"
+                        >
+                            <span className="text-text-primary group-hover:text-sky-400 transition-colors">
+                                {logoutButton.icon}
+                            </span>
+                            <span className="ml-3 text-text-primary group-hover:text-sky-400 transition-colors">
+                                {logoutButton.label}
+                            </span>
+                        </button>
+                    </div>
                 </nav>
             </aside>
 

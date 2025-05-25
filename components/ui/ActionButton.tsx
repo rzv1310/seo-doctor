@@ -8,11 +8,14 @@ export interface ActionButtonProps {
   onClick?: (e?: any) => void;
   disabled?: boolean;
   loading?: boolean;
-  className?: string;
   type?: 'button' | 'submit' | 'reset';
   target?: string;
   showArrow?: boolean;
   animate?: boolean;
+  fullRounded?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'danger';
+  fullWidth?: boolean;
 }
 
 export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, ActionButtonProps>(
@@ -22,27 +25,42 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
     onClick,
     disabled = false,
     loading = false,
-    className = '',
     type = 'button',
     target,
     showArrow = true,
     animate = false,
+    fullRounded = true,
+    size = 'md',
+    variant = 'default',
+    fullWidth = false,
     ...props
   }, ref) => {
-    const baseClasses = `bg-gradient-to-r font-bold from-primary to-accent text-white rounded-full px-6 py-2.5
-      transition-all duration-[2400ms] hover:shadow-lg hover:shadow-primary/30 flex items-center gap-2
-      border-2 border-primary/30 relative group overflow-hidden inline-flex justify-center
-      hover:border-accent/50
-      before:absolute before:inset-0 before:bg-gradient-to-r before:from-accent before:to-primary
+    const sizeClasses = {
+      sm: 'px-4 py-2 text-sm',
+      md: 'px-6 py-2.5 text-base',
+      lg: 'px-8 py-3 text-lg'
+    };
+
+    const variantClasses = {
+      default: 'from-primary to-accent border-primary/30 hover:shadow-primary/30 hover:border-accent/50 before:from-accent before:to-primary',
+      danger: 'from-purple-800 to-pink-800 border-purple-800/30 hover:shadow-purple-800/30 hover:border-pink-800/50 before:from-pink-800 before:to-purple-800'
+    };
+
+    const baseClasses = `select-none bg-gradient-to-r font-bold text-white ${fullRounded ? 'rounded-full' : 'rounded-lg'}
+      transition-all duration-300 hover:shadow-lg flex items-center gap-2 justify-center
+      border-2 relative group overflow-hidden cursor-pointer
+      before:absolute before:inset-0 before:bg-gradient-to-r
       before:opacity-0 before:transition-opacity before:duration-[400ms]
       hover:before:opacity-100
+      ${sizeClasses[size]} ${variantClasses[variant]}
+      ${fullWidth ? 'w-full' : 'inline-flex'}
       ${animate ? 'animate-pulse-slow hover:animate-none' : ''}
       ${(disabled || loading) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:transform hover:-translate-y-0.5'}`;
 
     const content = (
       <>
         {loading && <Spinner size="sm" />}
-        <span className="relative z-10">{children}</span>
+        <span className="relative z-10 flex items-center gap-2">{children}</span>
         {showArrow && !loading && (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +82,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
             ref={ref as React.ForwardedRef<HTMLAnchorElement>}
             href={href}
             target={target}
-            className={`${baseClasses} ${className}`.trim()}
+            className={baseClasses.trim()}
             {...props}
           >
             {content}
@@ -77,7 +95,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
           ref={ref as React.ForwardedRef<HTMLAnchorElement>}
           href={href}
           target={target}
-          className={`${baseClasses} ${className}`.trim()}
+          className={baseClasses.trim()}
           {...props}
         >
           {content}
@@ -91,7 +109,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
         type={type}
         onClick={onClick}
         disabled={disabled || loading}
-        className={`${baseClasses} ${className}`.trim()}
+        className={baseClasses.trim()}
         {...props}
       >
         {content}

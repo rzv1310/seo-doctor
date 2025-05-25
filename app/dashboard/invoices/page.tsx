@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useInvoices, Invoice } from '@/hooks/useInvoices';
-import { Button } from '@/components/ui';
+import { Link, LinkButton } from '@/components/ui';
 
 export default function InvoicesPage() {
   // State for filters and pagination
@@ -96,16 +95,15 @@ export default function InvoicesPage() {
 
     // Add previous page button
     buttons.push(
-      <Button
+      <LinkButton
         key="prev"
         onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        variant="ghost"
+        variant="default"
         size="sm"
-        className="px-3 py-1"
       >
         ← Anterior
-      </Button>
+      </LinkButton>
     );
 
     // Add page number buttons (show 5 pages at most)
@@ -115,15 +113,14 @@ export default function InvoicesPage() {
     // Add first page button if not already in range
     if (startPage > 1) {
       buttons.push(
-        <Button
+        <LinkButton
           key={1}
           onClick={() => handlePageChange(1)}
-          variant="ghost"
+          variant="default"
           size="sm"
-          className="px-3 py-1"
         >
           1
-        </Button>
+        </LinkButton>
       );
       if (startPage > 2) {
         buttons.push(<span key="ellipsis1" className="px-1">...</span>);
@@ -133,15 +130,14 @@ export default function InvoicesPage() {
     // Add page buttons
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
-        <Button
+        <LinkButton
           key={i}
           onClick={() => handlePageChange(i)}
-          variant={i === currentPage ? 'primary' : 'ghost'}
+          variant={i === currentPage ? 'primary' : 'default'}
           size="sm"
-          className="px-3 py-1"
         >
           {i}
-        </Button>
+        </LinkButton>
       );
     }
 
@@ -151,30 +147,28 @@ export default function InvoicesPage() {
         buttons.push(<span key="ellipsis2" className="px-1">...</span>);
       }
       buttons.push(
-        <Button
+        <LinkButton
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          variant="ghost"
+          variant="default"
           size="sm"
-          className="px-3 py-1"
         >
           {totalPages}
-        </Button>
+        </LinkButton>
       );
     }
 
     // Add next page button
     buttons.push(
-      <Button
+      <LinkButton
         key="next"
         onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        variant="ghost"
+        variant="default"
         size="sm"
-        className="px-3 py-1"
       >
         Următor →
-      </Button>
+      </LinkButton>
     );
 
     return buttons;
@@ -292,7 +286,6 @@ export default function InvoicesPage() {
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <Link
                           href={`/dashboard/invoices/${invoice.id}`}
-                          className="text-text-primary hover:text-primary-dark transition-colors"
                         >
                           {invoice.id}
                         </Link>
@@ -313,11 +306,10 @@ export default function InvoicesPage() {
                         <div className="flex gap-3">
                           <Link
                             href={`/dashboard/invoices/${invoice.id}`}
-                            className="text-text-primary hover:text-sky-300 transition-colors"
                           >
                             Vizualizare
                           </Link>
-                          <button className="text-text-primary hover:text-sky-300 transition-colors">
+                          <button className="text-text-primary transition-colors">
                             Descărcare
                           </button>
                         </div>

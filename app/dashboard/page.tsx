@@ -1,7 +1,7 @@
 'use client';
 
 import { useSubscriptions } from '@/hooks/useSubscriptions';
-import { PageHeader, Card, Grid, Button, Spinner } from '@/components/ui';
+import { PageHeader, Card, Grid, ActionButton, Spinner } from '@/components/ui';
 
 export default function Dashboard() {
   const {
@@ -35,8 +35,9 @@ export default function Dashboard() {
         <Card glass className="dashboard-card p-8 text-center">
           <div className="text-xl font-semibold mb-2 text-text-primary">Nu ai servicii active</div>
           <p className="text-text-primary mb-6">Explorează și abonează-te la serviciile noastre.</p>
-          <Button
+          <ActionButton
             href="/dashboard/services"
+            size="md"
             onClick={() => {
               const servicesItem = document.querySelector('.sidebar-item[href="/dashboard/services"]');
               if (servicesItem) {
@@ -47,7 +48,7 @@ export default function Dashboard() {
             }}
           >
             Explorează Serviciile Disponibile
-          </Button>
+          </ActionButton>
         </Card>
       )}
 

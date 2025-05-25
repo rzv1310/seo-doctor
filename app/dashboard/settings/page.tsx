@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { PageHeader, Card, Grid, Button, Input, Alert, Modal, FormSection, FormGroup, FormRow, FormActions } from '@/components/ui';
+import { PageHeader, Card, Grid, ActionButton, LinkButton, Input, Alert, Modal, FormSection, FormGroup, FormRow, FormActions } from '@/components/ui';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -212,13 +212,16 @@ export default function SettingsPage() {
           </FormGroup>
 
           <FormActions>
-            <Button
+            <ActionButton
               type="submit"
               loading={isChangingPassword}
               disabled={isChangingPassword}
+              size="md"
+              fullRounded={false}
+              showArrow={false}
             >
               {isChangingPassword ? 'Se procesează...' : 'Actualizează parola'}
-            </Button>
+            </ActionButton>
           </FormActions>
         </form>
       </FormSection>
@@ -240,12 +243,15 @@ export default function SettingsPage() {
         )}
 
         {!showDeleteConfirm ? (
-          <Button
+          <ActionButton
             variant="danger"
             onClick={() => setShowDeleteConfirm(true)}
+            size="md"
+            fullRounded={false}
+            showArrow={false}
           >
             Șterge contul
-          </Button>
+          </ActionButton>
         ) : (
           <Card className="p-5 border-danger/30 bg-danger/5">
             <div className="mb-4">
@@ -273,21 +279,25 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button
+              <ActionButton
                 variant="danger"
                 onClick={handleDeleteAccount}
                 loading={isDeletingAccount}
                 disabled={isDeletingAccount}
+                size="md"
+                fullRounded={false}
+                showArrow={false}
               >
                 {isDeletingAccount ? 'Se procesează...' : 'Da, șterge contul'}
-              </Button>
-              <Button
-                variant="outline"
+              </ActionButton>
+              <LinkButton
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeletingAccount}
+                variant="default"
+                size="md"
               >
                 Anulează
-              </Button>
+              </LinkButton>
             </div>
           </Card>
         )}

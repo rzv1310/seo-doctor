@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
-import { Button } from '@/components/ui';
+import { ActionButton, Link } from '@/components/ui';
 
 export default function GoogleOrganicServicePage() {
   const { isAuthenticated } = useAuth();
@@ -14,9 +13,9 @@ export default function GoogleOrganicServicePage() {
       <div className="text-center py-16">
         <h2 className="text-2xl font-semibold mb-4">Serviciu indisponibil</h2>
         <p className="text-text-secondary mb-6">Ne pare rău, dar serviciul solicitat nu este disponibil momentan.</p>
-        <Link href="/" className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors">
+        <ActionButton href="/" size="md" fullRounded={false}>
           Înapoi la pagina principală
-        </Link>
+        </ActionButton>
       </div>
     );
   }
@@ -69,17 +68,17 @@ export default function GoogleOrganicServicePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {isAuthenticated ? (
-              <Button href="/dashboard" variant="primary" size="lg">
+              <ActionButton href="/dashboard" size="lg">
                 Achiziție Serviciu
-              </Button>
+              </ActionButton>
             ) : (
               <>
-                <Button href="/login" variant="primary" size="lg">
+                <ActionButton href="/login" size="lg">
                   Autentificare pentru Achiziție
-                </Button>
-                <Button href="/#services" variant="secondary" size="lg">
+                </ActionButton>
+                <ActionButton href="/#services" size="lg" fullRounded={false}>
                   Află mai multe despre servicii
-                </Button>
+                </ActionButton>
               </>
             )}
           </div>
@@ -379,7 +378,7 @@ export default function GoogleOrganicServicePage() {
           {/* Removed duplicate CTA section */}
 
           <p className="text-text-secondary">
-            Sună la <a href="tel:+40742702982" className="hover:text-white hover:underline transition-colors">+40 742 702 982</a> pentru un call gratuit de 15 min!
+            Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min!
           </p>
         </div>
       </div>
@@ -398,13 +397,15 @@ export default function GoogleOrganicServicePage() {
                 maximizând vizibilitatea clinicii tale medicale.
               </p>
               <p className="text-white font-semibold mb-4">Garantat Top 3 în Google Maps!</p>
-              <Link
+              <ActionButton
                 href="/services/gmb-max"
-                className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-5 py-2.5 rounded-full transition-colors text-center font-semibold mt-auto"
+                size="sm"
+                fullRounded
+                showArrow={false}
                 onClick={() => window.scrollTo(0, 0)}
               >
                 Vezi Detalii
-              </Link>
+              </ActionButton>
             </div>
 
             <div className="border border-border-color rounded-xl p-5 h-full flex flex-col">
@@ -413,9 +414,9 @@ export default function GoogleOrganicServicePage() {
                 Echipa noastră este disponibilă să răspundă la toate întrebările tale și să te ajute să înțelegi cum
                 acest serviciu îți poate transforma prezența online a clinicii.
               </p>
-              <Button href="/contact" variant="primary" size="md" className="mt-auto">
+              <ActionButton href="/contact" size="md" showArrow={false}>
                 Contactează-ne
-              </Button>
+              </ActionButton>
             </div>
           </div>
         </div>

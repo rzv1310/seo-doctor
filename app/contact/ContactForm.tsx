@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { ActionButton } from '@/components/ui';
 
 interface FormData {
   name: string;
@@ -145,12 +145,14 @@ export default function ContactForm() {
           <p className="text-text-secondary mb-6">
             {submitMessage || 'Îți mulțumim pentru mesaj! Vom reveni cu un răspuns în cel mai scurt timp.'}
           </p>
-          <button
+          <ActionButton
             onClick={() => setSubmitStatus('idle')}
-            className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
+            size="md"
+            fullRounded={false}
+            showArrow={false}
           >
             Trimite alt mesaj
-          </button>
+          </ActionButton>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -245,18 +247,17 @@ export default function ContactForm() {
             {errors.message && <p className="mt-1 text-sm text-danger">{errors.message}</p>}
           </div>
 
-          <button
+          <ActionButton
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors font-medium disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+            loading={isSubmitting}
+            fullWidth
+            size="lg"
+            fullRounded={false}
+            showArrow={false}
           >
-            {isSubmitting ? (
-              <>
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
-                Se trimite...
-              </>
-            ) : 'Trimite mesajul'}
-          </button>
+            {isSubmitting ? 'Se trimite...' : 'Trimite mesajul'}
+          </ActionButton>
 
           <p className="mt-4 text-xs text-text-secondary">
             Câmpurile marcate cu <span className="text-danger">*</span> sunt obligatorii.

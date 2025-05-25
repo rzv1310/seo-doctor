@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui';
+import { ActionButton, LinkButton } from '@/components/ui';
 
 type PaymentMethod = {
   id: number;
@@ -303,13 +303,14 @@ export default function PaymentMethodsPage() {
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Metodele Tale de Plată</h2>
-          <Button
+          <ActionButton
             onClick={() => setShowAddCard(!showAddCard)}
-            variant="primary"
             size="sm"
+            showArrow={false}
+            fullRounded={false}
           >
             {showAddCard ? 'Anulare' : 'Adaugă Metodă de Plată'}
-          </Button>
+          </ActionButton>
         </div>
         <div className="p-4">
           {paymentMethods.length > 0 ? (
@@ -339,23 +340,21 @@ export default function PaymentMethodsPage() {
                     </div>
                     <div className="flex gap-3">
                       {!method.isDefault && (
-                        <Button
+                        <LinkButton
                           onClick={() => setDefaultMethod(method.id)}
-                          variant="ghost"
+                          variant="default"
                           size="sm"
-                          className="text-text-primary hover:text-text-primary-dark"
                         >
                           Setează ca Implicit
-                        </Button>
+                        </LinkButton>
                       )}
-                      <Button
+                      <LinkButton
                         onClick={() => deleteMethod(method.id)}
-                        variant="ghost"
+                        variant="danger"
                         size="sm"
-                        className="text-danger hover:text-red-500"
                       >
                         Șterge
-                      </Button>
+                      </LinkButton>
                     </div>
                   </div>
                 </div>
@@ -486,21 +485,22 @@ export default function PaymentMethodsPage() {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  <Button
+                  <LinkButton
                     type="button"
                     onClick={() => setShowAddCard(false)}
-                    variant="secondary"
+                    variant="default"
                     size="sm"
                   >
                     Anulare
-                  </Button>
-                  <Button
+                  </LinkButton>
+                  <ActionButton
                     type="submit"
-                    variant="primary"
                     size="sm"
+                    showArrow={false}
+                    fullRounded={false}
                   >
                     Adaugă Card
-                  </Button>
+                  </ActionButton>
                 </div>
               </form>
             </div>
@@ -513,17 +513,16 @@ export default function PaymentMethodsPage() {
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Detalii Facturare</h2>
           {!isEditingBilling && (
-            <Button
+            <LinkButton
               onClick={() => setIsEditingBilling(true)}
-              variant="ghost"
+              variant="default"
               size="sm"
-              className="text-text-primary hover:text-text-primary-dark flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
               Editează
-            </Button>
+            </LinkButton>
           )}
         </div>
         <div className="p-4">
@@ -621,7 +620,7 @@ export default function PaymentMethodsPage() {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  <Button
+                  <LinkButton
                     onClick={() => {
                       setIsEditingBilling(false);
                       setBillingName(user?.billingName || '');
@@ -632,25 +631,30 @@ export default function PaymentMethodsPage() {
                       setBillingUpdateError('');
                       setBillingUpdateSuccess('');
                     }}
-                    variant="secondary"
+                    variant="default"
                     size="sm"
                   >
                     Anulare
-                  </Button>
-                  <Button
+                  </LinkButton>
+                  <ActionButton
                     onClick={handleBillingUpdate}
                     disabled={isUpdatingBilling}
                     loading={isUpdatingBilling}
-                    variant="primary"
                     size="sm"
+                    showArrow={false}
+                    fullRounded={false}
                   >
-                    {!isUpdatingBilling && (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                    {isUpdatingBilling ? (
+                      'Se procesează...'
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Salvează
+                      </>
                     )}
-                    {isUpdatingBilling ? 'Se procesează...' : 'Salvează'}
-                  </Button>
+                  </ActionButton>
                 </div>
               </div>
             </div>
