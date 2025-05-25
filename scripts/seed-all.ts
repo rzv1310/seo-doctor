@@ -1,5 +1,4 @@
 // Import env loader first to ensure environment variables are loaded
-import '../utils/env';
 import { spawn } from 'child_process';
 
 console.log('🌱 Starting comprehensive data seeding process...');

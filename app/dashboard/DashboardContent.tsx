@@ -14,6 +14,7 @@ interface DashboardContentProps {
 
 export default function DashboardContent({ children }: DashboardContentProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const pathname = usePathname();
     const { user } = useAuth();
     const { itemCount } = useCart();
@@ -22,10 +23,61 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         setIsSidebarOpen(false);
     }, [pathname]);
 
+    // Fetch unread message count with real-time updates
+    useEffect(() => {
+        let debounceTimer: NodeJS.Timeout;
+        
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await fetch('/api/messages/unread-count');
+                if (response.ok) {
+                    const data = await response.json();
+                    setUnreadCount(data.unreadCount);
+                }
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        };
+
+        // Debounced fetch to prevent rapid updates
+        const debouncedFetch = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchUnreadCount, 100);
+        };
+
+        // Initial fetch
+        fetchUnreadCount();
+
+        // Set up SSE for real-time updates
+        const eventSource = new EventSource('/api/messages/sse');
+        
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'new_message' || data.type === 'message_read') {
+                // Refresh count on any message event with debounce
+                debouncedFetch();
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('SSE error in DashboardContent:', error);
+            eventSource.close();
+        };
+
+        // Also keep a slower interval as backup
+        const interval = setInterval(fetchUnreadCount, 60000); // 1 minute
+
+        return () => {
+            clearTimeout(debounceTimer);
+            eventSource.close();
+            clearInterval(interval);
+        };
+    }, []);
+
     // Filter sidebar items based on user role
     const filteredSidebarItems = sidebarItems.filter(item => {
-        // Only show "Utilizatori" to admin users
-        if (item.href === '/dashboard/users') {
+        // Only show admin-only items to admin users
+        if (item.adminOnly) {
             return user?.admin;
         }
         return true;
@@ -73,6 +125,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             icon={item.icon}
                             label={item.label}
                             divider={item.divider}
+                            badge={item.href === '/dashboard/chat' ? unreadCount : undefined}
                         />
                     ))}
                     <SidebarButton
@@ -88,7 +141,12 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto flex flex-col">
+                {/* Mobile header space */}
+                <div className="md:hidden h-16 bg-dark-blue sticky top-0 z-20 flex items-center justify-center shrink-0">
+                    <h1 className="text-lg font-semibold text-text-primary">SEO Doctor</h1>
+                </div>
+
                 {/* Cart icon in top right */}
                 <div className="fixed top-4 right-4 z-40">
                     <Link
@@ -116,7 +174,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     </Link>
                 </div>
 
-                <div className="p-4 md:p-8">
+                <div className="p-4 md:p-8 flex-1 flex flex-col min-h-0">
                     {children}
                 </div>
             </main>
@@ -124,7 +182,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             {/* Mobile sidebar overlay */}
             {isSidebarOpen && (
                 <div
-                    className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                    className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}

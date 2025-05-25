@@ -8,12 +8,12 @@ import { useCart } from '../../../context/CartContext';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { 
-    items, 
-    totalPrice, 
-    formattedTotalPrice, 
-    clearCart, 
-    couponCode, 
+  const {
+    items,
+    totalPrice,
+    formattedTotalPrice,
+    clearCart,
+    couponCode,
     setCouponCode,
     discountAmount,
     formattedDiscountAmount,
@@ -46,7 +46,7 @@ export default function CheckoutPage() {
     // 1. Send a request to your server to verify the payment
     // 2. Create an order and invoice in your database
     // 3. Create subscriptions for the services
-    
+
     // Clear the cart after successful payment
     clearCart();
   };
@@ -155,7 +155,7 @@ export default function CheckoutPage() {
                     placeholder="Cod promoțional"
                     className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
                   />
-                  <button 
+                  <button
                     onClick={() => setCouponCode(inputCoupon)}
                     className="px-3 py-2 bg-secondary hover:bg-secondary-dark text-white rounded text-sm transition-colors"
                   >
@@ -179,19 +179,19 @@ export default function CheckoutPage() {
                 <span className="text-text-primary">Subtotal</span>
                 <span>{formattedTotalPrice}</span>
               </div>
-              
+
               {couponCode && (
                 <div className="flex justify-between mb-2">
                   <span className="text-text-primary">Discount</span>
                   <span className="text-green-500">-{formattedDiscountAmount}</span>
                 </div>
               )}
-              
+
               <div className="flex justify-between mb-2">
                 <span className="text-text-primary">Taxe</span>
                 <span>$0.00</span>
               </div>
-              
+
               <div className="flex justify-between font-bold text-lg mt-4">
                 <span>Total</span>
                 <span className="text-sky-400">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>

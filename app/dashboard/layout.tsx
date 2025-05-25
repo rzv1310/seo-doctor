@@ -13,9 +13,8 @@ export default async function DashboardLayout({
 }) {
     const session = await getServerSession();
 
-    if (!session.isAuthenticated) {
-        redirect('/login');
-    }
+    // The middleware already handles auth, so we don't need to redirect here
+    // This was causing a redirect loop
 
     return (
         <Suspense fallback={<div>Loading...</div>}>

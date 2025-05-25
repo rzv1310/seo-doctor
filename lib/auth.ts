@@ -89,11 +89,13 @@ export async function getServerSession(): Promise<SessionResult> {
     const tokenCookie = cookieStore.get(AUTH_COOKIE_NAME);
 
     if (!tokenCookie?.value) {
+      console.log('No auth cookie found');
       return { user: null, isAuthenticated: false };
     }
 
     const userId = verifyAuthToken(tokenCookie.value);
     if (!userId) {
+      console.log('Invalid auth token');
       return { user: null, isAuthenticated: false };
     }
 
