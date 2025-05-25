@@ -5,6 +5,9 @@ import { useDashboardInvoices } from '@/context/DashboardContext';
 import { Invoice } from '@/hooks/useInvoices';
 import { Link, LinkButton } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
+import InvoiceFilters from '@/components/dashboard/invoices/InvoiceFilters';
+import InvoicesTable from '@/components/dashboard/invoices/InvoicesTable';
+import PaginationControls from '@/components/dashboard/invoices/PaginationControls';
 
 export default function InvoicesPage() {
   // State for filters and pagination
@@ -28,22 +31,6 @@ export default function InvoicesPage() {
     pageSize: PAGE_SIZE
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  // Format price as currency
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
 
   // Filter invoices based on status and search term
   const filteredInvoices = (invoices || []).filter(invoice => {
@@ -90,21 +77,6 @@ export default function InvoicesPage() {
     setCurrentPage(page);
   };
 
-  // Get status text
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'Plătită';
-      case 'pending':
-        return 'În așteptare';
-      case 'overdue':
-        return 'Restantă';
-      case 'cancelled':
-        return 'Anulată';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
-  };
 
   // Generate pagination buttons
   const generatePaginationButtons = () => {
@@ -198,46 +170,12 @@ export default function InvoicesPage() {
       subtitle="Vizualizează și gestionează istoricul facturilor"
     >
 
-      {/* Filters and search */}
-      <div className="dashboard-card mb-6">
-        <div className="p-4 border-b border-border-color">
-          <h2 className="text-xl font-semibold">Filtre</h2>
-        </div>
-        <div className="p-4 flex flex-col md:flex-row md:items-end gap-4">
-          <div className="md:flex-1">
-            <label htmlFor="search-input" className="block text-sm text-text-primary mb-1">Căutare</label>
-            <div className="relative">
-              <input
-                id="search-input"
-                type="text"
-                placeholder="Caută facturi..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-              />
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute right-3 top-3 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-
-          <div className="max-w-[300px]">
-            <label htmlFor="status-filter" className="block text-sm text-text-primary mb-1">Status</label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-dark-blue-lighter rounded-md py-2 px-3 text-white border border-border-color focus:outline-none focus:border-primary"
-            >
-              <option value="all">Toate</option>
-              <option value="paid">Plătite</option>
-              <option value="pending">În așteptare</option>
-              <option value="overdue">Restante</option>
-              <option value="cancelled">Anulate</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <InvoiceFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
 
       {/* Invoices Table */}
       <div className="dashboard-card">
@@ -261,81 +199,12 @@ export default function InvoicesPage() {
               {error}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-color">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Factură</th>
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSortClick('date')}
-                    >
-                      <div className="flex items-center">
-                        Data
-                        {sortBy === 'date' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                          </svg>
-                        )}
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Serviciu</th>
-                    <th
-                      className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider cursor-pointer"
-                      onClick={() => handleSortClick('amount')}
-                    >
-                      <div className="flex items-center">
-                        Sumă
-                        {sortBy === 'amount' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
-                          </svg>
-                        )}
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-primary uppercase tracking-wider">Acțiuni</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-color">
-                  {paginatedInvoices.map((invoice) => (
-                    <tr key={invoice.id}>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <Link
-                          href={`/dashboard/invoices/${invoice.id}`}
-                        >
-                          {invoice.id}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.createdAt)}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.serviceName || 'N/A'}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(invoice.amount)}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2 py-1 rounded-full text-xs
-                          ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
-                            invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
-                            invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
-                            'bg-red-900/30 text-red-300'}`}>
-                          {getStatusText(invoice.status)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        <div className="flex gap-3">
-                          <Link
-                            href={`/dashboard/invoices/${invoice.id}`}
-                          >
-                            Vizualizare
-                          </Link>
-                          <button className="text-text-primary transition-colors">
-                            Descărcare
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <InvoicesTable
+              invoices={paginatedInvoices}
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSortClick}
+            />
           )}
 
           {!loading && !error && filteredInvoices.length === 0 && (

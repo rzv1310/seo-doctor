@@ -5,11 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { useDashboardPaymentMethods } from '@/context/DashboardContext';
 import { ActionButton, LinkButton, Toggle } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
+import PaymentMethodCard from '@/components/dashboard/payment-methods/PaymentMethodCard';
+import BillingDetailsForm from '@/components/dashboard/payment-methods/BillingDetailsForm';
+import BillingDetailsDisplay from '@/components/dashboard/payment-methods/BillingDetailsDisplay';
 import dynamic from 'next/dynamic';
 
 const StripeCardElement = dynamic(
   () => import('@/components/StripeCardElement'),
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="text-center py-8">
@@ -179,45 +182,6 @@ export default function PaymentMethodsPage() {
   };
 
 
-  // Get card brand icon
-  const getCardIcon = (brand: string) => {
-    const brandLower = brand.toLowerCase();
-    switch (brandLower) {
-      case 'visa':
-        return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#1434CB">
-            <path d="M12 0h-10c-1.105 0-2 .895-2 2v20c0 1.105.895 2 2 2h20c1.105 0 2-.895 2-2v-20c0-1.105-.895-2-2-2h-10zm0 2v6h-10v-6h10zm-10 8h10v12h-10v-12zm12 12v-12h10v12h-10zm10-14h-10v-6h10v6z" />
-          </svg>
-        );
-      case 'mastercard':
-        return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24">
-            <circle cx="7" cy="12" r="7" fill="#EB001B" />
-            <circle cx="17" cy="12" r="7" fill="#F79E1B" />
-            <path d="M12 17.5a7 7 0 010-11c1.94 1.94 1.94 9.06 0 11z" fill="#FF5F00" />
-          </svg>
-        );
-      case 'amex':
-      case 'american express':
-        return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#2E77BB">
-            <rect width="24" height="24" rx="2" />
-          </svg>
-        );
-      case 'discover':
-        return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="#FF6000">
-            <rect width="24" height="24" rx="2" />
-          </svg>
-        );
-      default:
-        return (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-          </svg>
-        );
-    }
-  };
 
   return (
     <DashboardPageLayout
@@ -264,47 +228,12 @@ export default function PaymentMethodsPage() {
           ) : paymentMethods.length > 0 ? (
             <div className="space-y-4">
               {paymentMethods.map((method) => (
-                <div key={method.id} className="p-4 border border-border-color rounded-lg">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center mb-4 md:mb-0">
-                      <div className="w-12 h-12 flex items-center justify-center mr-4">
-                        {getCardIcon(method.brand || 'unknown')}
-                      </div>
-                      <div>
-                        <div className="flex items-center">
-                          <h3 className="font-medium">•••• {method.last4}</h3>
-                          {method.isDefault && (
-                            <span className="ml-2 bg-primary/20 text-text-primary text-xs px-2 py-1 rounded">
-                              Implicit
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-text-secondary text-sm">
-                          Expiră în {method.expMonth}/{method.expYear}
-                          {method.funding && ` • ${method.funding === 'credit' ? 'Credit' : method.funding === 'debit' ? 'Debit' : method.funding}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      {!method.isDefault && (
-                        <LinkButton
-                          onClick={() => setDefaultMethod(method.id)}
-                          variant="default"
-                          size="sm"
-                        >
-                          Setează ca Implicit
-                        </LinkButton>
-                      )}
-                      <LinkButton
-                        onClick={() => deleteMethod(method.id)}
-                        variant="danger"
-                        size="sm"
-                      >
-                        Șterge
-                      </LinkButton>
-                    </div>
-                  </div>
-                </div>
+                <PaymentMethodCard
+                  key={method.id}
+                  method={method}
+                  onSetDefault={setDefaultMethod}
+                  onDelete={deleteMethod}
+                />
               ))}
             </div>
           ) : (
@@ -367,165 +296,43 @@ export default function PaymentMethodsPage() {
           )}
 
           {isEditingBilling ? (
-            <div className="p-4 border border-border-color rounded-lg">
-              <h3 className="font-medium mb-4">Editează Detaliile de Facturare</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="billingName" className="block text-sm text-text-secondary mb-1">
-                      Nume persoană fizică
-                    </label>
-                    <input
-                      id="billingName"
-                      type="text"
-                      value={billingName}
-                      onChange={(e) => setBillingName(e.target.value)}
-                      placeholder="Numele și prenumele"
-                      className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="billingCompany" className="block text-sm text-text-secondary mb-1">
-                      Denumire companie
-                    </label>
-                    <input
-                      id="billingCompany"
-                      type="text"
-                      value={billingCompany}
-                      onChange={(e) => setBillingCompany(e.target.value)}
-                      placeholder="Denumirea companiei"
-                      className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="billingVat" className="block text-sm text-text-secondary mb-1">
-                    Cod fiscal / CUI
-                  </label>
-                  <input
-                    id="billingVat"
-                    type="text"
-                    value={billingVat}
-                    onChange={(e) => setBillingVat(e.target.value)}
-                    placeholder="Codul fiscal al companiei"
-                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="billingAddress" className="block text-sm text-text-secondary mb-1">
-                    Adresă <span className="text-danger">*</span>
-                  </label>
-                  <textarea
-                    id="billingAddress"
-                    value={billingAddress}
-                    onChange={(e) => setBillingAddress(e.target.value)}
-                    placeholder="Adresa completă (stradă, număr, bloc, scară, apartament, localitate, județ, cod poștal, țară)"
-                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[100px]"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="billingPhone" className="block text-sm text-text-secondary mb-1">
-                    Telefon
-                  </label>
-                  <input
-                    id="billingPhone"
-                    type="text"
-                    value={billingPhone}
-                    onChange={(e) => setBillingPhone(e.target.value)}
-                    placeholder="Număr de telefon"
-                    className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <LinkButton
-                    onClick={() => {
-                      setIsEditingBilling(false);
-                      setBillingName(user?.billingName || '');
-                      setBillingCompany(user?.billingCompany || '');
-                      setBillingVat(user?.billingVat || '');
-                      setBillingAddress(user?.billingAddress || '');
-                      setBillingPhone(user?.billingPhone || '');
-                      setBillingUpdateError('');
-                      setBillingUpdateSuccess('');
-                    }}
-                    variant="default"
-                    size="sm"
-                  >
-                    Anulare
-                  </LinkButton>
-                  <ActionButton
-                    onClick={handleBillingUpdate}
-                    disabled={isUpdatingBilling}
-                    loading={isUpdatingBilling}
-                    size="sm"
-                    showArrow={false}
-                    fullRounded={false}
-                  >
-                    {isUpdatingBilling ? (
-                      'Se procesează...'
-                    ) : (
-                      <>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Salvează
-                      </>
-                    )}
-                  </ActionButton>
-                </div>
-              </div>
-            </div>
+            <BillingDetailsForm
+              initialData={{
+                billingName: billingName,
+                billingCompany: billingCompany,
+                billingVat: billingVat,
+                billingAddress: billingAddress,
+                billingPhone: billingPhone
+              }}
+              onSave={async (data) => {
+                setBillingName(data.billingName);
+                setBillingCompany(data.billingCompany);
+                setBillingVat(data.billingVat);
+                setBillingAddress(data.billingAddress);
+                setBillingPhone(data.billingPhone);
+                await handleBillingUpdate();
+              }}
+              onCancel={() => {
+                setIsEditingBilling(false);
+                setBillingName(user?.billingName || '');
+                setBillingCompany(user?.billingCompany || '');
+                setBillingVat(user?.billingVat || '');
+                setBillingAddress(user?.billingAddress || '');
+                setBillingPhone(user?.billingPhone || '');
+                setBillingUpdateError('');
+                setBillingUpdateSuccess('');
+              }}
+            />
           ) : (
-            <div className="p-4 border border-border-color rounded-lg">
-              <h3 className="font-medium mb-4">Detalii Facturare</h3>
-              <div className="space-y-3">
-                {(user?.billingName || user?.billingCompany) ? (
-                  <>
-                    {user?.billingName && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Nume persoană fizică:</p>
-                        <p className="text-base">{user.billingName}</p>
-                      </div>
-                    )}
-
-                    {user?.billingCompany && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Denumire companie:</p>
-                        <p className="text-base">{user.billingCompany}</p>
-                      </div>
-                    )}
-
-                    {user?.billingVat && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Cod fiscal / CUI:</p>
-                        <p className="text-base">{user.billingVat}</p>
-                      </div>
-                    )}
-
-                    {user?.billingAddress && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Adresă:</p>
-                        <p className="text-base whitespace-pre-wrap">{user.billingAddress}</p>
-                      </div>
-                    )}
-
-                    {user?.billingPhone && (
-                      <div>
-                        <p className="text-sm text-text-secondary">Telefon:</p>
-                        <p className="text-base">{user.billingPhone}</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-text-tertiary italic">Nu există detalii de facturare specificate</p>
-                )}
-              </div>
-            </div>
+            <BillingDetailsDisplay
+              details={{
+                billingName: user?.billingName,
+                billingCompany: user?.billingCompany,
+                billingVat: user?.billingVat,
+                billingAddress: user?.billingAddress,
+                billingPhone: user?.billingPhone
+              }}
+            />
           )}
         </div>
       </div>
