@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
+import { Button } from '@/components/ui';
 
 interface DashboardContentProps {
     children: React.ReactNode;
@@ -33,9 +34,11 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     return (
         <div className="flex h-screen bg-dark-blue relative">
             {/* Mobile menu button */}
-            <button
+            <Button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="md:hidden fixed top-4 left-4 z-50 hamburger-button"
+                variant="ghost"
+                size="sm"
+                className="md:hidden fixed top-4 left-4 z-50 !p-2"
             >
                 <svg
                     className="w-6 h-6 text-text-primary"
@@ -50,22 +53,22 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                     />
                 </svg>
-            </button>
+            </Button>
 
             {/* Sidebar */}
             <aside className={`sidebar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-transform duration-300 ease-in-out`}>
                 <div className="flex items-center justify-between px-4 py-5 border-b border-glass-border">
                     <div className="flex items-center">
-                        <a href="/" className="text-xl font-bold text-text-primary">
+                        <Link href="/" className="text-xl font-bold text-text-primary">
                             SEO Doctor
-                        </a>
+                        </Link>
                     </div>
                 </div>
                 <nav className="mt-5 px-2">
                     {filteredSidebarItems.map((item) => (
                         <div key={item.id}>
                             {item.divider && <hr className="my-2 border-glass-border" />}
-                            <a
+                            <Link
                                 href={item.href}
                                 className={`sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium ${
                                     pathname === item.href ? 'active' : ''
@@ -85,16 +88,17 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                 }`}>
                                     {item.label}
                                 </span>
-                            </a>
+                            </Link>
                         </div>
                     ))}
                     <hr className="my-2 border-glass-border" />
-                    <button
+                    <Button
                         onClick={async () => {
                             await fetch('/api/auth/logout', { method: 'POST' });
                             window.location.href = '/';
                         }}
-                        className="sidebar-item w-full group flex items-center px-3 py-2.5 text-sm font-medium"
+                        variant="ghost"
+                        className="sidebar-item w-full !justify-start group !px-3 !py-2.5 text-sm font-medium"
                     >
                         <span className="text-text-primary group-hover:text-sky-400 transition-colors">
                             {logoutButton.icon}
@@ -102,7 +106,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         <span className="ml-3 text-text-primary group-hover:text-sky-400 transition-colors">
                             {logoutButton.label}
                         </span>
-                    </button>
+                    </Button>
                 </nav>
             </aside>
 

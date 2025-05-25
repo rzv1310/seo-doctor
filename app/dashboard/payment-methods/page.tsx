@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui';
 
 type PaymentMethod = {
   id: number;
@@ -302,12 +303,13 @@ export default function PaymentMethodsPage() {
       <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Metodele Tale de Plată</h2>
-          <button
+          <Button
             onClick={() => setShowAddCard(!showAddCard)}
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
+            variant="primary"
+            size="sm"
           >
             {showAddCard ? 'Anulare' : 'Adaugă Metodă de Plată'}
-          </button>
+          </Button>
         </div>
         <div className="p-4">
           {paymentMethods.length > 0 ? (
@@ -337,19 +339,23 @@ export default function PaymentMethodsPage() {
                     </div>
                     <div className="flex gap-3">
                       {!method.isDefault && (
-                        <button
+                        <Button
                           onClick={() => setDefaultMethod(method.id)}
-                          className="text-text-primary hover:text-text-primary-dark transition-colors text-sm"
+                          variant="ghost"
+                          size="sm"
+                          className="text-text-primary hover:text-text-primary-dark"
                         >
                           Setează ca Implicit
-                        </button>
+                        </Button>
                       )}
-                      <button
+                      <Button
                         onClick={() => deleteMethod(method.id)}
-                        className="text-danger hover:text-red-500 transition-colors text-sm"
+                        variant="ghost"
+                        size="sm"
+                        className="text-danger hover:text-red-500"
                       >
                         Șterge
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -480,19 +486,21 @@ export default function PaymentMethodsPage() {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setShowAddCard(false)}
-                    className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
+                    variant="secondary"
+                    size="sm"
                   >
                     Anulare
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
-                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
+                    variant="primary"
+                    size="sm"
                   >
                     Adaugă Card
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -505,15 +513,17 @@ export default function PaymentMethodsPage() {
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Detalii Facturare</h2>
           {!isEditingBilling && (
-            <button
+            <Button
               onClick={() => setIsEditingBilling(true)}
-              className="text-text-primary hover:text-text-primary-dark transition-colors text-sm flex items-center"
+              variant="ghost"
+              size="sm"
+              className="text-text-primary hover:text-text-primary-dark flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
               Editează
-            </button>
+            </Button>
           )}
         </div>
         <div className="p-4">
@@ -611,7 +621,7 @@ export default function PaymentMethodsPage() {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  <button
+                  <Button
                     onClick={() => {
                       setIsEditingBilling(false);
                       setBillingName(user?.billingName || '');
@@ -622,29 +632,25 @@ export default function PaymentMethodsPage() {
                       setBillingUpdateError('');
                       setBillingUpdateSuccess('');
                     }}
-                    className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
+                    variant="secondary"
+                    size="sm"
                   >
                     Anulare
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleBillingUpdate}
                     disabled={isUpdatingBilling}
-                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition-colors text-sm"
+                    loading={isUpdatingBilling}
+                    variant="primary"
+                    size="sm"
                   >
-                    {isUpdatingBilling ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                        <span>Se procesează...</span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Salvează
-                      </span>
+                    {!isUpdatingBilling && (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     )}
-                  </button>
+                    {isUpdatingBilling ? 'Se procesează...' : 'Salvează'}
+                  </Button>
                 </div>
               </div>
             </div>

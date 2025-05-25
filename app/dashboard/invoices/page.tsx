@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useInvoices, Invoice } from '@/hooks/useInvoices';
+import { Button } from '@/components/ui';
 
 export default function InvoicesPage() {
   // State for filters and pagination
@@ -95,18 +96,16 @@ export default function InvoicesPage() {
 
     // Add previous page button
     buttons.push(
-      <button
+      <Button
         key="prev"
         onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className={`px-3 py-1 rounded-md ${
-          currentPage === 1
-            ? 'text-text-primary opacity-50 cursor-not-allowed'
-            : 'text-text-primary hover:bg-dark-blue-lighter'
-        }`}
+        variant="ghost"
+        size="sm"
+        className="px-3 py-1"
       >
         ← Anterior
-      </button>
+      </Button>
     );
 
     // Add page number buttons (show 5 pages at most)
@@ -116,13 +115,15 @@ export default function InvoicesPage() {
     // Add first page button if not already in range
     if (startPage > 1) {
       buttons.push(
-        <button
+        <Button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`px-3 py-1 rounded-md hover:bg-dark-blue-lighter`}
+          variant="ghost"
+          size="sm"
+          className="px-3 py-1"
         >
           1
-        </button>
+        </Button>
       );
       if (startPage > 2) {
         buttons.push(<span key="ellipsis1" className="px-1">...</span>);
@@ -132,17 +133,15 @@ export default function InvoicesPage() {
     // Add page buttons
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
-        <button
+        <Button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 rounded-md ${
-            i === currentPage
-              ? 'bg-primary text-white'
-              : 'hover:bg-dark-blue-lighter'
-          }`}
+          variant={i === currentPage ? 'primary' : 'ghost'}
+          size="sm"
+          className="px-3 py-1"
         >
           {i}
-        </button>
+        </Button>
       );
     }
 
@@ -152,30 +151,30 @@ export default function InvoicesPage() {
         buttons.push(<span key="ellipsis2" className="px-1">...</span>);
       }
       buttons.push(
-        <button
+        <Button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`px-3 py-1 rounded-md hover:bg-dark-blue-lighter`}
+          variant="ghost"
+          size="sm"
+          className="px-3 py-1"
         >
           {totalPages}
-        </button>
+        </Button>
       );
     }
 
     // Add next page button
     buttons.push(
-      <button
+      <Button
         key="next"
         onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className={`px-3 py-1 rounded-md ${
-          currentPage === totalPages
-            ? 'text-text-primary opacity-50 cursor-not-allowed'
-            : 'text-text-primary hover:bg-dark-blue-lighter'
-        }`}
+        variant="ghost"
+        size="sm"
+        className="px-3 py-1"
       >
         Următor →
-      </button>
+      </Button>
     );
 
     return buttons;
