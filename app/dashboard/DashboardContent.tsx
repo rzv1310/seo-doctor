@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
-import { LinkButton } from '@/components/ui';
+import { LinkButton, SidebarButton } from '@/components/ui';
 
 interface DashboardContentProps {
     children: React.ReactNode;
@@ -67,48 +67,23 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 </div>
                 <nav className="mt-5 px-2">
                     {filteredSidebarItems.map((item) => (
-                        <div key={item.id}>
-                            {item.divider && <hr className="my-2 border-glass-border" />}
-                            <Link
-                                href={item.href}
-                                className={`sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium ${
-                                    pathname === item.href ? 'active' : ''
-                                }`}
-                            >
-                                <span className={`transition-colors ${
-                                    pathname === item.href
-                                        ? 'text-sky-400'
-                                        : 'text-text-primary group-hover:text-sky-400'
-                                }`}>
-                                    {item.icon}
-                                </span>
-                                <span className={`ml-3 transition-colors ${
-                                    pathname === item.href
-                                        ? 'text-text-primary'
-                                        : 'text-text-primary group-hover:text-sky-400'
-                                }`}>
-                                    {item.label}
-                                </span>
-                            </Link>
-                        </div>
+                        <SidebarButton
+                            key={item.id}
+                            href={item.href}
+                            icon={item.icon}
+                            label={item.label}
+                            divider={item.divider}
+                        />
                     ))}
-                    <hr className="my-2 border-glass-border" />
-                    <div>
-                        <button
-                            onClick={async () => {
-                                await fetch('/api/auth/logout', { method: 'POST' });
-                                window.location.href = '/';
-                            }}
-                            className="sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium w-full text-left cursor-pointer"
-                        >
-                            <span className="text-text-primary group-hover:text-sky-400 transition-colors">
-                                {logoutButton.icon}
-                            </span>
-                            <span className="ml-3 text-text-primary group-hover:text-sky-400 transition-colors">
-                                {logoutButton.label}
-                            </span>
-                        </button>
-                    </div>
+                    <SidebarButton
+                        href="/"
+                        icon={logoutButton.icon}
+                        label={logoutButton.label}
+                        divider={true}
+                        onClick={async () => {
+                            await fetch('/api/auth/logout', { method: 'POST' });
+                        }}
+                    />
                 </nav>
             </aside>
 

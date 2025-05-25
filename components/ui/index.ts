@@ -9,4 +9,5 @@ export { Modal, ConfirmationModal } from './Modal';
 export { Input, Textarea } from './Input';
 export { Section, Container, PageHeader, Grid, Flex } from './Section';
 export { ServiceCard, PricingCard } from './ServiceCard';
+export { SidebarButton } from './SidebarButton';
 export { FormSection, FormGroup, FormRow, FormActions } from './FormSection';
