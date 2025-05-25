@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLogger } from '@/lib/client-logger';
 
 function ResetPasswordForm() {
     const [password, setPassword] = useState('');
@@ -16,17 +17,20 @@ function ResetPasswordForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+    const logger = useLogger('ResetPasswordForm');
 
-    // Validate token on mount
     useEffect(() => {
         const validateToken = async () => {
             if (!token) {
-                setError('Link invalid sau expirat');
+                const errorMsg = 'Link invalid sau expirat';
+                setError(errorMsg);
                 setIsValidating(false);
+                logger.error('No reset token provided', new Error(errorMsg));
                 return;
             }
 
             try {
+                logger.info('Validating reset token');
                 const response = await fetch('/api/auth/validate-reset-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -38,15 +42,18 @@ function ResetPasswordForm() {
                 }
 
                 setTokenValid(true);
+                logger.info('Reset token validated successfully');
             } catch (err) {
-                setError('Link invalid sau expirat. Te rugăm să soliciți un nou link de resetare.');
+                const errorMsg = 'Link invalid sau expirat. Te rugăm să soliciți un nou link de resetare.';
+                setError(errorMsg);
+                logger.error('Token validation failed', err, { status: response?.status });
             } finally {
                 setIsValidating(false);
             }
         };
 
         validateToken();
-    }, [token]);
+    }, [token, logger]);
 
     const isFormValid = () => {
         return password.trim() !== '' && 
@@ -58,19 +65,24 @@ function ResetPasswordForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        logger.form('password_reset_attempt', 'password_reset', true);
 
         if (!isFormValid()) {
+            let validationError = '';
             if (password !== confirmPassword) {
-                setError('Parolele nu se potrivesc');
+                validationError = 'Parolele nu se potrivesc';
             } else if (password.length < 6) {
-                setError('Parola trebuie să aibă cel puțin 6 caractere');
+                validationError = 'Parola trebuie să aibă cel puțin 6 caractere';
             }
+            setError(validationError);
+            logger.error('Form validation failed', new Error(validationError), { field: validationError.includes('potrivesc') ? 'password_mismatch' : 'password_length' });
             return;
         }
 
         setIsSubmitting(true);
 
         try {
+            logger.info('Resetting password');
             const response = await fetch('/api/auth/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,17 +92,22 @@ function ResetPasswordForm() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Eroare la resetarea parolei');
+                const error = new Error(data.error || 'Eroare la resetarea parolei');
+                logger.error('Password reset failed', error, { status: response.status });
+                throw error;
             }
 
             setSuccess(true);
+            logger.info('Password reset successful');
+            logger.form('password_reset_success', 'password_reset', true);
             
-            // Redirect to login after 3 seconds
             setTimeout(() => {
                 router.push('/login');
             }, 3000);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Eroare la resetarea parolei');
+            const errorMsg = err instanceof Error ? err.message : 'Eroare la resetarea parolei';
+            setError(errorMsg);
+            logger.form('password_reset_failed', 'password_reset', false, err instanceof Error ? err : new Error(errorMsg));
         } finally {
             setIsSubmitting(false);
         }

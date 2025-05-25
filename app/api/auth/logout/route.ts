@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createLogoutResponse } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
+import { verifyApiAuth } from '@/lib/auth';
 
-export async function POST(req: NextRequest) {
+async function logoutHandler(req: NextRequest) {
   try {
+    const session = await verifyApiAuth(req);
+    const userId = session.isAuthenticated ? session.user.id : undefined;
+    
+    logger.auth('logout', userId, true);
     return createLogoutResponse();
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error', error);
     return NextResponse.json(
       {
         success: false,
@@ -15,3 +21,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withLogging(logoutHandler);

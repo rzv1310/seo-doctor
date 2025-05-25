@@ -8,8 +8,8 @@ import {
     StripeElementsOptions,
 } from '@stripe/stripe-js';
 import stripePromise from '../utils/stripe';
+import { useLogger } from '@/lib/client-logger';
 
-// Stripe Payment Element form
 const StripeForm = ({
     amount,
     onSuccess,
@@ -28,16 +28,21 @@ const StripeForm = ({
     const stripe = useStripe();
     const elements = useElements();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const logger = useLogger('StripeForm');
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         if (!stripe || !elements) {
+            logger.warn('Stripe or Elements not loaded');
             return;
         }
 
         setIsProcessing(true);
         setErrorMessage(null);
+        
+        logger.form('submit', 'PaymentForm', false);
+        logger.info('Payment form submitted', { amount });
 
         try {
             const { error, paymentIntent } = await stripe.confirmPayment({
@@ -46,19 +51,37 @@ const StripeForm = ({
             });
 
             if (error) {
-                setErrorMessage(error.message || 'A apărut o eroare cu plata ta.');
-                onError(error.message || 'A apărut o eroare cu plata ta.');
+                const errorMsg = error.message || 'A apărut o eroare cu plata ta.';
+                logger.form('submit', 'PaymentForm', false, new Error(errorMsg));
+                logger.error('Payment confirmation failed', error, { 
+                    errorType: error.type,
+                    errorCode: error.code 
+                });
+                setErrorMessage(errorMsg);
+                onError(errorMsg);
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                logger.form('submit', 'PaymentForm', true);
+                logger.info('Payment succeeded', { 
+                    paymentIntentId: paymentIntent.id,
+                    status: paymentIntent.status 
+                });
                 onSuccess(paymentIntent.id);
                 return;
             } else {
-                setErrorMessage('Plata nu a putut fi procesată. Te rugăm să încerci din nou.');
-                onError('Plata nu a putut fi procesată. Te rugăm să încerci din nou.');
+                const errorMsg = 'Plata nu a putut fi procesată. Te rugăm să încerci din nou.';
+                logger.form('submit', 'PaymentForm', false, new Error(errorMsg));
+                logger.warn('Payment not completed', { 
+                    status: paymentIntent?.status 
+                });
+                setErrorMessage(errorMsg);
+                onError(errorMsg);
             }
         } catch (err) {
-            console.error('Payment processing error:', err);
-            setErrorMessage('Eroare de conexiune cu procesatorul de plăți. Te rugăm să verifici conexiunea la internet și să încerci din nou.');
-            onError('Eroare de conexiune cu procesatorul de plăți. Te rugăm să verifici conexiunea la internet și să încerci din nou.');
+            const errorMsg = 'Eroare de conexiune cu procesatorul de plăți. Te rugăm să verifici conexiunea la internet și să încerci din nou.';
+            logger.form('submit', 'PaymentForm', false, err as Error);
+            logger.error('Payment processing error', err as Error);
+            setErrorMessage(errorMsg);
+            onError(errorMsg);
         } finally {
             setIsProcessing(false);
         }
@@ -86,7 +109,6 @@ const StripeForm = ({
     );
 };
 
-// Main payment form component with Stripe Elements wrapper
 const PaymentForm = ({
     amount,
     description,
@@ -104,15 +126,18 @@ const PaymentForm = ({
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [loadingSecret, setLoadingSecret] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const logger = useLogger('PaymentForm');
 
     useEffect(() => {
         const createPaymentIntent = async () => {
             try {
                 setLoadingSecret(true);
                 setError(null);
+                
+                logger.info('Creating payment intent', { amount, description });
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
 
                 const response = await fetch('/api/create-payment-intent', {
                     method: 'POST',
@@ -120,7 +145,7 @@ const PaymentForm = ({
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        amount, // amount in cents
+                        amount,
                         currency: 'usd',
                         description
                     }),
@@ -131,15 +156,19 @@ const PaymentForm = ({
 
                 if (!response.ok) {
                     const errorText = await response.text().catch(() => '');
-                    console.error('Payment intent creation failed:', response.status, errorText);
+                    logger.error('Payment intent creation failed', new Error(`HTTP ${response.status}`), {
+                        status: response.status,
+                        errorText
+                    });
                     throw new Error('Nu s-a putut crea intenția de plată');
                 }
 
                 const data = await response.json();
+                logger.info('Payment intent created successfully', { 
+                    hasClientSecret: !!data.clientSecret 
+                });
                 setClientSecret(data.clientSecret);
             } catch (error: any) {
-                console.error('Error creating payment intent:', error);
-                
                 let errorMessage = 'Eroare la configurarea plății. Te rugăm să încerci din nou mai târziu.';
                 
                 if (error.name === 'AbortError') {
@@ -147,6 +176,11 @@ const PaymentForm = ({
                 } else if (error instanceof TypeError && error.message.includes('fetch')) {
                     errorMessage = 'Eroare de conexiune. Verifică conexiunea la internet și încearcă din nou.';
                 }
+                
+                logger.error('Error creating payment intent', error, {
+                    errorName: error.name,
+                    errorMessage: error.message
+                });
                 
                 setError(errorMessage);
                 if (onError) {
@@ -158,7 +192,7 @@ const PaymentForm = ({
         };
 
         createPaymentIntent();
-    }, [amount, description, onError]);
+    }, [amount, description, onError, logger]);
 
     if (loadingSecret) {
         return (

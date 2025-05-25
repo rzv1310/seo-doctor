@@ -4,21 +4,20 @@ import db from '@/database';
 import { users } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
 import { verifyPassword, createAuthResponse } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// Validation schema for login
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
-export async function POST(req: NextRequest) {
+async function loginHandler(req: NextRequest) {
   try {
-    // Parse request body
     const body = await req.json();
 
-    // Validate input
     const result = loginSchema.safeParse(body);
     if (!result.success) {
+      logger.auth('login', undefined, false, new Error(result.error.issues[0].message));
       return NextResponse.json(
         {
           success: false,
@@ -30,13 +29,12 @@ export async function POST(req: NextRequest) {
 
     const { email, password } = result.data;
 
-    // Find user with full data
     const userResults = await db.query.users.findFirst({
       where: eq(users.email, email),
     });
 
-    // Check if user exists
     if (!userResults) {
+      logger.auth('login', undefined, false, new Error(`Failed login attempt for email: ${email}`));
       return NextResponse.json(
         {
           success: false,
@@ -48,10 +46,10 @@ export async function POST(req: NextRequest) {
 
     const user = userResults;
 
-    // Verify password
     const isPasswordValid = await verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
+      logger.auth('login', user.id, false, new Error('Invalid password'));
       return NextResponse.json(
         {
           success: false,
@@ -61,7 +59,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create auth response with full user data (excluding password)
     try {
       const userData = {
         id: user.id,
@@ -78,9 +75,10 @@ export async function POST(req: NextRequest) {
         admin: user.admin,
       };
 
+      logger.auth('login', user.id, true);
       return createAuthResponse(userData);
     } catch (cookieError) {
-      console.error('Cookie setting error:', cookieError);
+      logger.error('Failed to set auth cookie', cookieError, { userId: user.id });
       return NextResponse.json(
         {
           success: false,
@@ -91,7 +89,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error', error);
     return NextResponse.json(
       {
         success: false,
@@ -101,3 +99,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withLogging(loginHandler);

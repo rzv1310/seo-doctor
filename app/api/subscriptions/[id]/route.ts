@@ -3,21 +3,22 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import database, { subscriptions, services, orders, invoices } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// POST /api/subscriptions/[id] - Subscribe to a service
-export async function POST(
+export const POST = withLogging(async (
   request: NextRequest,
   { params } : { params: Promise<{ id: string }> }
-) {
+) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized subscription attempt', { path: request.url });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const serviceId = (await params).id;
+    logger.info('Subscription attempt', { serviceId, userId: session.user.id });
 
     // Check if service exists
     const service = await database.query.services.findFirst({
@@ -25,6 +26,7 @@ export async function POST(
     });
 
     if (!service) {
+      logger.warn('Service not found for subscription', { serviceId });
       return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     }
 
@@ -38,6 +40,7 @@ export async function POST(
     });
 
     if (existingSubscription) {
+      logger.warn('Duplicate subscription attempt', { serviceId, userId: session.user.id });
       return NextResponse.json({
         error: 'You already have an active subscription to this service'
       }, { status: 400 });
@@ -98,7 +101,8 @@ export async function POST(
       couponCode,
     };
 
-    // Create new subscription
+    logger.info('Creating subscription', { serviceId, userId: session.user.id, planType, status: initialStatus });
+    
     const newSubscription = await database.insert(subscriptions).values({
       id: uuidv4(),
       userId: session.user.id,
@@ -156,6 +160,14 @@ export async function POST(
       stripeInvoiceId: null
     });
 
+    logger.info('Subscription created successfully', { 
+      subscriptionId: newSubscription[0].id,
+      userId: session.user.id,
+      serviceId,
+      orderId,
+      invoiceId
+    });
+
     return NextResponse.json({
       subscription: newSubscription[0],
       orderId,
@@ -178,25 +190,25 @@ export async function POST(
         : `Successfully subscribed to ${service.name}`
     });
   } catch (error) {
-    console.error('Error subscribing to service:', error);
+    logger.error('Error subscribing to service', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to subscribe to service' }, { status: 500 });
   }
-}
+});
 
-// PUT /api/subscriptions/[id] - Update subscription (e.g., cancel)
-export async function PUT(
+export const PUT = withLogging(async (
   request: NextRequest,
   { params } : { params: Promise<{ id: string }> }
-) {
+) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized subscription update attempt', { path: request.url });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const subscriptionId = (await params).id;
+    logger.info('Updating subscription', { subscriptionId, userId: session.user.id });
 
     // Check if subscription exists and belongs to user
     const existingSubscription = await database.query.subscriptions.findFirst({
@@ -207,6 +219,7 @@ export async function PUT(
     });
 
     if (!existingSubscription) {
+      logger.warn('Subscription not found for update', { subscriptionId, userId: session.user.id });
       return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
     }
 
@@ -289,7 +302,8 @@ export async function PUT(
       updateData.usage = usage;
     }
 
-    // Update subscription
+    logger.info('Processing subscription update', { subscriptionId, status, updateFields: Object.keys(updateData) });
+    
     const updatedSubscription = await database
       .update(subscriptions)
       .set(updateData)
@@ -308,13 +322,14 @@ export async function PUT(
       message = `Subscription quantity updated to ${quantity}`;
     }
 
+    logger.info('Subscription updated successfully', { subscriptionId, message });
     return NextResponse.json({
       subscription: updatedSubscription[0],
       message,
       updatedFields: Object.keys(updateData).filter(key => key !== 'updatedAt' && key !== 'metadata')
     });
   } catch (error) {
-    console.error('Error updating subscription:', error);
+    logger.error('Error updating subscription', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
   }
-}
+});

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-export async function GET(req: NextRequest) {
+async function meHandler(req: NextRequest) {
   try {
     const session = await verifyApiAuth(req);
 
     if (!session.isAuthenticated) {
+      logger.info('Unauthenticated session check');
       return NextResponse.json(
         {
           success: true,
@@ -16,6 +18,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    logger.info('Authenticated session check', { userId: session.user.id });
     return NextResponse.json({
       success: true,
       authenticated: true,
@@ -23,7 +26,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Auth check error:', error);
+    logger.error('Auth check error', error);
     return NextResponse.json(
       {
         success: false,
@@ -34,3 +37,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = withLogging(meHandler);

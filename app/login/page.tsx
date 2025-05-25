@@ -4,19 +4,20 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LoginPage from '../../containers/LoginPage';
 import { useAuth } from '../../context/AuthContext';
+import { useLogger } from '@/lib/client-logger';
 
 export default function LoginRoute() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+  const logger = useLogger('LoginRoute');
 
   useEffect(() => {
-    // If already authenticated, redirect to dashboard
     if (isAuthenticated) {
+      logger.info('Already authenticated, redirecting to dashboard');
       router.push('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, logger]);
 
-  // If loading, show a spinner
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-dark-blue">
@@ -25,7 +26,6 @@ export default function LoginRoute() {
     );
   }
 
-  // If authenticated, don't render anything (we'll redirect in the useEffect)
   if (isAuthenticated) {
     return null;
   }

@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { useCart } from '../../../context/CartContext';
 import { ActionButton } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
+import { useLogger } from '@/lib/client-logger';
 
 const PaymentMethodSelector = dynamic(
     () => import('@/components/PaymentMethodSelector'),
@@ -23,6 +24,7 @@ const PaymentMethodSelector = dynamic(
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const logger = useLogger('CheckoutPage');
     const {
         items,
         totalPrice,
@@ -40,21 +42,34 @@ export default function CheckoutPage() {
     const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
 
-    // Create a description for payment processing
     const paymentDescription = items.length === 1
         ? `Payment for ${items[0].name} subscription`
         : `Payment for ${items.length} services subscription`;
 
-    // Redirect if cart is empty
     useEffect(() => {
+        logger.info('Checkout page loaded', { 
+            itemCount: items.length, 
+            totalPrice, 
+            hasCoupon: !!couponCode 
+        });
+        
         if (items.length === 0 && !paymentSuccess) {
+            logger.info('Redirecting to services - empty cart');
             router.push('/dashboard/services');
         }
-    }, [items, router, paymentSuccess]);
+    }, [items, router, paymentSuccess, logger, totalPrice, couponCode]);
 
     const handlePaymentWithCard = async (cardId: string) => {
+        const amount = couponCode ? finalPrice : totalPrice;
+        
         try {
             setPaymentError(null);
+            logger.info('Processing payment', { 
+                cardId, 
+                amount, 
+                description: paymentDescription,
+                hasCoupon: !!couponCode 
+            });
 
             const response = await fetch('/api/process-payment', {
                 method: 'POST',
@@ -62,7 +77,7 @@ export default function CheckoutPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    amount: couponCode ? finalPrice : totalPrice,
+                    amount,
                     currency: 'usd',
                     description: paymentDescription,
                     cardId,
@@ -79,21 +94,26 @@ export default function CheckoutPage() {
                 throw new Error(data.error || 'Payment failed');
             }
 
+            logger.info('Payment processed successfully', { 
+                chargeId: data.chargeId,
+                amount 
+            });
             setPaymentIntentId(data.chargeId);
             setPaymentSuccess(true);
             clearCart();
         } catch (error) {
+            logger.error('Payment processing failed', error as Error, { cardId, amount });
             throw error;
         }
     };
 
     const handlePaymentError = (error: string) => {
-        console.error('Payment error:', error);
+        logger.error('Payment error received', new Error(error));
         setPaymentError(error);
     };
 
     const handleContinue = () => {
-        // Redirect to dashboard
+        logger.interaction('continue_to_dashboard');
         router.push('/dashboard');
     };
 
@@ -189,7 +209,10 @@ export default function CheckoutPage() {
                                         className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
                                     />
                                     <ActionButton
-                                        onClick={() => setCouponCode(inputCoupon)}
+                                        onClick={() => {
+                                            setCouponCode(inputCoupon);
+                                            logger.interaction('coupon_applied', { couponCode: inputCoupon });
+                                        }}
                                         size="sm"
                                         showArrow={false}
                                         fullRounded={false}

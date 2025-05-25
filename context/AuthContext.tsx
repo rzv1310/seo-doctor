@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from '@/lib/auth';
+import { useLogger } from '@/lib/client-logger';
 
 interface AuthContextType {
   user: User | null;
@@ -32,18 +33,24 @@ export function AuthProvider({
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const logger = useLogger('AuthContext');
 
   const clearError = () => setError(null);
 
   const setUser = (newUser: User | null) => {
     setUserState(newUser);
     setIsAuthenticated(!!newUser);
+    logger.info('Authentication state changed', {
+      userId: newUser?.id,
+      isAuthenticated: !!newUser
+    });
   };
 
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       clearError();
+      logger.info('Login attempt', { email });
 
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -57,14 +64,17 @@ export function AuthProvider({
       if (!res.ok || !data.success) {
         const errorMessage = data.error || 'Login failed';
         setError(errorMessage);
+        logger.error('Login failed', new Error(errorMessage), { email, status: res.status });
         throw new Error(errorMessage);
       }
 
       setUser(data.user);
+      logger.info('Login successful', { userId: data.user.id, email });
     } catch (err) {
       if (!error) {
         setError(err instanceof Error ? err.message : 'Login failed');
       }
+      logger.error('Login error', err, { email });
       throw err;
     } finally {
       setIsLoading(false);
@@ -75,6 +85,7 @@ export function AuthProvider({
     try {
       setIsLoading(true);
       clearError();
+      logger.info('Registration attempt', { email, name });
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -88,14 +99,17 @@ export function AuthProvider({
       if (!res.ok || !data.success) {
         const errorMessage = data.error || 'Registration failed';
         setError(errorMessage);
+        logger.error('Registration failed', new Error(errorMessage), { email, name, status: res.status });
         throw new Error(errorMessage);
       }
 
       setUser(data.user);
+      logger.info('Registration successful', { userId: data.user.id, email });
     } catch (err) {
       if (!error) {
         setError(err instanceof Error ? err.message : 'Registration failed');
       }
+      logger.error('Registration error', err, { email, name });
       throw err;
     } finally {
       setIsLoading(false);
@@ -106,6 +120,7 @@ export function AuthProvider({
     try {
       setIsLoading(true);
       clearError();
+      logger.info('Logout attempt', { userId: user?.id });
 
       const res = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -116,17 +131,15 @@ export function AuthProvider({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        console.error('Logout API error:', data.error);
+        logger.error('Logout API error', new Error(data.error || 'Logout failed'), { status: res.status });
       }
 
-      // Always clear local state regardless of API response
       setUser(null);
+      logger.info('Logout successful');
       
-      // Redirect to home page
       window.location.href = '/';
     } catch (err) {
-      console.error('Logout error:', err);
-      // Clear local state even on error
+      logger.error('Logout error', err);
       setUser(null);
       window.location.href = '/';
     } finally {

@@ -4,22 +4,21 @@ import db from '@/database';
 import { users } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
 import { generateUserId, hashPassword, createAuthResponse } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// Validation schema for registration
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   name: z.string().min(2, 'Name must be at least 2 characters'),
 });
 
-export async function POST(req: NextRequest) {
+async function registerHandler(req: NextRequest) {
   try {
-    // Parse request body
     const body = await req.json();
 
-    // Validate input
     const result = registerSchema.safeParse(body);
     if (!result.success) {
+      logger.auth('register', undefined, false, new Error(result.error.issues[0].message));
       return NextResponse.json(
         {
           success: false,
@@ -31,13 +30,13 @@ export async function POST(req: NextRequest) {
 
     const { email, password, name } = result.data;
 
-    // Check if user already exists
     const existingUser = await db.select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
 
     if (existingUser.length > 0) {
+      logger.auth('register', undefined, false, new Error(`Registration attempt with existing email: ${email}`));
       return NextResponse.json(
         {
           success: false,
@@ -47,12 +46,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password
     let hashedPassword;
     try {
       hashedPassword = await hashPassword(password);
     } catch (hashError) {
-      console.error('Password hashing error:', hashError);
+      logger.error('Password hashing error', hashError, { email });
       return NextResponse.json(
         {
           success: false,
@@ -62,11 +60,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate user ID
     const userId = generateUserId();
 
     try {
-      // Insert user into database
       await db.insert(users).values({
         id: userId,
         email,
@@ -75,8 +71,10 @@ export async function POST(req: NextRequest) {
         picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
         createdAt: new Date().toISOString(),
       });
+      
+      logger.auth('register', userId, true, undefined);
     } catch (dbError) {
-      console.error('Database insertion error:', dbError);
+      logger.error('Database insertion error', dbError, { email, userId });
       return NextResponse.json(
         {
           success: false,
@@ -86,7 +84,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create auth response with user data
     try {
       const userData = {
         id: userId,
@@ -105,7 +102,7 @@ export async function POST(req: NextRequest) {
 
       return createAuthResponse(userData);
     } catch (cookieError) {
-      console.error('Cookie setting error:', cookieError);
+      logger.error('Cookie setting error', cookieError, { userId });
       return NextResponse.json(
         {
           success: false,
@@ -116,7 +113,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error', error);
     return NextResponse.json(
       {
         success: false,
@@ -126,3 +123,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withLogging(registerHandler);

@@ -2,24 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, desc, sql } from 'drizzle-orm';
 import database, { invoices, orders, services } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// GET /api/invoices - Get invoices for the current user with pagination
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
     
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized access attempt to invoices', { path: '/api/invoices' });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Parse pagination params
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
+    
+    logger.info('Fetching invoices', { userId: session.user.id, page, limit });
 
-    // Get total count for pagination
     const countResult = await database
       .select({ count: sql<number>`count(*)` })
       .from(invoices)
@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
     const totalItems = countResult[0].count;
     const totalPages = Math.ceil(totalItems / limit);
 
-    // Get invoices with joins for service details
     const userInvoices = await database.select({
       id: invoices.id,
       userId: invoices.userId,
@@ -49,6 +48,12 @@ export async function GET(request: NextRequest) {
     .limit(limit)
     .offset(offset);
 
+    logger.info('Invoices fetched successfully', { 
+      userId: session.user.id, 
+      count: userInvoices.length,
+      totalItems 
+    });
+    
     return NextResponse.json({ 
       invoices: userInvoices,
       pagination: {
@@ -59,7 +64,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error fetching invoices:', error);
+    logger.error('Error fetching invoices', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
   }
-}
+});

@@ -9,6 +9,7 @@ import {
 } from '@stripe/react-stripe-js';
 import stripePromise from '@/utils/stripe';
 import { ActionButton, LinkButton, Toggle } from '@/components/ui';
+import { useLogger } from '@/lib/client-logger';
 
 interface StripeCardFormProps {
   onSuccess: (cardId: string) => void;
@@ -22,38 +23,50 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [saveAsDefault, setSaveAsDefault] = useState(setAsDefault);
+  const logger = useLogger('StripeCardForm');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
+      logger.warn('Stripe or Elements not loaded');
       return;
     }
 
     setError('');
     setProcessing(true);
+    logger.form('submit', 'StripeCardForm', false);
+    logger.info('Card form submitted', { saveAsDefault });
 
     const cardElement = elements.getElement(CardElement);
 
     if (!cardElement) {
-      setError('Elementul card nu a fost găsit');
+      const errorMsg = 'Elementul card nu a fost găsit';
+      logger.error('Card element not found', new Error(errorMsg));
+      setError(errorMsg);
       setProcessing(false);
       return;
     }
 
     try {
-      // Create token
       const { token, error: tokenError } = await stripe.createToken(cardElement);
 
       if (tokenError) {
+        logger.error('Token creation failed', tokenError, {
+          errorType: tokenError.type,
+          errorCode: tokenError.code
+        });
         throw new Error(tokenError.message);
       }
 
       if (!token) {
-        throw new Error('Nu s-a putut crea token-ul');
+        const errorMsg = 'Nu s-a putut crea token-ul';
+        logger.error('Token not created', new Error(errorMsg));
+        throw new Error(errorMsg);
       }
 
-      // Send token to backend
+      logger.info('Token created successfully', { tokenId: token.id });
+
       const response = await fetch('/api/payment-methods', {
         method: 'POST',
         headers: {
@@ -68,12 +81,25 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Eroare la adăugarea cardului');
+        const errorMsg = data.error || 'Eroare la adăugarea cardului';
+        logger.error('Failed to add payment method', new Error(errorMsg), {
+          status: response.status,
+          error: data.error
+        });
+        throw new Error(errorMsg);
       }
 
+      logger.form('submit', 'StripeCardForm', true);
+      logger.info('Payment method added successfully', { 
+        cardId: data.card.id,
+        isDefault: saveAsDefault 
+      });
       onSuccess(data.card.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'A apărut o eroare');
+      const errorMsg = err instanceof Error ? err.message : 'A apărut o eroare';
+      logger.form('submit', 'StripeCardForm', false, err as Error);
+      logger.error('Card submission error', err as Error);
+      setError(errorMsg);
     } finally {
       setProcessing(false);
     }
@@ -87,6 +113,17 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
         </label>
         <div className="bg-dark-blue-lighter/50 border border-border-color rounded-lg p-3">
           <CardElement
+            onReady={() => logger.info('Card element ready')}
+            onChange={(event) => {
+              if (event.error) {
+                logger.warn('Card validation error', { 
+                  error: event.error.message,
+                  code: event.error.code 
+                });
+              } else if (event.complete) {
+                logger.info('Card details completed');
+              }
+            }}
             options={{
               style: {
                 base: {
@@ -114,7 +151,10 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
       <div className="mb-4">
         <Toggle
           checked={saveAsDefault}
-          onChange={setSaveAsDefault}
+          onChange={(checked) => {
+            setSaveAsDefault(checked);
+            logger.interaction('toggle_default_payment', { setAsDefault: checked });
+          }}
           label="Setează ca metodă de plată implicită"
           size="sm"
         />

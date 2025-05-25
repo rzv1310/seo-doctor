@@ -2,28 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import database, { subscriptions, services } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// GET /api/subscriptions - Get all subscriptions for the current user
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
     
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized access attempt to subscriptions', { path: '/api/subscriptions' });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all subscriptions for the user with service details
+    logger.info('Fetching subscriptions', { userId: session.user.id, userEmail: session.user.email });
+    
     const userSubscriptions = await database.select()
       .from(subscriptions)
       .where(eq(subscriptions.userId, session.user.id))
       .leftJoin(services, eq(subscriptions.serviceId, services.id));
 
+    logger.info('Subscriptions fetched successfully', { userId: session.user.id, count: userSubscriptions.length });
     return NextResponse.json({ 
       subscriptions: userSubscriptions 
     });
   } catch (error) {
-    console.error('Error fetching subscriptions:', error);
+    logger.error('Error fetching subscriptions', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
   }
-}
+});

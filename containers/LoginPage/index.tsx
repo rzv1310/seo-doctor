@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { ActionButton, LinkButton, Link } from '@/components/ui';
+import { useLogger } from '@/lib/client-logger';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -15,14 +16,12 @@ export default function LoginPage() {
     const [resetError, setResetError] = useState('');
     const router = useRouter();
     const { login, signup, error, clearError } = useAuth();
+    const logger = useLogger('LoginPage');
 
-    // Check if form is valid
     const isFormValid = () => {
         if (isLoggingIn) {
-            // For login: email and password are required
             return email.trim() !== '' && password.trim() !== '';
         } else {
-            // For signup: name, email, and password are required
             return name.trim() !== '' && email.trim() !== '' && password.trim() !== '';
         }
     };
@@ -32,32 +31,32 @@ export default function LoginPage() {
         clearError();
         setIsSubmitting(true);
 
+        const formType = isLoggingIn ? 'login' : 'signup';
+        logger.form(`${formType}_attempt`, formType, true);
+
         try {
-            // Simple validation
             if (!email || !password) {
-                throw new Error('Please enter both email and password');
+                const validationError = new Error('Please enter both email and password');
+                logger.error('Form validation failed', validationError, { formType, field: 'email_password' });
+                throw validationError;
             }
 
-            // Additional validation for signup
             if (!isLoggingIn && !name) {
-                throw new Error('Please enter your name');
+                const validationError = new Error('Please enter your name');
+                logger.error('Form validation failed', validationError, { formType, field: 'name' });
+                throw validationError;
             }
 
             if (isLoggingIn) {
-                // Login
                 await login(email, password);
             } else {
-                // Signup
                 await signup(email, password, name);
             }
 
-            // Redirect directly to dashboard
+            logger.form(`${formType}_success`, formType, true);
             router.push('/dashboard');
         } catch (err) {
-            // Error handling is done in the AuthContext
-            console.error('Auth error:', err);
-            // We don't clear the form inputs on error, just show the error message
-            // This allows the user to correct the error without re-entering everything
+            logger.form(`${formType}_failed`, formType, false, err instanceof Error ? err : new Error(String(err)));
         } finally {
             setIsSubmitting(false);
         }
@@ -141,8 +140,9 @@ export default function LoginPage() {
                                 <LinkButton
                                     type="button"
                                     onClick={() => {
+                                        logger.interaction('forgot_password_click', { email });
                                         setShowForgotPassword(true);
-                                        setResetEmail(email); // Pre-fill with current email if available
+                                        setResetEmail(email);
                                         setResetError('');
                                         setResetEmailSent(false);
                                     }}
@@ -179,10 +179,10 @@ export default function LoginPage() {
                         </span>
                         <ActionButton
                             onClick={() => {
+                                const newMode = !isLoggingIn ? 'login' : 'signup';
+                                logger.interaction('auth_mode_toggle', { from: isLoggingIn ? 'login' : 'signup', to: newMode });
                                 setIsLoggingIn(!isLoggingIn);
                                 clearError();
-                                // If switching to sign up, keep the email and password
-                                // No need to clear them when we're just switching modes
                             }}
                             disabled={isSubmitting}
                             size="sm"
@@ -245,13 +245,17 @@ export default function LoginPage() {
                                 <form onSubmit={async (e) => {
                                     e.preventDefault();
                                     setResetError('');
+                                    logger.form('password_reset_request', 'password_reset', true);
 
                                     if (!resetEmail.trim()) {
-                                        setResetError('Te rugăm să introduci adresa de email');
+                                        const validationError = 'Te rugăm să introduci adresa de email';
+                                        setResetError(validationError);
+                                        logger.error('Password reset validation failed', new Error(validationError), { field: 'email' });
                                         return;
                                     }
 
                                     try {
+                                        logger.info('Password reset requested', { email: resetEmail });
                                         const response = await fetch('/api/auth/forgot-password', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
@@ -261,12 +265,18 @@ export default function LoginPage() {
                                         const data = await response.json();
 
                                         if (!response.ok) {
-                                            throw new Error(data.error || 'Eroare la trimiterea email-ului');
+                                            const error = new Error(data.error || 'Eroare la trimiterea email-ului');
+                                            logger.error('Password reset request failed', error, { email: resetEmail, status: response.status });
+                                            throw error;
                                         }
 
                                         setResetEmailSent(true);
+                                        logger.info('Password reset email sent', { email: resetEmail });
+                                        logger.form('password_reset_success', 'password_reset', true);
                                     } catch (err) {
-                                        setResetError(err instanceof Error ? err.message : 'Eroare la trimiterea email-ului');
+                                        const errorMessage = err instanceof Error ? err.message : 'Eroare la trimiterea email-ului';
+                                        setResetError(errorMessage);
+                                        logger.form('password_reset_failed', 'password_reset', false, err instanceof Error ? err : new Error(errorMessage));
                                     }
                                 }}>
                                     <div className="mb-6">

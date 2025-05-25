@@ -2,24 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import database, { orders, services } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// GET /api/orders/[id] - Get a specific order
-export async function GET(
+export const GET = withLogging(async (
   request: NextRequest,
   { params } : { params: Promise<{ id: string }> }
-) {
+) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized access attempt to order', { path: request.url });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // In Next.js App Router, we must access context.params directly
-    // without destructuring due to the asynchronous nature
-
     const orderId = (await params).id;
+    logger.info('Fetching order', { orderId, userId: session.user.id });
 
     try {
       // Get the order with basic information first
@@ -40,6 +38,7 @@ export async function GET(
         ));
 
       if (!result || result.length === 0) {
+        logger.warn('Order not found', { orderId, userId: session.user.id });
         return NextResponse.json({ error: 'Order not found' }, { status: 404 });
       }
 
@@ -64,20 +63,20 @@ export async function GET(
         }
       }
 
-      // Build the complete order object
       const completeOrder = {
         ...order,
         serviceName,
         serviceDescription
       };
 
+      logger.info('Order fetched successfully', { orderId, userId: session.user.id });
       return NextResponse.json({ order: completeOrder });
     } catch (error) {
-      console.error('Error processing order data:', error);
+      logger.error('Error processing order data', { orderId, error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json({ error: 'Failed to process order data' }, { status: 500 });
     }
   } catch (error) {
-    console.error('Error fetching order:', error);
+    logger.error('Error fetching order', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
   }
-}
+});

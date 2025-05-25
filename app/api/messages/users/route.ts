@@ -3,15 +3,18 @@ import db from '@/database';
 import { messages, users } from '@/database/schema';
 import { verifyApiAuth } from '@/lib/auth';
 import { desc, eq, sql } from 'drizzle-orm';
+import { logger, withLogging } from '@/lib/logger';
 
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated || !session.user.admin) {
+            logger.auth('Unauthorized access attempt to user chats', { path: '/api/messages/users', isAdmin: session.user?.admin });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get unique users who have sent messages with their latest message and unread count
+        logger.info('Fetching user chats', { adminEmail: session.user.email });
+        
         const userChats = await db
             .select({
                 userId: users.id,
@@ -25,9 +28,10 @@ export async function GET(request: NextRequest) {
             .where(sql`${users.id} IN (SELECT DISTINCT user_id FROM messages)`)
             .orderBy(desc(sql`(SELECT created_at FROM messages WHERE user_id = ${users.id} ORDER BY created_at DESC LIMIT 1)`));
 
+        logger.info('User chats fetched successfully', { count: userChats.length });
         return NextResponse.json(userChats);
     } catch (error) {
-        console.error('Error fetching user chats:', error);
+        logger.error('Error fetching user chats', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});

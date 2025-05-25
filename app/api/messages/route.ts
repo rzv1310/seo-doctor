@@ -5,18 +5,24 @@ import { verifyApiAuth } from '@/lib/auth';
 import { desc, asc, eq, and, or } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { sendMessageToUser, broadcastToAdmins } from './sse/sse-helpers';
+import { logger, withLogging } from '@/lib/logger';
 
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated) {
+            logger.auth('Unauthorized access attempt to messages', { path: '/api/messages' });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
         
-        console.log('GET /api/messages - User:', session.user.email, 'Admin:', session.user.admin, 'Filter userId:', userId);
+        logger.info('Fetching messages', { 
+            userEmail: session.user.email, 
+            isAdmin: session.user.admin, 
+            filterUserId: userId 
+        });
 
         let query;
         if (session.user.admin) {
@@ -43,24 +49,30 @@ export async function GET(request: NextRequest) {
             .where(query)
             .orderBy(asc(messages.createdAt));
 
+        logger.info('Messages fetched successfully', { count: userMessages.length });
         return NextResponse.json(userMessages);
     } catch (error) {
-        console.error('Error fetching messages:', error);
+        logger.error('Error fetching messages', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated) {
+            logger.auth('Unauthorized message post attempt', { path: '/api/messages' });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const body = await request.json();
         const { content, userId } = body;
         
-        console.log('POST /api/messages - User:', session.user.email, 'Admin:', session.user.admin, 'Content:', content, 'UserId:', userId);
+        logger.info('Creating message', { 
+            userEmail: session.user.email, 
+            isAdmin: session.user.admin, 
+            targetUserId: userId 
+        });
 
         if (!content || content.trim().length === 0) {
             return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
@@ -80,15 +92,13 @@ export async function POST(request: NextRequest) {
             updatedAt: new Date().toISOString(),
         };
 
-        console.log('Creating message:', newMessage);
+        logger.debug('Message details', { messageId, isFromAdmin: newMessage.isFromAdmin });
 
         try {
-            // Simple insert
-            console.log('Inserting message into database...');
             await db.insert(messages).values(newMessage);
-            console.log('Insert completed');
+            logger.info('Message inserted successfully', { messageId });
         } catch (dbError) {
-            console.error('Database insert failed:', dbError);
+            logger.error('Database insert failed', { error: dbError instanceof Error ? dbError.message : String(dbError) });
             throw dbError;
         }
 
@@ -106,10 +116,10 @@ export async function POST(request: NextRequest) {
                 .from(users)
                 .where(eq(users.admin, true));
             
-            console.log('Broadcasting to admins:', admins.length, 'admins found');
+            logger.info('Broadcasting to admins', { adminCount: admins.length });
             
             admins.forEach(admin => {
-                console.log('Sending message to admin:', admin.id);
+                logger.debug('Sending message to admin', { adminId: admin.id });
                 sendMessageToUser(admin.id, {
                     type: 'new_message',
                     message: newMessage,
@@ -117,25 +127,30 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        console.log('Returning new message:', newMessage);
+        logger.info('Message created successfully', { messageId });
         return NextResponse.json(newMessage);
     } catch (error) {
-        console.error('Error creating message:', error);
+        logger.error('Error creating message', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});
 
-export async function PATCH(request: NextRequest) {
+export const PATCH = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated) {
+            logger.auth('Unauthorized message update attempt', { path: '/api/messages' });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const body = await request.json();
         const { messageIds } = body;
         
-        console.log('PATCH /api/messages - User:', session.user.email, 'Admin:', session.user.admin, 'MessageIds:', messageIds);
+        logger.info('Marking messages as read', { 
+            userEmail: session.user.email, 
+            isAdmin: session.user.admin, 
+            messageCount: messageIds.length 
+        });
 
         if (!messageIds || !Array.isArray(messageIds)) {
             return NextResponse.json({ error: 'Invalid message IDs' }, { status: 400 });
@@ -177,17 +192,19 @@ export async function PATCH(request: NextRequest) {
             });
         }
 
+        logger.info('Messages marked as read successfully', { messageCount: messageIds.length });
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error updating messages:', error);
+        logger.error('Error updating messages', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
 
-export async function DELETE(request: NextRequest) {
+export const DELETE = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated || !session.user.admin) {
+            logger.auth('Unauthorized delete attempt', { path: '/api/messages', isAdmin: session.user?.admin });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -198,14 +215,13 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
         }
         
-        console.log('DELETE /api/messages - Admin:', session.user.email, 'Deleting messages for user:', userId);
+        logger.info('Deleting messages', { adminEmail: session.user.email, targetUserId: userId });
 
-        // Delete all messages for this user
         await db
             .delete(messages)
             .where(eq(messages.userId, userId));
             
-        console.log('Messages deleted successfully');
+        logger.info('Messages deleted successfully', { userId });
 
         // Notify connected users
         sendMessageToUser(userId, {
@@ -221,7 +237,7 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Error deleting messages:', error);
+        logger.error('Error deleting messages', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});

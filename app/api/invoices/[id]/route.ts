@@ -2,22 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import database, { invoices, orders, services, users } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
+import { logger, withLogging } from '@/lib/logger';
 
-// GET /api/invoices/[id] - Get a specific invoice
-export async function GET(
+export const GET = withLogging(async (
   request: NextRequest,
   { params } : { params: Promise<{ id: string }> }
-) {
+) => {
   try {
-    // Get the current user from the request
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated) {
+      logger.auth('Unauthorized access attempt to invoice', { path: request.url });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get the invoice ID from the route parameters
     const invoiceId = (await params).id;
+    logger.info('Fetching invoice', { invoiceId, userId: session.user.id });
 
     try {
       // Get the invoice with basic information first
@@ -39,6 +39,7 @@ export async function GET(
         ));
 
       if (!result || result.length === 0) {
+        logger.warn('Invoice not found', { invoiceId, userId: session.user.id });
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
 
@@ -90,7 +91,6 @@ export async function GET(
 
       const user = userResult && userResult.length > 0 ? userResult[0] : null;
 
-      // Format the invoice for the client
       const formattedInvoice = {
         ...invoice,
         serviceName,
@@ -111,13 +111,14 @@ export async function GET(
         }]
       };
 
+      logger.info('Invoice fetched successfully', { invoiceId, userId: session.user.id });
       return NextResponse.json({ invoice: formattedInvoice });
     } catch (error) {
-      console.error('Error processing invoice data:', error);
+      logger.error('Error processing invoice data', { invoiceId, error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json({ error: 'Failed to process invoice data' }, { status: 500 });
     }
   } catch (error) {
-    console.error('Error fetching invoice:', error);
+    logger.error('Error fetching invoice', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to fetch invoice' }, { status: 500 });
   }
-}
+});

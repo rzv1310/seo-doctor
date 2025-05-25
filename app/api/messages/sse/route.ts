@@ -35,4 +35,4 @@ export async function GET(request: NextRequest) {
             'Connection': 'keep-alive',
         },
     });
-}
+});

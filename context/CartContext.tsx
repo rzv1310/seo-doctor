@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLogger } from '@/lib/client-logger';
 
 // Define the Service type (similar to what's in services page)
 export type CartService = {
@@ -51,105 +52,104 @@ const CartContext = createContext<CartContextType>({
 // Custom hook to use the cart context
 export const useCart = () => useContext(CartContext);
 
-// CartProvider component
 export function CartProvider({ children }: { children: ReactNode }) {
-  // Initialize cart and coupon state from localStorage if available
+  const logger = useLogger('CartProvider');
   const [items, setItems] = useState<CartService[]>([]);
   const [couponCode, setCouponCode] = useState('');
   const [initialized, setInitialized] = useState(false);
 
-  // Load cart and coupon from localStorage on component mount
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     const storedCoupon = localStorage.getItem('couponCode');
     
     if (storedCart) {
       try {
-        setItems(JSON.parse(storedCart));
+        const parsedCart = JSON.parse(storedCart);
+        setItems(parsedCart);
+        logger.info('Cart loaded from localStorage', { itemCount: parsedCart.length });
       } catch (error) {
-        console.error('Failed to parse cart from localStorage:', error);
+        logger.error('Failed to parse cart from localStorage', error as Error);
       }
     }
     
     if (storedCoupon) {
       setCouponCode(storedCoupon);
+      logger.info('Coupon loaded from localStorage', { couponCode: storedCoupon });
     }
     
     setInitialized(true);
-  }, []);
+  }, [logger]);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     if (initialized) {
       localStorage.setItem('cart', JSON.stringify(items));
+      logger.info('Cart saved to localStorage', { itemCount: items.length });
     }
-  }, [items, initialized]);
+  }, [items, initialized, logger]);
   
-  // Save coupon code to localStorage whenever it changes
   useEffect(() => {
     if (initialized && couponCode) {
       localStorage.setItem('couponCode', couponCode);
+      logger.info('Coupon saved to localStorage', { couponCode });
     } else if (initialized) {
       localStorage.removeItem('couponCode');
+      logger.info('Coupon removed from localStorage');
     }
-  }, [couponCode, initialized]);
+  }, [couponCode, initialized, logger]);
 
-  // Add an item to the cart
   const addItem = (service: CartService) => {
-    // Check if service already exists in cart
     if (!isInCart(service.id)) {
       setItems([...items, service]);
+      logger.interaction('item_added_to_cart', { 
+        serviceId: service.id, 
+        serviceName: service.name,
+        price: service.price 
+      });
+    } else {
+      logger.warn('Attempted to add duplicate item to cart', { serviceId: service.id });
     }
   };
 
-  // Remove an item from the cart
   const removeItem = (serviceId: number) => {
+    const itemToRemove = items.find(item => item.id === serviceId);
     setItems(items.filter(item => item.id !== serviceId));
+    logger.interaction('item_removed_from_cart', { 
+      serviceId, 
+      serviceName: itemToRemove?.name 
+    });
   };
 
-  // Clear the entire cart
   const clearCart = () => {
+    const previousItemCount = items.length;
     setItems([]);
+    logger.interaction('cart_cleared', { previousItemCount });
   };
 
-  // Check if a service is already in the cart
   const isInCart = (serviceId: number) => {
     return items.some(item => item.id === serviceId);
   };
 
-  // Calculate the total number of items
   const itemCount = items.length;
 
-  // Calculate the total price in cents
   const totalPrice = items.reduce((sum, item) => {
-    // Extract the numeric value from price strings like "$99.99"
     const priceValue = item.priceValue;
     return sum + priceValue;
   }, 0);
 
-  // Format the total price as a string
   const formattedTotalPrice = `$${(totalPrice / 100).toFixed(2)}`;
   
-  // Apply discount logic if there's a coupon code
-  // This is a simple example - in a real app, you'd validate against actual coupon codes
-  // For now, let's assume any non-empty coupon code gives 10% off
   const applyCouponDiscount = (price: number, code: string): number => {
     if (!code) return 0;
     
-    // Here you would normally check against valid coupon codes
-    // For this example, any code gives 10% discount
-    return Math.round(price * 0.1); // 10% discount, rounded to nearest cent
+    return Math.round(price * 0.1);
   };
   
-  // Calculate discount amount
   const discountAmount = applyCouponDiscount(totalPrice, couponCode);
   const formattedDiscountAmount = `$${(discountAmount / 100).toFixed(2)}`;
   
-  // Calculate final price after discount
   const finalPrice = totalPrice - discountAmount;
   const formattedFinalPrice = `$${(finalPrice / 100).toFixed(2)}`;
   
-  // Provide the cart context value
   const contextValue: CartContextType = {
     items,
     addItem,

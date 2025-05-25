@@ -4,30 +4,39 @@ import { users, orders } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { verifyApiAuth } from '@/lib/auth';
 import stripe from '@/lib/stripe-server';
+import { logger, withLogging } from '@/lib/logger';
 
-export async function POST(request: NextRequest) {
+export const POST = withLogging(async (request: NextRequest) => {
   try {
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated || !session.user) {
+      logger.warn('Unauthorized payment attempt');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { 
-      amount, // Amount in cents
+      amount,
       currency = 'usd',
       description,
       orderId,
-      cardId, // Optional - if not provided, uses default card
+      cardId,
       metadata = {}
     } = body;
 
+    logger.info('Processing payment', { 
+      userId: session.user.id, 
+      amount, 
+      currency, 
+      orderId 
+    });
+
     if (!amount || amount <= 0) {
+      logger.warn('Invalid payment amount', { amount, userId: session.user.id });
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    // Get user's Stripe customer ID and default payment method
     const user = await db
       .select()
       .from(users)
@@ -35,17 +44,17 @@ export async function POST(request: NextRequest) {
       .then((results) => results[0]);
 
     if (!user || !user.stripeCustomerId) {
+      logger.error('No payment methods found for user', undefined, { userId: session.user.id });
       return NextResponse.json({ error: 'No payment methods found' }, { status: 400 });
     }
 
-    // Determine which card to use
     const sourceId = cardId || user.defaultPaymentMethodId;
     
     if (!sourceId) {
+      logger.warn('No payment method selected', { userId: session.user.id });
       return NextResponse.json({ error: 'No payment method selected' }, { status: 400 });
     }
 
-    // Create the charge
     const charge = await stripe.charges.create({
       amount,
       currency,
@@ -59,7 +68,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Update order if orderId is provided
+    logger.payment('charge_created', amount, currency, user.id);
+
     if (orderId) {
       await db
         .update(orders)
@@ -68,6 +78,8 @@ export async function POST(request: NextRequest) {
           stripePaymentId: charge.id
         })
         .where(eq(orders.id, orderId));
+      
+      logger.info('Order status updated to paid', { orderId, chargeId: charge.id });
     }
 
     return NextResponse.json({
@@ -81,11 +93,12 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error processing payment:', error);
-    
-    // Handle Stripe errors
     if (error instanceof Error && 'type' in error) {
       const stripeError = error as any;
+      logger.error('Stripe payment error', stripeError, {
+        type: stripeError.type,
+        code: stripeError.code
+      });
       return NextResponse.json(
         { 
           error: stripeError.message,
@@ -96,23 +109,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logger.error('Failed to process payment', error);
     return NextResponse.json(
       { error: 'Failed to process payment' },
       { status: 500 }
     );
   }
-}
+});
 
-// Get saved payment methods for checkout
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
   try {
     const session = await verifyApiAuth(request);
 
     if (!session.isAuthenticated || !session.user) {
+      logger.warn('Unauthorized payment methods fetch attempt');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's payment methods
     const user = await db
       .select()
       .from(users)
@@ -120,16 +133,15 @@ export async function GET(request: NextRequest) {
       .then((results) => results[0]);
 
     if (!user || !user.stripeCustomerId) {
+      logger.info('No payment methods found - no Stripe customer', { userId: session.user.id });
       return NextResponse.json({ cards: [] });
     }
 
-    // Fetch cards from Stripe
     const cards = await stripe.customers.listSources(
       user.stripeCustomerId,
       { object: 'card' }
     );
 
-    // Transform and return cards
     const paymentMethods = cards.data.map((card: any) => ({
       id: card.id,
       brand: card.brand,
@@ -139,16 +151,21 @@ export async function GET(request: NextRequest) {
       isDefault: card.id === user.defaultPaymentMethodId
     }));
 
+    logger.info('Payment methods fetched', { 
+      userId: session.user.id, 
+      cardCount: paymentMethods.length 
+    });
+
     return NextResponse.json({ 
       cards: paymentMethods,
       defaultCardId: user.defaultPaymentMethodId 
     });
 
   } catch (error) {
-    console.error('Error fetching payment methods:', error);
+    logger.error('Failed to fetch payment methods', error);
     return NextResponse.json(
       { error: 'Failed to fetch payment methods' },
       { status: 500 }
     );
   }
-}
+});

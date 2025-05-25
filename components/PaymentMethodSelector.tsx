@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ActionButton, Link } from '@/components/ui';
+import { useLogger } from '@/lib/client-logger';
 
 interface PaymentMethod {
     id: string;
@@ -25,16 +26,17 @@ export default function PaymentMethodSelector({
     currency = 'USD'
 }: PaymentMethodSelectorProps) {
     const router = useRouter();
+    const logger = useLogger('PaymentMethodSelector');
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [selectedCardId, setSelectedCardId] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
 
-    // Fetch payment methods
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             try {
+                logger.info('Fetching payment methods', { amount, currency });
                 const response = await fetch('/api/process-payment');
                 const data = await response.json();
 
@@ -42,38 +44,48 @@ export default function PaymentMethodSelector({
                     throw new Error(data.error || 'Failed to fetch payment methods');
                 }
 
+                logger.info('Payment methods fetched successfully', { count: data.cards.length });
                 setPaymentMethods(data.cards);
 
-                // Pre-select default card
                 const defaultCard = data.cards.find((card: PaymentMethod) => card.isDefault);
                 if (defaultCard) {
                     setSelectedCardId(defaultCard.id);
+                    logger.info('Default payment method selected', { cardId: defaultCard.id });
                 } else if (data.cards.length > 0) {
                     setSelectedCardId(data.cards[0].id);
+                    logger.info('First payment method selected', { cardId: data.cards[0].id });
                 }
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Failed to load payment methods');
+                const errorMsg = err instanceof Error ? err.message : 'Failed to load payment methods';
+                logger.error('Failed to fetch payment methods', err as Error);
+                setError(errorMsg);
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchPaymentMethods();
-    }, []);
+    }, [logger, amount, currency]);
 
     const handlePayment = async () => {
         if (!selectedCardId) {
-            setError('Vă rugăm să selectați o metodă de plată');
+            const errorMsg = 'Vă rugăm să selectați o metodă de plată';
+            logger.warn('Payment attempted without card selection');
+            setError(errorMsg);
             return;
         }
 
         setIsProcessing(true);
         setError('');
+        logger.info('Payment initiated', { cardId: selectedCardId, amount, currency });
 
         try {
             await onPayment(selectedCardId);
+            logger.info('Payment completed successfully', { cardId: selectedCardId });
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Plata a eșuat');
+            const errorMsg = err instanceof Error ? err.message : 'Plata a eșuat';
+            logger.error('Payment failed', err as Error, { cardId: selectedCardId });
+            setError(errorMsg);
         } finally {
             setIsProcessing(false);
         }
@@ -156,7 +168,10 @@ export default function PaymentMethodSelector({
                                 name="paymentMethod"
                                 value={method.id}
                                 checked={selectedCardId === method.id}
-                                onChange={(e) => setSelectedCardId(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectedCardId(e.target.value);
+                                    logger.interaction('payment_method_selected', { cardId: e.target.value });
+                                }}
                                 className="sr-only"
                             />
                             <div className="flex-shrink-0 mr-4">

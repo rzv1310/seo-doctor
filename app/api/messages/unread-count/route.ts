@@ -3,11 +3,13 @@ import db from '@/database';
 import { messages } from '@/database/schema';
 import { verifyApiAuth } from '@/lib/auth';
 import { eq, and, sql } from 'drizzle-orm';
+import { logger, withLogging } from '@/lib/logger';
 
-export async function GET(request: NextRequest) {
+export const GET = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
         if (!session.isAuthenticated) {
+            logger.auth('Unauthorized access attempt to unread count', { path: '/api/messages/unread-count' });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -42,9 +44,10 @@ export async function GET(request: NextRequest) {
             unreadCount = Number(result[0]?.count || 0);
         }
 
+        logger.info('Unread count fetched', { userId: session.user.id, unreadCount, isAdmin: session.user.admin });
         return NextResponse.json({ unreadCount });
     } catch (error) {
-        console.error('Error fetching unread count:', error);
+        logger.error('Error fetching unread count', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});

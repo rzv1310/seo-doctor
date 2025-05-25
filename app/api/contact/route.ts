@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { logger, withLogging } from '@/lib/logger';
 
 // Type for the form data
 type ContactFormData = {
@@ -10,13 +11,18 @@ type ContactFormData = {
   message: string;
 };
 
-export async function POST(request: NextRequest) {
+export const POST = withLogging(async (request: NextRequest) => {
   try {
-    // Parse JSON body
     const formData: ContactFormData = await request.json();
     
-    // Validate required fields
+    logger.info('Contact form submission', { 
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject 
+    });
+    
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      logger.warn('Contact form validation failed', { missingFields: true });
       return NextResponse.json(
         { 
           success: false, 
@@ -26,9 +32,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
+      logger.warn('Contact form invalid email', { email: formData.email });
       return NextResponse.json(
         { 
           success: false, 
@@ -76,9 +82,12 @@ ${formData.message}
       `
     };
     
-    // In development mode, just log the email details
     if (process.env.NODE_ENV === 'development') {
-      console.log('Email details (DEV MODE - not sent):', mailOptions);
+      logger.info('Contact form email (DEV MODE - not sent)', { 
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        from: formData.email 
+      });
       
       return NextResponse.json({
         success: true,
@@ -86,17 +95,20 @@ ${formData.message}
       });
     }
     
-    // Send email
     await transporter.sendMail(mailOptions);
     
-    // Return success response
+    logger.info('Contact form email sent successfully', { 
+      to: mailOptions.to,
+      subject: mailOptions.subject 
+    });
+    
     return NextResponse.json({
       success: true,
       message: 'Mesajul a fost trimis cu succes! Vă vom contacta în cel mai scurt timp.'
     });
     
   } catch (error) {
-    console.error('Error processing contact form:', error);
+    logger.error('Error processing contact form', { error: error instanceof Error ? error.message : String(error) });
     
     return NextResponse.json(
       { 
@@ -106,4 +118,4 @@ ${formData.message}
       { status: 500 }
     );
   }
-}
+});
