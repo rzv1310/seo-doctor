@@ -5,7 +5,8 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
-import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
+import { useDashboardSubscriptions } from '@/context/DashboardContext';
+import type { Subscription } from '@/database/schema/subscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
 import { PageHeader, Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
 
@@ -16,11 +17,34 @@ export default function ServicesPage() {
     const {
         subscriptions,
         isLoading: subscriptionsLoading,
-        isSubscribed,
-        getSubscription,
-        subscribeToService,
-        cancelSubscription
-    } = useSubscriptions(isAuthenticated);
+        error: subscriptionsError
+    } = useDashboardSubscriptions();
+
+    // Helper functions for subscription management
+    const isSubscribed = (serviceId: string) => {
+        return (subscriptions || []).some(sub => 
+            sub.serviceId?.toString() === serviceId && 
+            (sub.status === 'active' || sub.status === 'trial')
+        );
+    };
+
+    const getSubscription = (serviceId: string) => {
+        return (subscriptions || []).find(sub => 
+            sub.serviceId?.toString() === serviceId
+        );
+    };
+
+    const subscribeToService = async (serviceId: string) => {
+        // TODO: Implement subscription API call
+        console.log('Subscribe to service:', serviceId);
+        throw new Error('Not implemented yet');
+    };
+
+    const cancelSubscription = async (subscriptionId: string) => {
+        // TODO: Implement cancellation API call  
+        console.log('Cancel subscription:', subscriptionId);
+        throw new Error('Not implemented yet');
+    };
 
     // State for filters
     const [statusFilter, setStatusFilter] = useState('all');
@@ -268,7 +292,7 @@ export default function ServicesPage() {
                 </Card>
             )}
 
-            {subscriptionsLoading && (
+            {subscriptionsLoading && (!subscriptions || subscriptions.length === 0) && (
                 <Card className="p-8 text-center">
                     <div className="flex justify-center mb-4">
                         <Spinner size="lg" />

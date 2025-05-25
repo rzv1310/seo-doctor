@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useInvoices, Invoice } from '@/hooks/useInvoices';
+import { useDashboardInvoices } from '@/context/DashboardContext';
+import { Invoice } from '@/database/schema/invoices';
 import { Link, LinkButton } from '@/components/ui';
 
 export default function InvoicesPage() {
@@ -13,8 +14,18 @@ export default function InvoicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 20;
 
-  // Get invoices from our custom hook
-  const { invoices, pagination, loading, error } = useInvoices(currentPage, PAGE_SIZE);
+  // Get invoices from context
+  const { invoices, isLoading: loading, error } = useDashboardInvoices();
+
+  // Calculate pagination
+  const totalItems = (invoices || []).length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const pagination = {
+    totalItems,
+    totalPages,
+    currentPage,
+    pageSize: PAGE_SIZE
+  };
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -34,14 +45,14 @@ export default function InvoicesPage() {
   };
 
   // Filter invoices based on status and search term
-  const filteredInvoices = invoices.filter(invoice => {
+  const filteredInvoices = (invoices || []).filter(invoice => {
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
     const matchesSearch = invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         (invoice.serviceName?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     return matchesStatus && matchesSearch;
   });
 
-  // Sort invoices
+  // Paginate invoices after filtering and sorting
   const sortedInvoices = [...filteredInvoices].sort((a: Invoice, b: Invoice) => {
     if (sortBy === 'date') {
       const dateA = new Date(a.createdAt);
@@ -56,6 +67,12 @@ export default function InvoicesPage() {
     }
     return 0;
   });
+
+  // Apply pagination to sorted invoices
+  const paginatedInvoices = sortedInvoices.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   // Handle sort click
   const handleSortClick = (field: string) => {
@@ -281,7 +298,7 @@ export default function InvoicesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-color">
-                  {sortedInvoices.map((invoice) => (
+                  {paginatedInvoices.map((invoice) => (
                     <tr key={invoice.id}>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <Link
@@ -321,7 +338,7 @@ export default function InvoicesPage() {
             </div>
           )}
 
-          {!loading && !error && sortedInvoices.length === 0 && (
+          {!loading && !error && filteredInvoices.length === 0 && (
             <div className="text-center py-8 text-text-primary">
               Nu s-au găsit facturi care să corespundă filtrelor tale.
             </div>

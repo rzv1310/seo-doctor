@@ -8,7 +8,7 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import stripePromise from '@/utils/stripe';
-import { ActionButton, LinkButton } from '@/components/ui';
+import { ActionButton, LinkButton, Toggle } from '@/components/ui';
 
 interface StripeCardFormProps {
   onSuccess: (cardId: string) => void;
@@ -112,17 +112,12 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
       )}
 
       <div className="mb-4">
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            checked={saveAsDefault}
-            onChange={(e) => setSaveAsDefault(e.target.checked)}
-            className="h-4 w-4 bg-dark-blue-lighter border border-border-color rounded focus:ring-primary"
-          />
-          <span className="ml-2 text-sm text-text-secondary">
-            Setează ca metodă de plată implicită
-          </span>
-        </label>
+        <Toggle
+          checked={saveAsDefault}
+          onChange={setSaveAsDefault}
+          label="Setează ca metodă de plată implicită"
+          size="sm"
+        />
       </div>
 
       <div className="flex justify-end gap-3">

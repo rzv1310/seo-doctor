@@ -1,17 +1,23 @@
 'use client';
 
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import { PageHeader, Card, Grid, ActionButton, Spinner } from '@/components/ui';
 
 export default function Dashboard() {
   const {
     subscriptions,
     isLoading,
-    error,
-    calculateTotalMonthlySpend
-  } = useSubscriptions();
+    error
+  } = useDashboardSubscriptions();
+  
+  // Calculate total monthly spend
+  const calculateTotalMonthlySpend = () => {
+    return (subscriptions || [])
+      .filter(sub => sub.status === 'active' || sub.status === 'trial')
+      .reduce((total, sub) => total + sub.price, 0);
+  };
 
-  const activeSubscriptions = subscriptions.filter(
+  const activeSubscriptions = (subscriptions || []).filter(
     sub => sub.status === 'active' || sub.status === 'trial'
   );
 

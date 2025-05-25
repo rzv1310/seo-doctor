@@ -11,3 +11,4 @@ export { Section, Container, PageHeader, Grid, Flex } from './Section';
 export { ServiceCard, PricingCard } from './ServiceCard';
 export { SidebarButton } from './SidebarButton';
 export { FormSection, FormGroup, FormRow, FormActions } from './FormSection';
+export { Toggle } from './Toggle';

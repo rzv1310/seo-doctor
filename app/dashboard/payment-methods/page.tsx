@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { ActionButton, LinkButton } from '@/components/ui';
+import { useDashboardPaymentMethods } from '@/context/DashboardContext';
+import { ActionButton, LinkButton, Toggle } from '@/components/ui';
 import dynamic from 'next/dynamic';
 
 const StripeCardElement = dynamic(
@@ -54,30 +55,14 @@ export default function PaymentMethodsPage() {
     }
   }, [user]);
 
-  // Fetch payment methods from Stripe
-  const fetchPaymentMethods = async () => {
-    try {
-      setIsLoadingCards(true);
-      setCardsError('');
-      const response = await fetch('/api/payment-methods');
-      const data = await response.json();
+  const { paymentMethods, isLoading: isLoadingCards, error: cardsError, refresh: refreshPaymentMethods } = useDashboardPaymentMethods();
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [cardError, setCardError] = useState('');
+  const [cardSuccess, setCardSuccess] = useState('');
+  const [localCardsError, setLocalCardsError] = useState('');
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch payment methods');
-      }
-
-      setPaymentMethods(data.cards);
-    } catch (error) {
-      setCardsError(error instanceof Error ? error.message : 'Failed to fetch payment methods');
-    } finally {
-      setIsLoadingCards(false);
-    }
-  };
-
-  // Fetch payment methods on mount
-  useEffect(() => {
-    fetchPaymentMethods();
-  }, []);
+  // Combined error handling
+  const displayError = localCardsError || cardsError;
 
   // Handle billing details update
   const handleBillingUpdate = async () => {
@@ -139,16 +124,9 @@ export default function PaymentMethodsPage() {
     }
   };
 
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [isLoadingCards, setIsLoadingCards] = useState(true);
-  const [cardsError, setCardsError] = useState('');
-  const [showAddCard, setShowAddCard] = useState(false);
-  const [cardError, setCardError] = useState('');
-  const [cardSuccess, setCardSuccess] = useState('');
-
   // Handle successful card addition
   const handleCardAdded = (cardId: string) => {
-    fetchPaymentMethods();
+    refreshPaymentMethods();
     setShowAddCard(false);
     setCardSuccess('Cardul a fost adăugat cu succes');
     setTimeout(() => setCardSuccess(''), 5000);
@@ -157,7 +135,7 @@ export default function PaymentMethodsPage() {
   // Set default payment method
   const setDefaultMethod = async (cardId: string) => {
     try {
-      setCardsError('');
+      setLocalCardsError('');
       const response = await fetch('/api/payment-methods', {
         method: 'PATCH',
         headers: {
@@ -171,22 +149,17 @@ export default function PaymentMethodsPage() {
         throw new Error(data.error || 'Failed to update default payment method');
       }
 
-      // Update local state
-      setPaymentMethods(methods =>
-        methods.map(method => ({
-          ...method,
-          isDefault: method.id === cardId
-        }))
-      );
+      // Refresh data from context
+      refreshPaymentMethods();
     } catch (error) {
-      setCardsError(error instanceof Error ? error.message : 'Failed to update default payment method');
+      setLocalCardsError(error instanceof Error ? error.message : 'Failed to update default payment method');
     }
   };
 
   // Delete payment method
   const deleteMethod = async (cardId: string) => {
     try {
-      setCardsError('');
+      setLocalCardsError('');
       const response = await fetch(`/api/payment-methods?cardId=${cardId}`, {
         method: 'DELETE',
       });
@@ -196,11 +169,11 @@ export default function PaymentMethodsPage() {
         throw new Error(data.error || 'Failed to delete payment method');
       }
 
-      // Update local state
-      setPaymentMethods(methods => methods.filter(method => method.id !== cardId));
+      // Refresh data from context
+      refreshPaymentMethods();
       setCardSuccess('Cardul a fost șters cu succes');
     } catch (error) {
-      setCardsError(error instanceof Error ? error.message : 'Failed to delete payment method');
+      setLocalCardsError(error instanceof Error ? error.message : 'Failed to delete payment method');
     }
   };
 
@@ -266,12 +239,12 @@ export default function PaymentMethodsPage() {
           </ActionButton>
         </div>
         <div className="p-4">
-          {cardsError && (
+          {displayError && (
             <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-2 rounded-lg mb-4 flex items-start text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
-              {cardsError}
+              {displayError}
             </div>
           )}
 
@@ -343,7 +316,7 @@ export default function PaymentMethodsPage() {
 
           {/* Add Card Form */}
           {showAddCard && (
-            <div className="mt-6 p-4 border border-border-color rounded-lg">
+            <div className="mt-6 mb-6 p-4 border border-border-color rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Adaugă Card Nou</h3>
               <StripeCardElement
                 onSuccess={handleCardAdded}
