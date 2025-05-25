@@ -8,7 +8,8 @@ import { services as serviceData, type Service } from '@/data/services';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import type { Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { PageHeader, Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
+import { Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();
@@ -138,10 +139,10 @@ export default function ServicesPage() {
 
     return (
         <>
-            <PageHeader
+            <DashboardPageLayout
                 title="Servicii"
                 subtitle="Gestionează serviciile tale și explorează ofertele disponibile"
-            />
+            >
 
             {/* Filters and search */}
             {/* <div className="dashboard-card mb-6">
@@ -328,6 +329,7 @@ export default function ServicesPage() {
                     isOpen={!!subscriptionToCancel}
                 />
             )}
+            </DashboardPageLayout>
         </>
     );
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/hooks/useChat';
 import { ActionButton } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function MessagesPage() {
     const { user } = useAuth();
@@ -173,12 +174,11 @@ export default function MessagesPage() {
                     }
                 }
             `}</style>
-            <div className="flex flex-col h-full">
-                <div className="pb-4 shrink-0">
-                    <h1 className="text-2xl font-bold mb-2">Chat</h1>
-                    <p className="text-text-primary mobile-only" style={{ display: 'none' }}>Gestionați conversațiile cu clienții</p>
-                </div>
-
+            <DashboardPageLayout
+                title="Chat"
+                subtitle="Gestionați conversațiile cu clienții"
+                fullHeight={true}
+            >
             <div className="flex gap-0 flex-1 min-h-0 relative messages-container" style={{ gap: '0' }}>
                 {/* User list */}
                 <div
@@ -344,7 +344,7 @@ export default function MessagesPage() {
                     )}
                 </div>
             </div>
-            </div>
+            </DashboardPageLayout>
         </>
     );
 }

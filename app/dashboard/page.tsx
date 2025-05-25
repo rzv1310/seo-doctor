@@ -1,7 +1,8 @@
 'use client';
 
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
-import { PageHeader, Card, Grid, ActionButton, Spinner } from '@/components/ui';
+import { Card, Grid, ActionButton, Spinner } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function Dashboard() {
   const {
@@ -22,11 +23,10 @@ export default function Dashboard() {
   );
 
   return (
-    <>
-      <PageHeader
-        title="Serviciile Tale Active"
-        subtitle="Gestionează abonamentele și monitorizează utilizarea"
-      />
+    <DashboardPageLayout
+      title="Serviciile Tale Active"
+      subtitle="Gestionează abonamentele și monitorizează utilizarea"
+    >
 
       {isLoading && (
         <Card glass className="dashboard-card p-8 text-center">
@@ -103,6 +103,6 @@ export default function Dashboard() {
       )}
 
       {/* Future dashboard stats can be added here */}
-    </>
+    </DashboardPageLayout>
   );
 }

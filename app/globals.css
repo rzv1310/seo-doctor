@@ -192,7 +192,6 @@ body::before {
     0 0 0 1px var(--glass-highlight) inset;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -216,7 +215,6 @@ body::before {
 }
 
 .dashboard-card:hover {
-  transform: translateY(-3px);
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.35),
     0 0 0 1px rgba(var(--primary), 0.2) inset;
@@ -512,7 +510,6 @@ body::before {
     padding: 1rem;
     margin-bottom: 1rem;
     max-width: 100%;
-    overflow-x: hidden;
   }
 
   /* Ensure content fits within mobile viewport */
@@ -615,6 +612,30 @@ body::before {
   footer {
     padding-bottom: env(safe-area-inset-bottom, 1rem);
   }
+}
+
+/* Payment methods scrolling fix */
+.payment-methods-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.payment-methods-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 1.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure dashboard cards don't clip content */
+.dashboard-card {
+  overflow: visible;
+}
+
+.dashboard-card > div {
+  overflow: visible;
 }
 
 /* Status badges styling */

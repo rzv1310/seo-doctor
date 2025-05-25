@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useDashboardPaymentMethods } from '@/context/DashboardContext';
 import { ActionButton, LinkButton, Toggle } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 import dynamic from 'next/dynamic';
 
 const StripeCardElement = dynamic(
@@ -219,14 +220,12 @@ export default function PaymentMethodsPage() {
   };
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Metode de Plată</h1>
-        <p className="text-text-secondary">Gestionează metodele tale de plată</p>
-      </div>
-
-      {/* Payment Methods List */}
-      <div className="dashboard-card mb-6">
+    <DashboardPageLayout
+      title="Metode de Plată"
+      subtitle="Gestionează metodele tale de plată"
+    >
+        {/* Payment Methods List */}
+        <div className="dashboard-card mb-6">
         <div className="p-4 border-b border-border-color flex justify-between items-center">
           <h2 className="text-xl font-semibold">Metodele Tale de Plată</h2>
           <ActionButton
@@ -316,7 +315,7 @@ export default function PaymentMethodsPage() {
 
           {/* Add Card Form */}
           {showAddCard && (
-            <div className="mt-6 mb-6 p-4 border border-border-color rounded-lg">
+            <div className="mt-6 p-4 border border-border-color rounded-lg bg-dark-blue-lighter/50">
               <h3 className="text-lg font-semibold mb-4">Adaugă Card Nou</h3>
               <StripeCardElement
                 onSuccess={handleCardAdded}
@@ -530,6 +529,6 @@ export default function PaymentMethodsPage() {
           )}
         </div>
       </div>
-    </>
+    </DashboardPageLayout>
   );
 }

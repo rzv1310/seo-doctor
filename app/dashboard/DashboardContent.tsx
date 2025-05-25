@@ -143,7 +143,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 </aside>
 
                 {/* Main content */}
-                <main className="flex-1 overflow-y-auto flex flex-col">
+                <main className="flex-1 overflow-hidden flex flex-col">
                     {/* Mobile header space */}
                     <div className="md:hidden h-16 bg-dark-blue sticky top-0 z-20 flex items-center justify-center shrink-0">
                         <h1 className="text-lg font-semibold text-text-primary">SEO Doctor</h1>
@@ -176,7 +176,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         </Link>
                     </div>
 
-                    <div className="p-4 md:p-8 flex-1 flex flex-col min-h-0">
+                    <div className="p-4 md:p-8 flex-1 overflow-hidden flex flex-col">
                         {children}
                     </div>
                 </main>

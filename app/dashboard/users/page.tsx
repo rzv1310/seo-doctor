@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useUsers, User } from '@/hooks/useUsers';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function UsersPage() {
   const { user } = useAuth();
@@ -30,13 +31,10 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="h-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Utilizatori</h1>
-        <p className="text-text-secondary">
-          Administrare utilizatori platformă.
-        </p>
-      </div>
+    <DashboardPageLayout
+      title="Utilizatori"
+      subtitle="Administrare utilizatori platformă"
+    >
 
       {/* Search and filters */}
       <div className="bg-dark-blue-lighter p-4 rounded-lg mb-6">
@@ -136,6 +134,6 @@ export default function UsersPage() {
           )}
         </div>
       )}
-    </div>
+    </DashboardPageLayout>
   );
 }

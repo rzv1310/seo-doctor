@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { PageHeader, Card, Grid, ActionButton, LinkButton, Input, Alert, Modal, FormSection, FormGroup, FormRow, FormActions } from '@/components/ui';
+import { Card, Grid, ActionButton, LinkButton, Input, Alert, Modal, FormSection, FormGroup, FormRow, FormActions } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -112,13 +113,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Setări"
-        subtitle="Gestionează informațiile contului și preferințele"
-      />
-
-      <FormSection
+    <DashboardPageLayout
+      title="Setări"
+      subtitle="Gestionează informațiile contului și preferințele"
+    >
+        <FormSection
         title="Informații cont"
         subtitle="Detaliile contului tău"
         className="mb-8"
@@ -302,6 +301,6 @@ export default function SettingsPage() {
           </Card>
         )}
       </FormSection>
-    </div>
+    </DashboardPageLayout>
   );
 }

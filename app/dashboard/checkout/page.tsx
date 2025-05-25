@@ -6,6 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useCart } from '../../../context/CartContext';
 import { ActionButton } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 const PaymentMethodSelector = dynamic(
     () => import('@/components/PaymentMethodSelector'),
@@ -101,11 +102,10 @@ export default function CheckoutPage() {
     }
 
     return (
-        <>
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">Finalizează Comanda</h1>
-                <p className="text-text-primary">Completează plata pentru serviciile selectate</p>
-            </div>
+        <DashboardPageLayout
+            title="Finalizează Comanda"
+            subtitle="Completează plata pentru serviciile selectate"
+        >
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
@@ -259,6 +259,6 @@ export default function CheckoutPage() {
                     ← Înapoi la Servicii
                 </Link>
             </div>
-        </>
+        </DashboardPageLayout>
     );
 }

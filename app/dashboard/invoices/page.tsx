@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useDashboardInvoices } from '@/context/DashboardContext';
 import { Invoice } from '@/hooks/useInvoices';
 import { Link, LinkButton } from '@/components/ui';
+import { DashboardPageLayout } from '@/components/layout';
 
 export default function InvoicesPage() {
   // State for filters and pagination
@@ -192,11 +193,10 @@ export default function InvoicesPage() {
   };
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Facturi</h1>
-        <p className="text-text-primary">Vizualizează și gestionează istoricul facturilor</p>
-      </div>
+    <DashboardPageLayout
+      title="Facturi"
+      subtitle="Vizualizează și gestionează istoricul facturilor"
+    >
 
       {/* Filters and search */}
       <div className="dashboard-card mb-6">
@@ -358,6 +358,6 @@ export default function InvoicesPage() {
           )}
         </div>
       </div>
-    </>
+    </DashboardPageLayout>
   );
 }
