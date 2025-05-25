@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useDashboardInvoices } from '@/context/DashboardContext';
-import { Invoice } from '@/database/schema/invoices';
+import { Invoice } from '@/hooks/useInvoices';
 import { Link, LinkButton } from '@/components/ui';
 
 export default function InvoicesPage() {

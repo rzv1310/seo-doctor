@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/hooks/useChat';
 import { ActionButton } from '@/components/ui';
@@ -88,7 +88,10 @@ export default function MessagesPage() {
     };
 
     const selectedUserChat = userChats.find(chat => chat.userId === selectedUser);
-    const userMessages = selectedUser ? messages.filter(msg => msg.userId === selectedUser) : [];
+    const userMessages = useMemo(() => 
+        selectedUser ? messages.filter(msg => msg.userId === selectedUser) : [],
+        [selectedUser, messages]
+    );
 
     // Scroll to bottom when messages change
     const scrollToBottom = () => {

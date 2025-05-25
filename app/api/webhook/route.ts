@@ -40,9 +40,7 @@ import { orders, invoices } from '@/database/schema/users';
 import { eq } from 'drizzle-orm';
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2023-10-16', // Use the latest version
-});
+import stripe from '@/lib/stripe-server';
 
 // This is your Stripe webhook secret for testing
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET as string;

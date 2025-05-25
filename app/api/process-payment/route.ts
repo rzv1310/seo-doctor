@@ -3,11 +3,7 @@ import db from '@/database';
 import { users, orders } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { verifyApiAuth } from '@/lib/auth';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia',
-});
+import stripe from '@/lib/stripe-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,8 +76,8 @@ export async function POST(request: NextRequest) {
       amount: charge.amount,
       currency: charge.currency,
       status: charge.status,
-      last4: charge.source?.last4,
-      brand: charge.source?.brand
+      last4: (charge.source as any)?.last4,
+      brand: (charge.source as any)?.brand
     });
 
   } catch (error) {

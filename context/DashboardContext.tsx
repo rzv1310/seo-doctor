@@ -1,10 +1,10 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { Invoice } from '@/database/schema/invoices';
-import { PaymentMethod } from '@/database/schema/paymentMethods';
-import { Order } from '@/database/schema/orders';
-import { Subscription } from '@/database/schema/subscriptions';
+import { Invoice } from '@/hooks/useInvoices';
+import { PaymentMethod } from '@/types/payment-method';
+import { Order } from '@/types/order';
+import { Subscription } from '@/hooks/useSubscriptions';
 
 interface DashboardData {
   paymentMethods: PaymentMethod[];
@@ -32,10 +32,10 @@ interface DashboardData {
 }
 
 interface DashboardContextType extends DashboardData {
-  fetchPaymentMethods: (forceRefresh?: boolean) => Promise<void>;
-  fetchInvoices: (forceRefresh?: boolean) => Promise<void>;
-  fetchOrders: (forceRefresh?: boolean) => Promise<void>;
-  fetchSubscriptions: (forceRefresh?: boolean) => Promise<void>;
+  fetchPaymentMethods: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
+  fetchInvoices: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
+  fetchOrders: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
+  fetchSubscriptions: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
   refreshAll: () => Promise<void>;
 }
 

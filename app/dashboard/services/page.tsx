@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
-import type { Subscription } from '@/database/schema/subscriptions';
+import type { Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
 import { PageHeader, Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
 
@@ -246,7 +246,6 @@ export default function ServicesPage() {
                                         <Link
                                             href={service.url || `/dashboard/services/${service.id}`}
                                             variant="primary"
-                                            className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors"
                                         >
                                             Detalii
                                         </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ActionButton, Link } from '@/components/ui';
 
 interface PaymentMethod {
@@ -23,6 +24,7 @@ export default function PaymentMethodSelector({
     amount,
     currency = 'USD'
 }: PaymentMethodSelectorProps) {
+    const router = useRouter();
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [selectedCardId, setSelectedCardId] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
@@ -119,13 +121,12 @@ export default function PaymentMethodSelector({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
                 <p className="text-text-secondary mb-4">Nu aveți metode de plată salvate</p>
-                <Link 
-                    href="/dashboard/payment-methods" 
-                    variant="primary"
-                    className="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
+                <ActionButton
+                    onClick={() => router.push('/dashboard/payment-methods')}
+                    variant="default"
                 >
                     Adaugă Card
-                </Link>
+                </ActionButton>
             </div>
         );
     }

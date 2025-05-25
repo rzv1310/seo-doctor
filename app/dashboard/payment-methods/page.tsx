@@ -269,7 +269,7 @@ export default function PaymentMethodsPage() {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center mb-4 md:mb-0">
                       <div className="w-12 h-12 flex items-center justify-center mr-4">
-                        {getCardIcon(method.brand)}
+                        {getCardIcon(method.brand || 'unknown')}
                       </div>
                       <div>
                         <div className="flex items-center">

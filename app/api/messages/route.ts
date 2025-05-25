@@ -4,7 +4,7 @@ import { messages, users } from '@/database/schema';
 import { verifyApiAuth } from '@/lib/auth';
 import { desc, asc, eq, and, or } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
-import { sendMessageToUser, broadcastToAdmins } from './sse/route';
+import { sendMessageToUser, broadcastToAdmins } from './sse/sse-helpers';
 
 export async function GET(request: NextRequest) {
     try {
