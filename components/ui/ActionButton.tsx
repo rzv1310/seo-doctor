@@ -30,9 +30,12 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
     ...props
   }, ref) => {
     const baseClasses = `bg-gradient-to-r font-bold from-primary to-accent text-white rounded-full px-6 py-2.5
-      transition-all hover:shadow-lg hover:shadow-primary/30 flex items-center gap-2
+      transition-all duration-[2400ms] hover:shadow-lg hover:shadow-primary/30 flex items-center gap-2
       border-2 border-primary/30 relative group overflow-hidden inline-flex justify-center
-      hover:border-accent/50 hover:from-accent hover:to-primary
+      hover:border-accent/50
+      before:absolute before:inset-0 before:bg-gradient-to-r before:from-accent before:to-primary
+      before:opacity-0 before:transition-opacity before:duration-[400ms]
+      hover:before:opacity-100
       ${animate ? 'animate-pulse-slow hover:animate-none' : ''}
       ${(disabled || loading) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:transform hover:-translate-y-0.5'}`;
 
