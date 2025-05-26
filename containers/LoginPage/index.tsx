@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { ActionButton, LinkButton, Link } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
 
+
+
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         const formType = isLoggingIn ? 'login' : 'signup';
-        logger.form(`${formType}_attempt`, formType, true);
+        logger.info(`${formType} attempt started`);
 
         try {
             if (!email || !password) {
@@ -53,10 +55,10 @@ export default function LoginPage() {
                 await signup(email, password, name);
             }
 
-            logger.form(`${formType}_success`, formType, true);
+            logger.info(`${formType} successful`);
             router.push('/dashboard');
         } catch (err) {
-            logger.form(`${formType}_failed`, formType, false, err instanceof Error ? err : new Error(String(err)));
+            logger.error(`${formType} failed`, err);
         } finally {
             setIsSubmitting(false);
         }
@@ -245,7 +247,7 @@ export default function LoginPage() {
                                 <form onSubmit={async (e) => {
                                     e.preventDefault();
                                     setResetError('');
-                                    logger.form('password_reset_request', 'password_reset', true);
+                                    logger.info('Password reset request started');
 
                                     if (!resetEmail.trim()) {
                                         const validationError = 'Te rugăm să introduci adresa de email';
@@ -272,11 +274,10 @@ export default function LoginPage() {
 
                                         setResetEmailSent(true);
                                         logger.info('Password reset email sent', { email: resetEmail });
-                                        logger.form('password_reset_success', 'password_reset', true);
                                     } catch (err) {
                                         const errorMessage = err instanceof Error ? err.message : 'Eroare la trimiterea email-ului';
                                         setResetError(errorMessage);
-                                        logger.form('password_reset_failed', 'password_reset', false, err instanceof Error ? err : new Error(errorMessage));
+                                        logger.error('Password reset failed', err);
                                     }
                                 }}>
                                     <div className="mb-6">

@@ -6,12 +6,14 @@ import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { logger, withLogging } from '@/lib/logger';
 
+
+
 async function forgotPasswordHandler(request: NextRequest) {
     try {
         const { email } = await request.json();
 
         if (!email) {
-            logger.auth('forgot-password', undefined, false, new Error('Missing email'));
+            logger.auth('Forgot password failed - missing email');
             return NextResponse.json(
                 { error: 'Email-ul este obligatoriu' },
                 { status: 400 }
@@ -19,11 +21,11 @@ async function forgotPasswordHandler(request: NextRequest) {
         }
 
         const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        
+
         if (user.length === 0) {
-            logger.auth('forgot-password', undefined, false, new Error(`No user found for email: ${email}`));
-            return NextResponse.json({ 
-                message: 'Dacă există un cont asociat cu acest email, vei primi un link de resetare.' 
+            logger.auth('Forgot password failed - user not found', { email });
+            return NextResponse.json({
+                message: 'Dacă există un cont asociat cu acest email, vei primi un link de resetare.'
             });
         }
 
@@ -41,16 +43,16 @@ async function forgotPasswordHandler(request: NextRequest) {
         });
 
         const resetLink = `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
-        
-        logger.auth('forgot-password', userId, true);
+
+        logger.auth('Forgot password successful', { userId });
         logger.info('Password reset requested', { userId, email, resetLink });
 
-        return NextResponse.json({ 
-            message: 'Dacă există un cont asociat cu acest email, vei primi un link de resetare.' 
+        return NextResponse.json({
+            message: 'Dacă există un cont asociat cu acest email, vei primi un link de resetare.'
         });
 
     } catch (error) {
-        logger.error('Forgot password error', error);
+        logger.error('Forgot password error', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
             { error: 'Eroare la procesarea cererii' },
             { status: 500 }

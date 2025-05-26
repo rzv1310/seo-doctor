@@ -196,7 +196,7 @@ export async function verifyApiAuth(request: Request): Promise<SessionResult> {
 }
 
 // Response helpers
-export function createAuthResponse(user: User): Response {
+export function createAuthResponse(user: User): NextResponse {
   try {
     const token = createAuthToken(user.id);
 
@@ -222,7 +222,7 @@ export function createAuthResponse(user: User): Response {
   }
 }
 
-export function createLogoutResponse(): Response {
+export function createLogoutResponse(): NextResponse {
   try {
     const response = NextResponse.json({
       success: true,

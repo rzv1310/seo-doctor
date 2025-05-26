@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 
+
+
 export const metadata: Metadata = {
     title: 'Resetare Parolă | SEO Doctor',
     description: 'Resetează-ți parola contului SEO Doctor',
@@ -10,9 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default function ResetPasswordLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return children;
+    return children;
 }

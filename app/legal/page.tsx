@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Header, Footer } from '../../components/layout';
-import { useAuth } from '../../context/AuthContext';
+import { Header, Footer } from '@/components/layout';
+import { useAuth } from '@/context/AuthContext';
+
+
 
 export const dynamic = 'force-dynamic';
 
@@ -14,14 +14,12 @@ function LegalPage() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'privacy';
 
-    // Tabs for the legal page
     const tabs = [
         { id: 'privacy', label: 'Politici de confidențialitate' },
         { id: 'terms', label: 'Termeni și condiții' },
         { id: 'gdpr', label: 'GDPR' },
     ];
 
-    // Function to change the active tab
     const handleTabChange = (tabId: string) => {
         router.push(`/legal?tab=${tabId}`);
     };
@@ -343,7 +341,6 @@ function LegalPage() {
                 </div>
             </main>
 
-            {/* Footer */}
             <Footer />
         </div>
     );

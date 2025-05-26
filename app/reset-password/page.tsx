@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLogger } from '@/lib/client-logger';
 
+
+
 function ResetPasswordForm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -13,7 +15,7 @@ function ResetPasswordForm() {
     const [success, setSuccess] = useState(false);
     const [isValidating, setIsValidating] = useState(true);
     const [tokenValid, setTokenValid] = useState(false);
-    
+
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
@@ -29,9 +31,10 @@ function ResetPasswordForm() {
                 return;
             }
 
+            let response: Response | undefined;
             try {
                 logger.info('Validating reset token');
-                const response = await fetch('/api/auth/validate-reset-token', {
+                response = await fetch('/api/auth/validate-reset-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token }),
@@ -46,7 +49,7 @@ function ResetPasswordForm() {
             } catch (err) {
                 const errorMsg = 'Link invalid sau expirat. Te rugăm să soliciți un nou link de resetare.';
                 setError(errorMsg);
-                logger.error('Token validation failed', err, { status: response?.status });
+                logger.error('Token validation failed', { error: err instanceof Error ? err.message : String(err), status: response?.status });
             } finally {
                 setIsValidating(false);
             }
@@ -56,16 +59,16 @@ function ResetPasswordForm() {
     }, [token, logger]);
 
     const isFormValid = () => {
-        return password.trim() !== '' && 
-               confirmPassword.trim() !== '' && 
-               password === confirmPassword &&
-               password.length >= 6;
+        return password.trim() !== '' &&
+            confirmPassword.trim() !== '' &&
+            password === confirmPassword &&
+            password.length >= 6;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        logger.form('password_reset_attempt', 'password_reset', true);
+        logger.info('Password reset attempt started');
 
         if (!isFormValid()) {
             let validationError = '';
@@ -99,15 +102,14 @@ function ResetPasswordForm() {
 
             setSuccess(true);
             logger.info('Password reset successful');
-            logger.form('password_reset_success', 'password_reset', true);
-            
+
             setTimeout(() => {
                 router.push('/login');
             }, 3000);
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : 'Eroare la resetarea parolei';
             setError(errorMsg);
-            logger.form('password_reset_failed', 'password_reset', false, err instanceof Error ? err : new Error(errorMsg));
+            logger.error('Password reset failed', err);
         } finally {
             setIsSubmitting(false);
         }
@@ -158,7 +160,7 @@ function ResetPasswordForm() {
                         <p className="text-text-primary/80 mb-6">
                             Parola ta a fost schimbată cu succes. Vei fi redirecționat către pagina de autentificare...
                         </p>
-                        <Link 
+                        <Link
                             href="/login"
                             className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-md transition-all"
                         >
@@ -217,7 +219,7 @@ function ResetPasswordForm() {
                         <p className="text-text-primary/80 mb-6">
                             Linkul de resetare este invalid sau a expirat. Te rugăm să soliciți un nou link.
                         </p>
-                        <Link 
+                        <Link
                             href="/login"
                             className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-md transition-all"
                         >

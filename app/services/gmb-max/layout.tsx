@@ -2,10 +2,12 @@ import { pageMetadata } from '@/data/metadata';
 
 export const metadata = pageMetadata['services/gmb-max'];
 
+
+
 export default function GmbMaxLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return children;
+    return children;
 }

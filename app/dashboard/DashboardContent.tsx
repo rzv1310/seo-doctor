@@ -9,6 +9,8 @@ import { DashboardProvider } from '@/context/DashboardContext';
 import Link from 'next/link';
 import { LinkButton, SidebarButton } from '@/components/ui';
 
+
+
 interface DashboardContentProps {
     children: React.ReactNode;
 }
@@ -27,7 +29,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     // Fetch unread message count with real-time updates
     useEffect(() => {
         let debounceTimer: NodeJS.Timeout;
-        
+
         const fetchUnreadCount = async () => {
             try {
                 const response = await fetch('/api/messages/unread-count');
@@ -51,7 +53,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
         // Set up SSE for real-time updates
         const eventSource = new EventSource('/api/messages/sse');
-        
+
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'new_message' || data.type === 'message_read') {

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { navLinks as defaultNavLinks } from '@/data/layout';
 import { Link, LinkButton, ActionButton } from '@/components/ui';
 
+
+
 interface HeaderProps {
     isAuthenticated?: boolean;
     isSimplified?: boolean;

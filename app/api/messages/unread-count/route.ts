@@ -5,6 +5,8 @@ import { verifyApiAuth } from '@/lib/auth';
 import { eq, and, sql } from 'drizzle-orm';
 import { logger, withLogging } from '@/lib/logger';
 
+
+
 export const GET = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
@@ -26,7 +28,7 @@ export const GET = withLogging(async (request: NextRequest) => {
                     eq(messages.isRead, false),
                     eq(messages.isFromAdmin, false)
                 ));
-            
+
             unreadCount = Number(result[0]?.count || 0);
         } else {
             // Regular users see their unread messages from admin
@@ -40,7 +42,7 @@ export const GET = withLogging(async (request: NextRequest) => {
                     eq(messages.isRead, false),
                     eq(messages.isFromAdmin, true)
                 ));
-            
+
             unreadCount = Number(result[0]?.count || 0);
         }
 

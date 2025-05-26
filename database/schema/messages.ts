@@ -6,7 +6,8 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
 
-// Messages table
+
+
 export const messages = sqliteTable(
     'messages',
     {

@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/database';
 import { messages, users } from '@/database/schema';
 import { verifyApiAuth } from '@/lib/auth';
-import { desc, asc, eq, and, or } from 'drizzle-orm';
+import { asc, eq, and, or } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { sendMessageToUser, broadcastToAdmins } from './sse/sse-helpers';
 import { logger, withLogging } from '@/lib/logger';
+
+
 
 export const GET = withLogging(async (request: NextRequest) => {
     try {
@@ -17,11 +19,11 @@ export const GET = withLogging(async (request: NextRequest) => {
 
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
-        
-        logger.info('Fetching messages', { 
-            userEmail: session.user.email, 
-            isAdmin: session.user.admin, 
-            filterUserId: userId 
+
+        logger.info('Fetching messages', {
+            userEmail: session.user.email,
+            isAdmin: session.user.admin,
+            filterUserId: userId
         });
 
         let query;
@@ -67,11 +69,11 @@ export const POST = withLogging(async (request: NextRequest) => {
 
         const body = await request.json();
         const { content, userId } = body;
-        
-        logger.info('Creating message', { 
-            userEmail: session.user.email, 
-            isAdmin: session.user.admin, 
-            targetUserId: userId 
+
+        logger.info('Creating message', {
+            userEmail: session.user.email,
+            isAdmin: session.user.admin,
+            targetUserId: userId
         });
 
         if (!content || content.trim().length === 0) {
@@ -115,9 +117,9 @@ export const POST = withLogging(async (request: NextRequest) => {
                 .select({ id: users.id })
                 .from(users)
                 .where(eq(users.admin, true));
-            
+
             logger.info('Broadcasting to admins', { adminCount: admins.length });
-            
+
             admins.forEach(admin => {
                 logger.debug('Sending message to admin', { adminId: admin.id });
                 sendMessageToUser(admin.id, {
@@ -145,11 +147,11 @@ export const PATCH = withLogging(async (request: NextRequest) => {
 
         const body = await request.json();
         const { messageIds } = body;
-        
-        logger.info('Marking messages as read', { 
-            userEmail: session.user.email, 
-            isAdmin: session.user.admin, 
-            messageCount: messageIds.length 
+
+        logger.info('Marking messages as read', {
+            userEmail: session.user.email,
+            isAdmin: session.user.admin,
+            messageCount: messageIds.length
         });
 
         if (!messageIds || !Array.isArray(messageIds)) {
@@ -198,7 +200,7 @@ export const PATCH = withLogging(async (request: NextRequest) => {
         logger.error('Error updating messages', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+});
 
 export const DELETE = withLogging(async (request: NextRequest) => {
     try {
@@ -210,17 +212,17 @@ export const DELETE = withLogging(async (request: NextRequest) => {
 
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
-        
+
         if (!userId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
         }
-        
+
         logger.info('Deleting messages', { adminEmail: session.user.email, targetUserId: userId });
 
         await db
             .delete(messages)
             .where(eq(messages.userId, userId));
-            
+
         logger.info('Messages deleted successfully', { userId });
 
         // Notify connected users
@@ -228,7 +230,7 @@ export const DELETE = withLogging(async (request: NextRequest) => {
             type: 'conversation_deleted',
             userId,
         });
-        
+
         // Also notify the admin
         sendMessageToUser(session.user.id, {
             type: 'conversation_deleted',

@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { ActionButton } from '@/components/ui';
 import { useChat } from '@/hooks/useChat';
 
+
+
 export default function ChatInterface() {
-    const { user } = useAuth();
     const { messages, loading, error, sendMessage, markAsRead } = useChat();
     const [inputMessage, setInputMessage] = useState('');
     const [sending, setSending] = useState(false);

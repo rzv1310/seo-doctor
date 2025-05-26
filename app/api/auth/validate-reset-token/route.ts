@@ -4,6 +4,8 @@ import { passwordResets } from '@/database/schema';
 import { eq, and, gt, isNull } from 'drizzle-orm';
 import { logger, withLogging } from '@/lib/logger';
 
+
+
 async function validateResetTokenHandler(request: NextRequest) {
     try {
         const { token } = await request.json();
@@ -39,7 +41,7 @@ async function validateResetTokenHandler(request: NextRequest) {
         return NextResponse.json({ valid: true });
 
     } catch (error) {
-        logger.error('Token validation error', error);
+        logger.error('Token validation error', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
             { error: 'Eroare la validarea token-ului' },
             { status: 500 }

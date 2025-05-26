@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ActionButton, Link } from '@/components/ui';
+import { ActionButton } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
+
+
 
 interface PaymentMethod {
     id: string;
@@ -158,8 +160,8 @@ export default function PaymentMethodSelector({
                     <label
                         key={method.id}
                         className={`block p-4 border rounded-lg cursor-pointer transition-all ${selectedCardId === method.id
-                                ? 'border-primary bg-primary/10'
-                                : 'border-border-color hover:border-primary/50'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border-color hover:border-primary/50'
                             }`}
                     >
                         <div className="flex items-center">

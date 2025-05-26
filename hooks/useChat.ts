@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
+
+
 interface Message {
     id: string;
     userId: string;
@@ -32,7 +34,7 @@ export function useChat() {
     // Fetch messages
     const fetchMessages = useCallback(async (userId?: string) => {
         try {
-            const url = userId 
+            const url = userId
                 ? `/api/messages?userId=${userId}`
                 : '/api/messages';
             const response = await fetch(url);
@@ -51,7 +53,7 @@ export function useChat() {
     // Fetch user chats (for admin)
     const fetchUserChats = useCallback(async () => {
         if (!user?.admin) return;
-        
+
         try {
             const response = await fetch('/api/messages/users');
             if (!response.ok) throw new Error('Failed to fetch user chats');
@@ -70,17 +72,17 @@ export function useChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content, userId }),
             });
-            
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
                 console.error('Send message failed:', response.status, errorData);
                 throw new Error(errorData.error || 'Failed to send message');
             }
             const newMessage = await response.json();
-            
+
             // Optimistically update UI
             setMessages(prev => [...prev, newMessage]);
-            
+
             return newMessage;
         } catch (err) {
             setError('Failed to send message');
@@ -97,13 +99,13 @@ export function useChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ messageIds }),
             });
-            
+
             if (!response.ok) throw new Error('Failed to mark messages as read');
-            
+
             // Update local state
-            setMessages(prev => 
-                prev.map(msg => 
-                    messageIds.includes(msg.id) 
+            setMessages(prev =>
+                prev.map(msg =>
+                    messageIds.includes(msg.id)
                         ? { ...msg, isRead: true }
                         : msg
                 )
@@ -118,11 +120,11 @@ export function useChat() {
         if (!user) return;
 
         const es = new EventSource('/api/messages/sse');
-        
+
         es.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log('SSE message received:', data);
-            
+
             if (data.type === 'new_message') {
                 // For regular users, add all their messages
                 if (!user.admin) {
@@ -166,18 +168,18 @@ export function useChat() {
     // Delete conversation (admin only)
     const deleteConversation = useCallback(async (userId: string) => {
         if (!user?.admin) return;
-        
+
         try {
             const response = await fetch(`/api/messages?userId=${userId}`, {
                 method: 'DELETE',
             });
-            
+
             if (!response.ok) throw new Error('Failed to delete conversation');
-            
+
             // Remove from local state
             setMessages(prev => prev.filter(msg => msg.userId !== userId));
             setUserChats(prev => prev.filter(chat => chat.userId !== userId));
-            
+
             return true;
         } catch (err) {
             console.error('Error deleting conversation:', err);

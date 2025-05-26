@@ -7,7 +7,8 @@ import {
 import { users } from './users';
 import { services } from './services';
 
-// Subscriptions table to track user service subscriptions
+
+
 export const subscriptions = sqliteTable(
     'subscriptions',
     {

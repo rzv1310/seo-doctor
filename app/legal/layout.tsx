@@ -1,11 +1,13 @@
 import { pageMetadata } from '@/data/metadata';
 
+
+
 export const metadata = pageMetadata.legal;
 
 export default function LegalLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return children;
+    return children;
 }

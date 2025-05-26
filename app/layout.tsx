@@ -1,9 +1,11 @@
 import { Space_Grotesk, Fira_Code } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { getServerSession } from "@/lib/auth";
+import { layoutMetadata } from "@/data/metadata";
 import "./globals.css";
-import { AuthProvider } from "../context/AuthContext";
-import { CartProvider } from "../context/CartContext";
-import { getServerSession } from "../lib/auth";
-import { layoutMetadata } from "../data/metadata";
+
+
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",

@@ -1,8 +1,9 @@
-import { pageMetadata } from '@/data/metadata';
 import { Suspense } from 'react';
-import { getServerSession } from '../../lib/auth';
-import { redirect } from 'next/navigation';
+import { pageMetadata } from '@/data/metadata';
 import DashboardContent from './DashboardContent';
+import { Spinner } from '@/components/ui';
+
+
 
 export const metadata = pageMetadata.dashboard;
 
@@ -11,13 +12,12 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const session = await getServerSession();
-
-    // The middleware already handles auth, so we don't need to redirect here
-    // This was causing a redirect loop
-
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-dark-blue flex items-center justify-center">
+                <Spinner size="lg" />
+            </div>
+        }>
             <DashboardContent>
                 {children}
             </DashboardContent>

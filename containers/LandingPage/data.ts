@@ -1,4 +1,3 @@
-// Testimonials data
 export const testimonials = [
     {
         id: 1,
@@ -23,14 +22,12 @@ export const testimonials = [
     },
 ];
 
-// Navigation links
 export const navLinks = [
     { id: 1, name: 'Servicii', href: '#features' },
     { id: 2, name: 'Prețuri', href: '#pricing' },
     { id: 3, name: 'Testimoniale', href: '#testimonials' }
 ];
 
-// Hero section data
 export const heroData = {
     title: 'SEO Doctor',
     subtitle: 'Solutii garantate de optimizare SEO, mai multi pacienti în clinica ta.',
@@ -41,7 +38,6 @@ export const heroData = {
     primaryUrlAuth: '/dashboard'
 };
 
-// Footer data
 export const footerData = {
     companyName: 'SEO Doctor',
     companyDescription: 'Soluții de optimizare Google pentru afaceri care vor să crească online.',
@@ -75,7 +71,6 @@ export const footerData = {
     ]
 };
 
-// Call to action section data
 export const ctaData = {
     title: 'Ești gata să îți crești vizibilitatea online?',
     subtitle1: '88% dintre utilizatori folosesc Google Maps pentru a găsi afaceri locale.',

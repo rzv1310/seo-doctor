@@ -5,7 +5,8 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
 
-// Payment methods table
+
+
 export const paymentMethods = sqliteTable(
     'payment_methods',
     {

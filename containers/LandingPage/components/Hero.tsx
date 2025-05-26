@@ -3,6 +3,8 @@ import React from "react";
 import { SparklesCore } from "@/components/ui/sparkles"
 import { ActionButton } from '@/components/ui';
 
+
+
 export default function Hero() {
     return (
         <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
@@ -8,9 +8,11 @@ import { services as serviceData, type Service } from '@/data/services';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import type { Subscription } from '@/hooks/useSubscriptions';
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { Card, Grid, Link, LinkButton, ActionButton, Spinner, StatusBadge } from '@/components/ui';
+import { Card, Grid, ActionButton, Spinner } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import ServiceCard from '@/components/dashboard/services/ServiceCard';
+
+
 
 export default function ServicesPage() {
     const { addItem, isInCart, removeItem, items } = useCart();
@@ -24,14 +26,14 @@ export default function ServicesPage() {
 
     // Helper functions for subscription management
     const isSubscribed = (serviceId: string) => {
-        return (subscriptions || []).some(sub => 
-            sub.serviceId?.toString() === serviceId && 
+        return (subscriptions || []).some(sub =>
+            sub.serviceId?.toString() === serviceId &&
             (sub.status === 'active' || sub.status === 'trial')
         );
     };
 
     const getSubscription = (serviceId: string) => {
-        return (subscriptions || []).find(sub => 
+        return (subscriptions || []).find(sub =>
             sub.serviceId?.toString() === serviceId
         );
     };
@@ -43,7 +45,7 @@ export default function ServicesPage() {
     };
 
     const cancelSubscription = async (subscriptionId: string) => {
-        // TODO: Implement cancellation API call  
+        // TODO: Implement cancellation API call
         console.log('Cancel subscription:', subscriptionId);
         throw new Error('Not implemented yet');
     };
@@ -145,8 +147,8 @@ export default function ServicesPage() {
                 subtitle="Gestionează serviciile tale și explorează ofertele disponibile"
             >
 
-            {/* Filters and search */}
-            {/* <div className="dashboard-card mb-6">
+                {/* Filters and search */}
+                {/* <div className="dashboard-card mb-6">
                 <div className="p-4 border-b border-border-color">
                     <h2 className="text-xl font-semibold">Filtre</h2>
                 </div>
@@ -187,76 +189,76 @@ export default function ServicesPage() {
                 </div>
             </div> */}
 
-            <Grid cols={2} gap="md" className="mb-6">
-                {filteredServices.map(service => {
-                    const subscription = getSubscription(service.id.toString());
+                <Grid cols={2} gap="md" className="mb-6">
+                    {filteredServices.map(service => {
+                        const subscription = getSubscription(service.id.toString());
 
-                    return (
-                        <ServiceCard
-                            key={service.id}
-                            service={service}
-                            subscription={subscription}
-                            isInCart={isInCart(service.id)}
-                            isSubscribing={isSubscribing === service.id}
-                            onToggleCart={() => handleToggleCartItem(service)}
-                            onSubscribe={() => handleSubscribe(service.id)}
-                            onCancelSubscription={handleCancelSubscriptionClick}
-                        />
-                    );
-                })}
-            </Grid>
+                        return (
+                            <ServiceCard
+                                key={service.id}
+                                service={service}
+                                subscription={subscription}
+                                isInCart={isInCart(service.id)}
+                                isSubscribing={isSubscribing === service.id}
+                                onToggleCart={() => handleToggleCartItem(service)}
+                                onSubscribe={() => handleSubscribe(service.id)}
+                                onCancelSubscription={handleCancelSubscriptionClick}
+                            />
+                        );
+                    })}
+                </Grid>
 
-            {filteredServices.length === 0 && !subscriptionsLoading && (
-                <Card className="p-8 text-center">
-                    <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
-                    <p className="text-text-primary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
-                    <ActionButton
-                        onClick={() => setStatusFilter('available')}
-                        size="md"
-                        showArrow={false}
-                    >
-                        Explorează Servicii Disponibile
-                    </ActionButton>
-                </Card>
-            )}
+                {filteredServices.length === 0 && !subscriptionsLoading && (
+                    <Card className="p-8 text-center">
+                        <div className="text-xl font-semibold mb-2">Nu s-au găsit servicii</div>
+                        <p className="text-text-primary mb-6">Ajustează criteriile de căutare sau filtrare.</p>
+                        <ActionButton
+                            onClick={() => setStatusFilter('available')}
+                            size="md"
+                            showArrow={false}
+                        >
+                            Explorează Servicii Disponibile
+                        </ActionButton>
+                    </Card>
+                )}
 
-            {subscriptionsLoading && (!subscriptions || subscriptions.length === 0) && (
-                <Card className="p-8 text-center">
-                    <div className="flex justify-center mb-4">
-                        <Spinner size="lg" />
+                {subscriptionsLoading && (!subscriptions || subscriptions.length === 0) && (
+                    <Card className="p-8 text-center">
+                        <div className="flex justify-center mb-4">
+                            <Spinner size="lg" />
+                        </div>
+                        <div className="text-xl font-semibold mb-2">Încărcare servicii...</div>
+                        <p className="text-text-primary">Se încarcă datele serviciilor și abonamentelor tale.</p>
+                    </Card>
+                )}
+
+                {items.length > 0 && (
+                    <div className="fixed bottom-8 right-8 z-10">
+                        <ActionButton
+                            href="/dashboard/checkout"
+                            size="md"
+                            animate
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            Finalizează Comanda
+                            <span className="inline-flex items-center justify-center bg-white text-primary rounded-full w-6 h-6 text-sm font-semibold ml-1">
+                                {items.length}
+                            </span>
+                        </ActionButton>
                     </div>
-                    <div className="text-xl font-semibold mb-2">Încărcare servicii...</div>
-                    <p className="text-text-primary">Se încarcă datele serviciilor și abonamentelor tale.</p>
-                </Card>
-            )}
+                )}
 
-            {items.length > 0 && (
-                <div className="fixed bottom-8 right-8 z-10">
-                    <ActionButton
-                        href="/dashboard/checkout"
-                        size="md"
-                        animate
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        Finalizează Comanda
-                        <span className="inline-flex items-center justify-center bg-white text-primary rounded-full w-6 h-6 text-sm font-semibold ml-1">
-                            {items.length}
-                        </span>
-                    </ActionButton>
-                </div>
-            )}
-
-            {/* Cancellation Modal */}
-            {subscriptionToCancel && (
-                <SubscriptionCancelModal
-                    subscription={subscriptionToCancel}
-                    onCancel={cancelSubscription}
-                    onClose={handleCloseModal}
-                    isOpen={!!subscriptionToCancel}
-                />
-            )}
+                {/* Cancellation Modal */}
+                {subscriptionToCancel && (
+                    <SubscriptionCancelModal
+                        subscription={subscriptionToCancel}
+                        onCancel={cancelSubscription}
+                        onClose={handleCloseModal}
+                        isOpen={!!subscriptionToCancel}
+                    />
+                )}
             </DashboardPageLayout>
         </>
     );

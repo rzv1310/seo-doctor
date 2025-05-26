@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyApiAuth } from '@/lib/auth';
+import { withLogging } from '@/lib/logger';
 import { clients } from './sse-helpers';
 
-export async function GET(request: NextRequest) {
+
+
+export const GET = withLogging(async (request: NextRequest) => {
     const session = await verifyApiAuth(request);
     if (!session.isAuthenticated) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

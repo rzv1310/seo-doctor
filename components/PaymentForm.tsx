@@ -10,6 +10,8 @@ import {
 import stripePromise from '../utils/stripe';
 import { useLogger } from '@/lib/client-logger';
 
+
+
 const StripeForm = ({
     amount,
     onSuccess,
@@ -40,8 +42,7 @@ const StripeForm = ({
 
         setIsProcessing(true);
         setErrorMessage(null);
-        
-        logger.form('submit', 'PaymentForm', false);
+
         logger.info('Payment form submitted', { amount });
 
         try {
@@ -52,33 +53,29 @@ const StripeForm = ({
 
             if (error) {
                 const errorMsg = error.message || 'A apărut o eroare cu plata ta.';
-                logger.form('submit', 'PaymentForm', false, new Error(errorMsg));
-                logger.error('Payment confirmation failed', error, { 
+                logger.error('Payment confirmation failed', error, {
                     errorType: error.type,
-                    errorCode: error.code 
+                    errorCode: error.code
                 });
                 setErrorMessage(errorMsg);
                 onError(errorMsg);
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-                logger.form('submit', 'PaymentForm', true);
-                logger.info('Payment succeeded', { 
+                logger.info('Payment succeeded', {
                     paymentIntentId: paymentIntent.id,
-                    status: paymentIntent.status 
+                    status: paymentIntent.status
                 });
                 onSuccess(paymentIntent.id);
                 return;
             } else {
                 const errorMsg = 'Plata nu a putut fi procesată. Te rugăm să încerci din nou.';
-                logger.form('submit', 'PaymentForm', false, new Error(errorMsg));
-                logger.warn('Payment not completed', { 
-                    status: paymentIntent?.status 
+                logger.warn('Payment not completed', {
+                    status: paymentIntent?.status
                 });
                 setErrorMessage(errorMsg);
                 onError(errorMsg);
             }
         } catch (err) {
             const errorMsg = 'Eroare de conexiune cu procesatorul de plăți. Te rugăm să verifici conexiunea la internet și să încerci din nou.';
-            logger.form('submit', 'PaymentForm', false, err as Error);
             logger.error('Payment processing error', err as Error);
             setErrorMessage(errorMsg);
             onError(errorMsg);
@@ -99,8 +96,8 @@ const StripeForm = ({
                 type="submit"
                 disabled={!stripe || isProcessing}
                 className={`w-full mt-6 py-2 px-4 rounded-md text-white ${!stripe || isProcessing
-                        ? 'bg-primary/50 cursor-not-allowed'
-                        : 'bg-primary hover:bg-primary-dark'
+                    ? 'bg-primary/50 cursor-not-allowed'
+                    : 'bg-primary hover:bg-primary-dark'
                     } transition-colors`}
             >
                 {isProcessing ? 'Se procesează...' : buttonText}
@@ -133,7 +130,7 @@ const PaymentForm = ({
             try {
                 setLoadingSecret(true);
                 setError(null);
-                
+
                 logger.info('Creating payment intent', { amount, description });
 
                 const controller = new AbortController();
@@ -151,7 +148,7 @@ const PaymentForm = ({
                     }),
                     signal: controller.signal
                 });
-                
+
                 clearTimeout(timeoutId);
 
                 if (!response.ok) {
@@ -164,24 +161,24 @@ const PaymentForm = ({
                 }
 
                 const data = await response.json();
-                logger.info('Payment intent created successfully', { 
-                    hasClientSecret: !!data.clientSecret 
+                logger.info('Payment intent created successfully', {
+                    hasClientSecret: !!data.clientSecret
                 });
                 setClientSecret(data.clientSecret);
             } catch (error: any) {
                 let errorMessage = 'Eroare la configurarea plății. Te rugăm să încerci din nou mai târziu.';
-                
+
                 if (error.name === 'AbortError') {
                     errorMessage = 'Conexiunea a expirat. Verifică conexiunea la internet și încearcă din nou.';
                 } else if (error instanceof TypeError && error.message.includes('fetch')) {
                     errorMessage = 'Eroare de conexiune. Verifică conexiunea la internet și încearcă din nou.';
                 }
-                
+
                 logger.error('Error creating payment intent', error, {
                     errorName: error.name,
                     errorMessage: error.message
                 });
-                
+
                 setError(errorMessage);
                 if (onError) {
                     onError(errorMessage);

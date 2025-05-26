@@ -4,6 +4,8 @@ import { eq } from 'drizzle-orm';
 import db from '../database';
 import { users } from '../database/schema';
 
+
+
 async function seedAdmin() {
     try {
         console.log('🌱 Starting admin seed...');

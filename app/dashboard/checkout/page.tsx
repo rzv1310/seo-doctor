@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useCart } from '../../../context/CartContext';
+import { useCart } from '@/context/CartContext';
+import { useLogger } from '@/lib/client-logger';
 import { ActionButton } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
-import { useLogger } from '@/lib/client-logger';
+
+
 
 const PaymentMethodSelector = dynamic(
     () => import('@/components/PaymentMethodSelector'),
@@ -47,12 +49,12 @@ export default function CheckoutPage() {
         : `Payment for ${items.length} services subscription`;
 
     useEffect(() => {
-        logger.info('Checkout page loaded', { 
-            itemCount: items.length, 
-            totalPrice, 
-            hasCoupon: !!couponCode 
+        logger.info('Checkout page loaded', {
+            itemCount: items.length,
+            totalPrice,
+            hasCoupon: !!couponCode
         });
-        
+
         if (items.length === 0 && !paymentSuccess) {
             logger.info('Redirecting to services - empty cart');
             router.push('/dashboard/services');
@@ -61,14 +63,14 @@ export default function CheckoutPage() {
 
     const handlePaymentWithCard = async (cardId: string) => {
         const amount = couponCode ? finalPrice : totalPrice;
-        
+
         try {
             setPaymentError(null);
-            logger.info('Processing payment', { 
-                cardId, 
-                amount, 
+            logger.info('Processing payment', {
+                cardId,
+                amount,
                 description: paymentDescription,
-                hasCoupon: !!couponCode 
+                hasCoupon: !!couponCode
             });
 
             const response = await fetch('/api/process-payment', {
@@ -94,9 +96,9 @@ export default function CheckoutPage() {
                 throw new Error(data.error || 'Payment failed');
             }
 
-            logger.info('Payment processed successfully', { 
+            logger.info('Payment processed successfully', {
                 chargeId: data.chargeId,
-                amount 
+                amount
             });
             setPaymentIntentId(data.chargeId);
             setPaymentSuccess(true);

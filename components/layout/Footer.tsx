@@ -2,8 +2,10 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { footerData as defaultFooterData } from '../../data/layout';
+import { footerData as defaultFooterData } from '@/data/layout';
 import { ActionButton, Link } from '@/components/ui';
+
+
 
 interface FooterProps {
     companyName?: string;

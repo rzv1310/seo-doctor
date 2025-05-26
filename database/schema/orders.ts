@@ -6,7 +6,8 @@ import {
 import { users } from './users';
 import { services } from './services';
 
-// Orders table
+
+
 export const orders = sqliteTable(
     'orders',
     {

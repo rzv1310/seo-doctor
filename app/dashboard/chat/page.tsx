@@ -7,7 +7,6 @@ import MessagesPage from '../messages/page';
 export default function ChatPage() {
     const { user } = useAuth();
 
-    // Show messages interface for admin, chat interface for regular users
     if (user?.admin) {
         return <MessagesPage />;
     }

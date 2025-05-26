@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/database';
-import { messages, users } from '@/database/schema';
+import { users } from '@/database/schema';
 import { verifyApiAuth } from '@/lib/auth';
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 import { logger, withLogging } from '@/lib/logger';
+
+
 
 export const GET = withLogging(async (request: NextRequest) => {
     try {
@@ -14,7 +16,7 @@ export const GET = withLogging(async (request: NextRequest) => {
         }
 
         logger.info('Fetching user chats', { adminEmail: session.user.email });
-        
+
         const userChats = await db
             .select({
                 userId: users.id,

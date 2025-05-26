@@ -7,6 +7,8 @@ import {
 import { Header, Footer } from '@/components/layout';
 import { navLinks } from '@/data/layout';
 
+
+
 interface LandingPageProps {
     isAuthenticated?: boolean;
 }

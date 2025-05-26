@@ -1,11 +1,11 @@
 import {
     sqliteTable,
     text,
-    integer,
     index,
 } from 'drizzle-orm/sqlite-core';
 
-// Password reset tokens table
+
+
 export const passwordResets = sqliteTable(
     'password_resets',
     {

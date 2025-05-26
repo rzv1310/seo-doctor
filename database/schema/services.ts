@@ -5,7 +5,8 @@ import {
     real,
 } from 'drizzle-orm/sqlite-core';
 
-// Services table
+
+
 export const services = sqliteTable(
     'services',
     {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/lib/stripe-server';
 import { logger, withLogging } from '@/lib/logger';
 
+
+
 export const POST = withLogging(async (req: NextRequest) => {
     try {
         const body = await req.json();
@@ -19,7 +21,7 @@ export const POST = withLogging(async (req: NextRequest) => {
             },
         });
 
-        logger.payment('payment_intent_created', amount, currency, metadata.userId, undefined);
+        logger.info('Payment intent created', { amount, currency, userId: metadata.userId });
 
         return NextResponse.json({
             clientSecret: paymentIntent.client_secret,
@@ -40,9 +42,10 @@ export const POST = withLogging(async (req: NextRequest) => {
             statusCode = 503;
         }
 
-        logger.error('Payment intent creation failed', error, { 
+        logger.error('Payment intent creation failed', {
+            error: error instanceof Error ? error.message : String(error),
             errorType: error.type,
-            statusCode 
+            statusCode
         });
 
         return NextResponse.json(

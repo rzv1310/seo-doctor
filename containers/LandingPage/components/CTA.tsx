@@ -1,5 +1,7 @@
-import { ctaData } from '../data';
 import { ActionButton } from '@/components/ui';
+import { ctaData } from '../data';
+
+
 
 interface CTAProps {
     isAuthenticated?: boolean;
