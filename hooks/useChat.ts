@@ -67,6 +67,11 @@ export function useChat() {
     // Send message
     const sendMessage = useCallback(async (content: string, userId?: string) => {
         try {
+            // Clear any previous errors when attempting to send
+            setError(null);
+            
+            console.log('Sending message:', { content, userId });
+            
             const response = await fetch('/api/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -79,6 +84,7 @@ export function useChat() {
                 throw new Error(errorData.error || 'Failed to send message');
             }
             const newMessage = await response.json();
+            console.log('Message sent successfully:', newMessage);
 
             // Optimistically update UI
             setMessages(prev => [...prev, newMessage]);
@@ -126,26 +132,50 @@ export function useChat() {
             console.log('SSE message received:', data);
 
             if (data.type === 'new_message') {
+                console.log('New message via SSE:', data.message);
                 // For regular users, add all their messages
                 if (!user.admin) {
                     setMessages(prev => [...prev, data.message]);
                 } else {
-                    // For admin, only add if no filter or matches current filter
-                    // The messages will be properly filtered in the component
+                    // For admin, add to messages array and refresh user chats
                     setMessages(prev => [...prev, data.message]);
                     // Also refresh user chats to update last message and unread count
                     fetchUserChats();
+                }
+            } else if (data.type === 'message_read') {
+                console.log('Message read event received:', data);
+                // Update local message state to mark as read
+                if (data.messageIds && Array.isArray(data.messageIds)) {
+                    setMessages(prev =>
+                        prev.map(msg =>
+                            data.messageIds.includes(msg.id)
+                                ? { ...msg, isRead: true }
+                                : msg
+                        )
+                    );
+                    // Refresh user chats for admin to update unread counts
+                    if (user.admin) {
+                        fetchUserChats();
+                    }
+                }
+            } else if (data.type === 'conversation_deleted') {
+                console.log('Conversation deleted event received:', data);
+                // Handle conversation deletion
+                if (!user.admin && data.userId === user.id) {
+                    // For regular users, clear all messages if their conversation was deleted
+                    setMessages([]);
+                    setError('Your conversation has been deleted by an administrator');
+                } else if (user.admin) {
+                    // For admins, remove messages and update user chats
+                    setMessages(prev => prev.filter(msg => msg.userId !== data.userId));
+                    setUserChats(prev => prev.filter(chat => chat.userId !== data.userId));
                 }
             }
         };
 
         es.onerror = (error) => {
             console.error('SSE error:', error);
-            es.close();
-            // Attempt to reconnect after 5 seconds
-            setTimeout(() => {
-                setEventSource(new EventSource('/api/messages/sse'));
-            }, 5000);
+            // Don't close here as it might be a temporary issue
         };
 
         setEventSource(es);

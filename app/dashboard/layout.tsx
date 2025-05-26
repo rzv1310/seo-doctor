@@ -13,14 +13,14 @@ export default async function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-dark-blue flex items-center justify-center">
-                <Spinner size="lg" />
-            </div>
-        }>
-            <DashboardContent>
+        <DashboardContent>
+            <Suspense fallback={
+                <div className="flex items-center justify-center h-64">
+                    <Spinner size="lg" />
+                </div>
+            }>
                 {children}
-            </DashboardContent>
-        </Suspense>
+            </Suspense>
+        </DashboardContent>
     );
 }

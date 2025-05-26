@@ -24,6 +24,7 @@ export function SidebarButton({ href, icon, label, onClick, divider, badge }: Si
             <Link
                 href={href}
                 onClick={onClick}
+                prefetch={true}
                 className={`sidebar-item group flex items-center px-3 py-2.5 text-sm font-medium ${isActive ? 'active' : ''
                     }`}
             >

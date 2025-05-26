@@ -14,9 +14,12 @@ export const GET = withLogging(async (request: NextRequest) => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
         start(controller) {
-            // Store the controller for this user
-            clients.set(session.user.id, controller);
-            console.log(`SSE: User ${session.user.id} (${session.user.email}) connected. Total clients: ${clients.size}`);
+            // Store the controller for this user with admin status
+            clients.set(session.user.id, {
+                controller,
+                isAdmin: session.user.admin || false
+            });
+            console.log(`SSE: User ${session.user.id} (${session.user.email}) connected. Admin: ${session.user.admin}. Total clients: ${clients.size}`);
 
             // Send initial connection message
             const data = `data: ${JSON.stringify({ type: 'connected', userId: session.user.id })}\n\n`;

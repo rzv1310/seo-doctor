@@ -225,16 +225,17 @@ export const DELETE = withLogging(async (request: NextRequest) => {
 
         logger.info('Messages deleted successfully', { userId });
 
-        // Notify connected users
+        // Notify the user whose conversation was deleted
         sendMessageToUser(userId, {
             type: 'conversation_deleted',
             userId,
         });
 
-        // Also notify the admin
-        sendMessageToUser(session.user.id, {
+        // Broadcast to all admins (including the one who deleted it)
+        broadcastToAdmins({
             type: 'conversation_deleted',
             userId,
+            deletedBy: session.user.id,
         });
 
         return NextResponse.json({ success: true });

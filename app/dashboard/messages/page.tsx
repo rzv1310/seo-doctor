@@ -16,6 +16,7 @@ export default function MessagesPage() {
     const [sending, setSending] = useState(false);
     const [showUserList, setShowUserList] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Note: Access control is now handled in chat/page.tsx
 
@@ -26,6 +27,7 @@ export default function MessagesPage() {
             setSelectedUser(userWithUnread?.userId || userChats[0].userId);
         }
     }, [userChats, selectedUser]);
+
 
     // Ensure user list is shown on mobile when no user is selected
     useEffect(() => {
@@ -41,6 +43,18 @@ export default function MessagesPage() {
         }
     }, [selectedUser, fetchMessages]);
 
+    // Refresh messages when userChats updates (indicating a new message)
+    useEffect(() => {
+        if (selectedUser && userChats.length > 0) {
+            const selectedChat = userChats.find(chat => chat.userId === selectedUser);
+            if (selectedChat && selectedChat.unreadCount > 0) {
+                console.log('Unread messages detected for selected user, refreshing...');
+                fetchMessages(selectedUser);
+            }
+        }
+    }, [userChats, selectedUser, fetchMessages]);
+
+
     // Mark messages as read when selecting a user
     useEffect(() => {
         if (selectedUser && messages.length > 0) {
@@ -49,10 +63,13 @@ export default function MessagesPage() {
                 .map(msg => msg.id);
 
             if (unreadMessages.length > 0) {
+                console.log('Admin marking messages as read:', unreadMessages);
                 markAsRead(unreadMessages).then(() => {
-                    // Force a refresh of the user chats to update unread counts
+                    // Force a refresh of the user chats to update unread counts with a small delay
                     if (user?.admin) {
-                        fetchUserChats();
+                        setTimeout(() => {
+                            fetchUserChats();
+                        }, 100);
                     }
                 });
             }
@@ -71,6 +88,10 @@ export default function MessagesPage() {
             // Error handled in hook
         } finally {
             setSending(false);
+            // Focus input after a small delay to ensure DOM is updated
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
         }
     };
 
@@ -111,6 +132,10 @@ export default function MessagesPage() {
         if (window.innerWidth < 900) {
             setShowUserList(false);
         }
+        // Focus input when selecting a user
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 100);
     };
 
     // Handle back button on mobile
@@ -298,12 +323,14 @@ export default function MessagesPage() {
 
                                 <form onSubmit={handleSendMessage} className="p-4 border-t border-border-color flex gap-2 shrink-0">
                                     <input
+                                        ref={inputRef}
                                         type="text"
                                         value={inputMessage}
                                         onChange={(e) => setInputMessage(e.target.value)}
                                         placeholder="Scrieți un mesaj..."
                                         className="flex-1 bg-dark-blue-lighter border border-border-color rounded-md px-4 py-2 focus:outline-none focus:border-primary"
                                         disabled={sending}
+                                        autoFocus
                                     />
                                     <ActionButton
                                         type="submit"
@@ -313,7 +340,11 @@ export default function MessagesPage() {
                                         fullRounded={false}
                                     >
                                         {sending ? (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            <div
+                                                className="min-w-[75px] grid place-content-center"
+                                            >
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            </div>
                                         ) : (
                                             <>
                                                 Trimite

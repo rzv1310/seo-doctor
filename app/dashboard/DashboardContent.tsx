@@ -8,6 +8,19 @@ import { useCart } from '@/context/CartContext';
 import { DashboardProvider } from '@/context/DashboardContext';
 import Link from 'next/link';
 import { LinkButton, SidebarButton } from '@/components/ui';
+import dynamic from 'next/dynamic';
+
+// Preload all dashboard pages for instant navigation
+const preloadedPages = {
+    services: dynamic(() => import('./services/page'), { ssr: false }),
+    settings: dynamic(() => import('./settings/page'), { ssr: false }),
+    invoices: dynamic(() => import('./invoices/page'), { ssr: false }),
+    'payment-methods': dynamic(() => import('./payment-methods/page'), { ssr: false }),
+    checkout: dynamic(() => import('./checkout/page'), { ssr: false }),
+    messages: dynamic(() => import('./messages/page'), { ssr: false }),
+    chat: dynamic(() => import('./chat/page'), { ssr: false }),
+    users: dynamic(() => import('./users/page'), { ssr: false }),
+};
 
 
 
@@ -25,6 +38,20 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     useEffect(() => {
         setIsSidebarOpen(false);
     }, [pathname]);
+
+    // Preload all dashboard pages on mount
+    useEffect(() => {
+        // Delay preloading slightly to not interfere with initial render
+        const timer = setTimeout(() => {
+            Object.values(preloadedPages).forEach(component => {
+                if (component.preload) {
+                    component.preload();
+                }
+            });
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     // Fetch unread message count with real-time updates
     useEffect(() => {
