@@ -10,14 +10,20 @@ import Link from 'next/link';
 import { LinkButton, SidebarButton } from '@/components/ui';
 import dynamic from 'next/dynamic';
 
+
+
+// Type for dynamic components with preload
+type DynamicComponentWithPreload = React.ComponentType<any> & {
+    preload?: () => void;
+};
+
 // Preload all dashboard pages for instant navigation
-const preloadedPages = {
+const preloadedPages: Record<string, DynamicComponentWithPreload> = {
     services: dynamic(() => import('./services/page'), { ssr: false }),
     settings: dynamic(() => import('./settings/page'), { ssr: false }),
     invoices: dynamic(() => import('./invoices/page'), { ssr: false }),
     'payment-methods': dynamic(() => import('./payment-methods/page'), { ssr: false }),
     checkout: dynamic(() => import('./checkout/page'), { ssr: false }),
-    messages: dynamic(() => import('./messages/page'), { ssr: false }),
     chat: dynamic(() => import('./chat/page'), { ssr: false }),
     users: dynamic(() => import('./users/page'), { ssr: false }),
 };
