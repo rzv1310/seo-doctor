@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { ro } from 'date-fns/locale';
 
 
 interface ChatMessageProps {
@@ -13,29 +11,23 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ content, timestamp, isFromSender, senderName }: ChatMessageProps) {
+    const formatTime = (date: Date) => {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
-        <div className={`mb-4 ${isFromSender ? 'text-right' : 'text-left'}`}>
-            {senderName && !isFromSender && (
-                <div className="text-xs text-gray-500 mb-1">{senderName}</div>
-            )}
+        <div className={`flex mb-4 ${isFromSender ? 'justify-end' : 'justify-start'}`}>
             <div
-                className={`inline-block p-3 rounded-lg max-w-[70%] ${
+                className={`max-w-[80%] p-3 rounded-lg ${
                     isFromSender
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
+                        ? 'bg-primary text-white rounded-tr-none'
+                        : 'bg-dark-blue-lighter rounded-tl-none'
                 }`}
             >
-                <p className="whitespace-pre-wrap break-words">{content}</p>
-                <p
-                    className={`text-xs mt-1 ${
-                        isFromSender ? 'text-blue-100' : 'text-gray-500'
-                    }`}
-                >
-                    {formatDistanceToNow(timestamp, {
-                        addSuffix: true,
-                        locale: ro,
-                    })}
-                </p>
+                <p className="whitespace-pre-wrap">{content}</p>
+                <div className={`text-xs mt-1 ${isFromSender ? 'text-white/70' : 'text-text-primary'}`}>
+                    {formatTime(timestamp)}
+                </div>
             </div>
         </div>
     );

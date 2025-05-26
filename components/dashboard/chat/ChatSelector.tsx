@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { Search, MessageCircle } from 'lucide-react';
-import type { User } from '@/database/schema';
+import type { User } from '@/lib/auth';
 
 
 interface ChatUser extends User {
@@ -18,8 +17,8 @@ interface ChatUser extends User {
 
 interface ChatSelectorProps {
     users: ChatUser[];
-    selectedUserId: number | null;
-    onSelectUser: (userId: number) => void;
+    selectedUserId: string | null;
+    onSelectUser: (userId: string) => void;
 }
 
 export function ChatSelector({ users, selectedUserId, onSelectUser }: ChatSelectorProps) {
@@ -32,84 +31,68 @@ export function ChatSelector({ users, selectedUserId, onSelectUser }: ChatSelect
     );
 
     return (
-        <div className="h-full flex flex-col bg-gray-50">
-            <div className="p-4 border-b bg-white">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Căutați utilizatori..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+        <div className="dashboard-card flex flex-col h-full">
+            <div className="p-4 border-b border-border-color flex items-center justify-between">
+                <h2 className="font-semibold">Conversații</h2>
             </div>
-
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-grow overflow-y-auto">
                 {filteredUsers.length === 0 ? (
-                    <div className="text-center text-gray-500 mt-8 px-4">
-                        {searchQuery
-                            ? 'Niciun utilizator găsit pentru căutarea dvs.'
-                            : 'Niciun utilizator disponibil'}
+                    <div className="p-4 text-center text-text-primary">
+                        <p>Nu există conversații</p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-gray-200">
-                        {filteredUsers.map((user) => (
-                            <li key={user.id}>
-                                <button
-                                    onClick={() => onSelectUser(user.id)}
-                                    className={`w-full p-4 text-left hover:bg-gray-100 transition-colors ${
-                                        selectedUserId === user.id
-                                            ? 'bg-blue-50 border-l-4 border-blue-600'
-                                            : ''
-                                    }`}
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-medium text-gray-900 truncate">
-                                                    {user.name}
-                                                </h3>
-                                                {user.unreadCount > 0 && (
-                                                    <span className="bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                                                        {user.unreadCount}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-gray-500 truncate">
-                                                {user.email}
-                                            </p>
-                                            {user.lastMessage && (
-                                                <div className="mt-1">
-                                                    <p className="text-sm text-gray-600 truncate">
-                                                        {user.lastMessage.isFromAdmin && (
-                                                            <span className="text-gray-500">
-                                                                Dvs:{' '}
-                                                            </span>
-                                                        )}
-                                                        {user.lastMessage.content}
-                                                    </p>
-                                                    <p className="text-xs text-gray-400 mt-1">
-                                                        {formatDistanceToNow(
-                                                            parseISO(user.lastMessage.createdAt),
-                                                            {
-                                                                addSuffix: true,
-                                                                locale: ro,
-                                                            }
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {!user.lastMessage && (
-                                            <MessageCircle className="h-4 w-4 text-gray-400 flex-shrink-0 ml-2" />
+                    filteredUsers.map((user) => (
+                        <div
+                            key={user.id}
+                            className={`w-full border-b border-border-color transition-all duration-200 relative group ${
+                                selectedUserId === user.id
+                                    ? 'bg-dark-blue-lighter border-l-4 border-l-primary'
+                                    : 'hover:bg-dark-blue-lighter/50'
+                            }`}
+                        >
+                            <button
+                                onClick={() => onSelectUser(user.id)}
+                                className="w-full p-4 text-left cursor-pointer"
+                            >
+                                <div className="flex justify-between items-start mb-1">
+                                    <h3 className={`font-medium truncate pr-2 ${
+                                        selectedUserId === user.id ? 'text-text-primary' : 'group-hover:text-primary'
+                                    }`}>
+                                        {user.name}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        {user.unreadCount > 0 && (
+                                            <span className="bg-primary text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                                                {user.unreadCount}
+                                            </span>
                                         )}
                                     </div>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                                </div>
+                                <p className="text-sm text-text-primary truncate">{user.email}</p>
+                                {user.lastMessage && (
+                                    <p className="text-sm text-text-primary mt-2 truncate italic">"{user.lastMessage.content}"</p>
+                                )}
+                                {user.lastMessage && user.lastMessage.createdAt && (
+                                    <p className="text-xs text-text-primary/70 mt-1">
+                                        {formatDistanceToNow(
+                                            parseISO(user.lastMessage.createdAt),
+                                            {
+                                                addSuffix: true,
+                                                locale: ro,
+                                            }
+                                        )}
+                                    </p>
+                                )}
+                            </button>
+                            <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-opacity ${
+                                selectedUserId === user.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            }`}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-text-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
         </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { MessageCircle, Trash2 } from 'lucide-react';
 
 
 interface ChatHeaderProps {
@@ -9,29 +8,43 @@ interface ChatHeaderProps {
     subtitle?: string;
     showDeleteButton?: boolean;
     onDelete?: () => void;
+    isAdmin?: boolean;
 }
 
-export function ChatHeader({ title, subtitle, showDeleteButton, onDelete }: ChatHeaderProps) {
+export function ChatHeader({ title, subtitle, showDeleteButton, onDelete, isAdmin }: ChatHeaderProps) {
     return (
-        <div className="p-4 border-b bg-white">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <MessageCircle className="h-5 w-5 text-blue-600" />
+        <div className="p-4 border-b border-border-color flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+                {!isAdmin ? (
+                    <>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <h2 className="text-lg font-semibold">{title}</h2>
+                            <p className="text-xs text-text-primary">{subtitle || 'Online acum'}</p>
+                        </div>
+                    </>
+                ) : (
                     <div>
-                        <h2 className="font-semibold text-gray-900">{title}</h2>
-                        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+                        <h2 className="font-semibold">{title}</h2>
+                        {subtitle && <p className="text-sm text-text-primary">{subtitle}</p>}
                     </div>
-                </div>
-                {showDeleteButton && onDelete && (
-                    <button
-                        onClick={onDelete}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Ștergeți conversația"
-                    >
-                        <Trash2 className="h-5 w-5" />
-                    </button>
                 )}
             </div>
+            {showDeleteButton && onDelete && (
+                <button
+                    onClick={onDelete}
+                    className="text-red-500 hover:text-red-600 transition-colors cursor-pointer"
+                    title="Șterge conversația"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            )}
         </div>
     );
 }

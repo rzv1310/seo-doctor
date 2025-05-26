@@ -3,11 +3,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { Send, AlertCircle } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
-import { Spinner } from '@/components/ui';
-import type { Message } from '@/database/schema';
+import { ActionButton, Spinner } from '@/components/ui';
 
+
+interface Message {
+    id: string;
+    userId: string;
+    content: string;
+    isFromAdmin: boolean;
+    isRead: boolean;
+    createdAt: string;
+    userName?: string;
+    userEmail?: string;
+}
 
 interface ChatWindowProps {
     messages: Message[];
@@ -55,10 +64,26 @@ export function ChatWindow({
         }
     };
 
+    const formatDate = (date: Date) => {
+        const today = new Date();
+        
+        if (date.toDateString() === today.toDateString()) {
+            return 'Astăzi';
+        }
+        
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (date.toDateString() === yesterday.toDateString()) {
+            return 'Ieri';
+        }
+        
+        return date.toLocaleDateString('ro-RO');
+    };
+
     const renderDateHeader = (date: Date) => (
         <div className="text-center my-4">
-            <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
-                {format(date, 'dd MMMM yyyy', { locale: ro })}
+            <span className="text-xs text-text-primary bg-dark-blue-lighter px-3 py-1 rounded-full">
+                {formatDate(date)}
             </span>
         </div>
     );
@@ -75,7 +100,9 @@ export function ChatWindow({
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                    <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <p className="text-red-600">{error}</p>
                 </div>
             </div>
@@ -121,28 +148,37 @@ export function ChatWindow({
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 border-t">
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        placeholder="Scrieți un mesaj..."
-                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        disabled={isSending}
-                    />
-                    <button
+            <form onSubmit={handleSubmit} className="p-4 border-t border-border-color flex gap-2 shrink-0">
+                <input
+                    type="text"
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    placeholder="Scrieți un mesaj..."
+                    className="flex-1 bg-dark-blue-lighter border border-border-color rounded-md px-4 py-2 focus:outline-none focus:border-primary"
+                    disabled={isSending}
+                />
+                    <ActionButton
                         type="submit"
-                        disabled={!messageInput.trim() || isSending}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        size="sm"
+                        disabled={messageInput.trim() === '' || isSending}
+                        showArrow={false}
+                        fullRounded={false}
                     >
                         {isSending ? (
-                            <Spinner className="h-5 w-5" />
+                            <div
+                                className="min-w-[75px] grid place-content-center"
+                            >
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            </div>
                         ) : (
-                            <Send className="h-5 w-5" />
+                            <>
+                                Trimite
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ transform: 'rotate(45deg)' }}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </>
                         )}
-                    </button>
-                </div>
+                    </ActionButton>
             </form>
         </div>
     );

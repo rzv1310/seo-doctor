@@ -11,14 +11,14 @@ import { ChatWindow, ChatSelector, ChatHeader } from '@/components/dashboard/cha
 export default function AdminChat() {
     const { user } = useAuth();
     const { userChats, messages, loading, sendMessage, fetchMessages, markAsRead, fetchUserChats, deleteConversation } = useChat();
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [showUserList, setShowUserList] = useState(true);
 
     // Select first user with unread messages or first user
     useEffect(() => {
         if (userChats.length > 0 && !selectedUserId) {
             const userWithUnread = userChats.find(chat => chat.unreadCount > 0);
-            setSelectedUserId(userWithUnread ? parseInt(userWithUnread.userId) : parseInt(userChats[0].userId));
+            setSelectedUserId(userWithUnread ? userWithUnread.userId : userChats[0].userId);
         }
     }, [userChats, selectedUserId]);
 
@@ -32,7 +32,7 @@ export default function AdminChat() {
     // Fetch messages for selected user
     useEffect(() => {
         if (selectedUserId) {
-            fetchMessages(selectedUserId.toString());
+            fetchMessages(selectedUserId);
         }
     }, [selectedUserId, fetchMessages]);
 
@@ -40,7 +40,7 @@ export default function AdminChat() {
     useEffect(() => {
         if (selectedUserId && messages.length > 0) {
             const unreadMessages = messages
-                .filter(msg => !msg.isRead && !msg.isFromAdmin && msg.userId === selectedUserId.toString())
+                .filter(msg => !msg.isRead && !msg.isFromAdmin && msg.userId === selectedUserId)
                 .map(msg => msg.id);
 
             if (unreadMessages.length > 0) {
@@ -58,7 +58,7 @@ export default function AdminChat() {
     // Transform userChats for ChatSelector
     const chatUsers = useMemo(() => {
         return userChats.map(chat => ({
-            id: parseInt(chat.userId),
+            id: chat.userId,
             name: chat.userName,
             email: chat.userEmail,
             admin: false,
@@ -73,14 +73,14 @@ export default function AdminChat() {
         }));
     }, [userChats]);
 
-    const selectedUserChat = userChats.find(chat => chat.userId === selectedUserId?.toString());
+    const selectedUserChat = userChats.find(chat => chat.userId === selectedUserId);
     const userMessages = useMemo(() =>
-        selectedUserId ? messages.filter(msg => msg.userId === selectedUserId.toString()) : [],
+        selectedUserId ? messages.filter(msg => msg.userId === selectedUserId) : [],
         [selectedUserId, messages]
     );
 
     // Handle user selection
-    const handleUserSelect = (userId: number) => {
+    const handleUserSelect = (userId: string) => {
         setSelectedUserId(userId);
         if (window.innerWidth < 900) {
             setShowUserList(false);
@@ -95,7 +95,7 @@ export default function AdminChat() {
     // Handle delete conversation
     const handleDeleteConversation = async () => {
         if (selectedUserId && window.confirm('Sigur doriți să ștergeți această conversație?')) {
-            const success = await deleteConversation(selectedUserId.toString());
+            const success = await deleteConversation(selectedUserId);
             if (success) {
                 setSelectedUserId(null);
             }
@@ -105,7 +105,7 @@ export default function AdminChat() {
     // Handle send message
     const handleSendMessage = async (content: string) => {
         if (selectedUserId) {
-            await sendMessage(content, selectedUserId.toString());
+            await sendMessage(content, selectedUserId);
         }
     };
 
