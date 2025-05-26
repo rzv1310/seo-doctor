@@ -147,7 +147,7 @@ export default function PaymentMethodsPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cardId }),
+                body: JSON.stringify({ paymentMethodId: cardId }),
             });
 
             if (!response.ok) {
@@ -166,7 +166,7 @@ export default function PaymentMethodsPage() {
     const deleteMethod = async (cardId: string) => {
         try {
             setLocalCardsError('');
-            const response = await fetch(`/api/payment-methods?cardId=${cardId}`, {
+            const response = await fetch(`/api/payment-methods?paymentMethodId=${cardId}`, {
                 method: 'DELETE',
             });
 

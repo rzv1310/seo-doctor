@@ -87,10 +87,10 @@ export default function ServiceCard({
 
                     <div className="flex gap-2 items-center">
                         <Link
-                            href={service.url || `/dashboard/services/${service.id}`}
+                            href={`/dashboard/services/${service.id}`}
                             variant="primary"
                         >
-                            Detalii
+                            {isSubscribed ? 'Gestionează' : 'Detalii'}
                         </Link>
 
                         {isSubscribed ? (

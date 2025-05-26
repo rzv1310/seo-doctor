@@ -4,3 +4,5 @@
 + after imports use three blank lines
 + import order: libraries, files outside the directory of the file, files in the same directory, files in subdirectories
 + add a blank line at the end of the file
++ the user interface must be in Romanian
++ Stripe IDs are stored in environment variables for security, not hardcoded in git

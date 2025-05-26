@@ -6,6 +6,54 @@ import { verifyApiAuth } from '@/lib/auth';
 import stripe from '@/lib/stripe-server';
 import { logger, withLogging } from '@/lib/logger';
 
+
+// Helper function to ensure user has a Stripe customer
+async function ensureStripeCustomer(user: any) {
+    if (user.stripeCustomerId) {
+        try {
+            // Verify customer exists in Stripe
+            await stripe.customers.retrieve(user.stripeCustomerId);
+            return user.stripeCustomerId;
+        } catch (error: any) {
+            if (error.code === 'resource_missing') {
+                logger.warn('Stripe customer not found, creating new one', {
+                    userId: user.id,
+                    oldStripeCustomerId: user.stripeCustomerId
+                });
+                // Clear invalid customer ID
+                await db
+                    .update(users)
+                    .set({ stripeCustomerId: null })
+                    .where(eq(users.id, user.id));
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    logger.info('Creating new Stripe customer', { userId: user.id });
+
+    const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name || undefined,
+        metadata: {
+            userId: user.id.toString(),
+        },
+    });
+
+    await db
+        .update(users)
+        .set({ stripeCustomerId: customer.id })
+        .where(eq(users.id, user.id));
+
+    logger.info('Stripe customer created', {
+        userId: user.id,
+        stripeCustomerId: customer.id
+    });
+
+    return customer.id;
+}
+
 export const GET = withLogging(async (request: NextRequest) => {
     try {
         const session = await verifyApiAuth(request);
@@ -26,41 +74,23 @@ export const GET = withLogging(async (request: NextRequest) => {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        if (!user.stripeCustomerId) {
-            logger.info('Creating new Stripe customer', { userId: user.id });
+        const stripeCustomerId = await ensureStripeCustomer(user);
 
-            const customer = await stripe.customers.create({
-                email: user.email,
-                name: user.name || undefined,
-            });
+        // Use modern paymentMethods API
+        const paymentMethods = await stripe.paymentMethods.list({
+            customer: stripeCustomerId,
+            type: 'card',
+        });
 
-            await db
-                .update(users)
-                .set({ stripeCustomerId: customer.id })
-                .where(eq(users.id, user.id));
-
-            logger.info('Stripe customer created', {
-                userId: user.id,
-                stripeCustomerId: customer.id
-            });
-
-            return NextResponse.json({ cards: [] });
-        }
-
-        const cards = await stripe.customers.listSources(
-            user.stripeCustomerId,
-            { object: 'card' }
-        );
-
-        const transformedCards = cards.data.map((card: any) => ({
-            id: card.id,
-            brand: card.brand.toLowerCase(),
-            last4: card.last4,
-            expMonth: card.exp_month,
-            expYear: card.exp_year,
-            isDefault: card.id === user.defaultPaymentMethodId,
-            funding: card.funding,
-            country: card.country,
+        const transformedCards = paymentMethods.data.map((pm: any) => ({
+            id: pm.id,
+            brand: pm.card.brand.toLowerCase(),
+            last4: pm.card.last4,
+            expMonth: pm.card.exp_month,
+            expYear: pm.card.exp_year,
+            isDefault: pm.id === user.defaultPaymentMethodId,
+            funding: pm.card.funding,
+            country: pm.card.country,
         }));
 
         logger.info('Payment methods retrieved', {
@@ -68,7 +98,10 @@ export const GET = withLogging(async (request: NextRequest) => {
             cardCount: transformedCards.length
         });
 
-        return NextResponse.json({ cards: transformedCards });
+        return NextResponse.json({ 
+            cards: transformedCards, 
+            defaultCardId: user.defaultPaymentMethodId 
+        });
     } catch (error) {
         logger.error('Failed to fetch payment methods', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
@@ -88,11 +121,11 @@ export const POST = withLogging(async (request: NextRequest) => {
         }
 
         const body = await request.json();
-        const { token, setAsDefault } = body;
+        const { paymentMethodId, setAsDefault } = body;
 
-        if (!token) {
-            logger.warn('Missing card token in request', { userId: session.user.id });
-            return NextResponse.json({ error: 'Card token is required' }, { status: 400 });
+        if (!paymentMethodId) {
+            logger.warn('Missing payment method ID in request', { userId: session.user.id });
+            return NextResponse.json({ error: 'Payment method ID is required' }, { status: 400 });
         }
 
         logger.info('Adding payment method', {
@@ -111,61 +144,46 @@ export const POST = withLogging(async (request: NextRequest) => {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        let stripeCustomerId = user.stripeCustomerId;
+        const stripeCustomerId = await ensureStripeCustomer(user);
 
-        if (!stripeCustomerId) {
-            logger.info('Creating new Stripe customer for payment method', { userId: user.id });
-
-            const customer = await stripe.customers.create({
-                email: user.email,
-                name: user.name || undefined,
-            });
-
-            stripeCustomerId = customer.id;
-
-            await db
-                .update(users)
-                .set({ stripeCustomerId })
-                .where(eq(users.id, user.id));
-
-            logger.info('Stripe customer created', {
-                userId: user.id,
-                stripeCustomerId
-            });
-        }
-
-        const card = await stripe.customers.createSource(stripeCustomerId, {
-            source: token,
+        // Attach payment method to customer using modern API
+        await stripe.paymentMethods.attach(paymentMethodId, {
+            customer: stripeCustomerId,
         });
+
+        // Get payment method details
+        const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
 
         logger.info('Payment method added', { userId: user.id });
 
         if (setAsDefault) {
             await stripe.customers.update(stripeCustomerId, {
-                default_source: card.id,
+                invoice_settings: {
+                    default_payment_method: paymentMethodId,
+                },
             });
 
             await db
                 .update(users)
-                .set({ defaultPaymentMethodId: card.id })
+                .set({ defaultPaymentMethodId: paymentMethodId })
                 .where(eq(users.id, user.id));
 
             logger.info('Payment method set as default', {
                 userId: user.id,
-                cardId: card.id
+                paymentMethodId
             });
         }
 
         return NextResponse.json({
             card: {
-                id: card.id,
-                brand: (card as any).brand.toLowerCase(),
-                last4: (card as any).last4,
-                expMonth: (card as any).exp_month,
-                expYear: (card as any).exp_year,
+                id: paymentMethod.id,
+                brand: paymentMethod.card!.brand.toLowerCase(),
+                last4: paymentMethod.card!.last4,
+                expMonth: paymentMethod.card!.exp_month,
+                expYear: paymentMethod.card!.exp_year,
                 isDefault: setAsDefault,
-                funding: (card as any).funding,
-                country: (card as any).country,
+                funding: paymentMethod.card!.funding,
+                country: paymentMethod.card!.country,
             },
         });
     } catch (error) {
@@ -187,16 +205,16 @@ export const DELETE = withLogging(async (request: NextRequest) => {
         }
 
         const { searchParams } = new URL(request.url);
-        const cardId = searchParams.get('cardId');
+        const paymentMethodId = searchParams.get('paymentMethodId');
 
-        if (!cardId) {
-            logger.warn('Missing card ID in deletion request', { userId: session.user.id });
-            return NextResponse.json({ error: 'Card ID is required' }, { status: 400 });
+        if (!paymentMethodId) {
+            logger.warn('Missing payment method ID in deletion request', { userId: session.user.id });
+            return NextResponse.json({ error: 'Payment method ID is required' }, { status: 400 });
         }
 
         logger.info('Deleting payment method', {
             userId: session.user.id,
-            cardId
+            paymentMethodId
         });
 
         const user = await db
@@ -210,11 +228,12 @@ export const DELETE = withLogging(async (request: NextRequest) => {
             return NextResponse.json({ error: 'User or customer not found' }, { status: 404 });
         }
 
-        await stripe.customers.deleteSource(user.stripeCustomerId, cardId);
+        // Detach payment method using modern API
+        await stripe.paymentMethods.detach(paymentMethodId);
 
         logger.info('Payment method deleted', { userId: user.id });
 
-        if (user.defaultPaymentMethodId === cardId) {
+        if (user.defaultPaymentMethodId === paymentMethodId) {
             await db
                 .update(users)
                 .set({ defaultPaymentMethodId: null })
@@ -243,16 +262,16 @@ export const PATCH = withLogging(async (request: NextRequest) => {
         }
 
         const body = await request.json();
-        const { cardId } = body;
+        const { paymentMethodId } = body;
 
-        if (!cardId) {
-            logger.warn('Missing card ID in update request', { userId: session.user.id });
-            return NextResponse.json({ error: 'Card ID is required' }, { status: 400 });
+        if (!paymentMethodId) {
+            logger.warn('Missing payment method ID in update request', { userId: session.user.id });
+            return NextResponse.json({ error: 'Payment method ID is required' }, { status: 400 });
         }
 
         logger.info('Updating default payment method', {
             userId: session.user.id,
-            cardId
+            paymentMethodId
         });
 
         const user = await db
@@ -267,12 +286,14 @@ export const PATCH = withLogging(async (request: NextRequest) => {
         }
 
         await stripe.customers.update(user.stripeCustomerId, {
-            default_source: cardId,
+            invoice_settings: {
+                default_payment_method: paymentMethodId,
+            },
         });
 
         await db
             .update(users)
-            .set({ defaultPaymentMethodId: cardId })
+            .set({ defaultPaymentMethodId: paymentMethodId })
             .where(eq(users.id, user.id));
 
         logger.info('Default payment method updated', { userId: user.id });

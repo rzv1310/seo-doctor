@@ -36,16 +36,16 @@ Manages user payment methods stored in Stripe.
 - **GET**: Fetch all cards for the authenticated user
   - Creates Stripe customer if none exists
   - Returns transformed card data with default status
-  
+
 - **POST**: Add a new card using a Stripe token
   - Body: `{ token: string, setAsDefault?: boolean }`
   - Creates Stripe customer if needed
   - Returns the new card details
-  
+
 - **DELETE**: Remove a card from Stripe
   - Query param: `?cardId={id}`
   - Clears default if deleted card was default
-  
+
 - **PATCH**: Set a card as the default payment method
   - Body: `{ cardId: string }`
   - Updates both Stripe and database
@@ -54,7 +54,7 @@ Manages user payment methods stored in Stripe.
 Handles payment processing with saved cards.
 
 - **POST**: Process a payment using a saved card
-  - Body: 
+  - Body:
     ```json
     {
       "amount": 1000,        // Amount in cents
@@ -66,7 +66,7 @@ Handles payment processing with saved cards.
     }
     ```
   - Returns charge details and status
-  
+
 - **GET**: Get available payment methods for checkout
   - Returns cards list with default card ID
 
@@ -137,7 +137,7 @@ The payment methods page uses dynamic imports for Stripe Elements:
 ```tsx
 const StripeCardElement = dynamic(
   () => import('@/components/StripeCardElement'),
-  { 
+  {
     ssr: false,
     loading: () => <LoadingSpinner />
   }
@@ -275,6 +275,95 @@ When migrating from development to production:
 3. Set up webhooks for production endpoint
 4. Configure allowed domains in Stripe dashboard
 5. Enable appropriate security features
+
+## Stripe Product Generation Script
+
+### Overview
+The application includes a script to programmatically generate Stripe products, prices, and coupons for the two main services: GMB MAX and GOOGLE ORGANIC.
+
+### Script Location
+`scripts/generate-stripe-products.ts`
+
+### What it Creates
+
+1. **Products:**
+   - **GMB MAX**: €1000/month subscription for Google Maps optimization
+   - **GOOGLE ORGANIC**: €1000/month subscription for Google organic search optimization
+
+2. **Prices:**
+   - Monthly recurring prices for each product (€1000/month)
+
+3. **Coupons:**
+   - **SEO70**: 70% discount for the first 3 months
+
+### Usage
+
+Run the script using:
+```bash
+pnpm stripe:generate-products
+```
+
+### Prerequisites
+
+- Ensure `STRIPE_SECRET_KEY` is set in your `.env.local` file
+- Use test mode Stripe key for development/testing
+- Use live mode Stripe key for production
+
+### Output
+
+The script will:
+1. Create products, prices, and coupons in your Stripe account
+2. Generate `data/payment.ts` with all the IDs
+3. Display the created IDs in the console
+
+### Generated File Structure
+
+The script:
+1. **Updates `.env.local`** with Stripe IDs:
+```env
+STRIPE_PRODUCT_GMB_MAX=prod_...
+STRIPE_PRODUCT_GOOGLE_ORGANIC=prod_...
+STRIPE_PRICE_GMB_MAX_MONTHLY=price_...
+STRIPE_PRICE_GOOGLE_ORGANIC_MONTHLY=price_...
+STRIPE_COUPON_SEO70=SEO70
+```
+
+2. **Creates `data/payment.ts`** that reads from environment variables:
+```typescript
+export const stripeIds = {
+    products: {
+        gmbMax: process.env.STRIPE_PRODUCT_GMB_MAX!,
+        googleOrganic: process.env.STRIPE_PRODUCT_GOOGLE_ORGANIC!
+    },
+    prices: {
+        gmbMaxMonthly: process.env.STRIPE_PRICE_GMB_MAX_MONTHLY!,
+        googleOrganicMonthly: process.env.STRIPE_PRICE_GOOGLE_ORGANIC_MONTHLY!
+    },
+    coupons: {
+        SEO70: process.env.STRIPE_COUPON_SEO70!
+    }
+}
+```
+
+Plus helper functions:
+- `getPriceIdByServiceId(serviceId: number)`: Get price ID for a service
+- `getProductIdByServiceId(serviceId: number)`: Get product ID for a service
+
+### Important Notes
+
+1. **Run Once Per Environment**: Only run this script once per Stripe account (test/live)
+2. **Coupon ID**: The coupon ID 'SEO70' is hardcoded - if it already exists, the script will fail
+3. **Regeneration**: If you need to regenerate, delete the existing products in Stripe dashboard first
+4. **Service IDs**: The script uses service IDs 1 (GMB MAX) and 2 (GOOGLE ORGANIC) from `data/services.ts`
+5. **Security**: Stripe IDs are now stored in environment variables, not hardcoded in git
+6. **Production Setup**: Remember to add the environment variables to your production environment
+
+### Integration with Application
+
+After running the script, the generated IDs can be used throughout the application:
+- In subscription creation flows
+- For applying the SEO70 coupon during checkout
+- For matching services to their Stripe products
 
 ## Support
 

@@ -85,6 +85,33 @@ export const POST = withLogging(async (req: NextRequest) => {
                     customerId: subscription.customer,
                     status: subscription.status
                 });
+
+                // Update subscription in database
+                const subscriptionData: any = {
+                    status: subscription.status === 'active' ? 'active' : 
+                           subscription.status === 'trialing' ? 'trial' : 
+                           subscription.status === 'canceled' ? 'cancelled' : 'inactive',
+                    startDate: new Date(subscription.current_period_start * 1000).toISOString(),
+                    endDate: new Date(subscription.current_period_end * 1000).toISOString(),
+                    renewalDate: new Date(subscription.current_period_end * 1000).toISOString(),
+                    price: subscription.items.data[0]?.price.unit_amount || 0,
+                    updatedAt: new Date().toISOString(),
+                };
+
+                // If trial, set trial end date
+                if (subscription.status === 'trialing' && subscription.trial_end) {
+                    subscriptionData.trialEndDate = new Date(subscription.trial_end * 1000).toISOString();
+                }
+
+                // Update subscription
+                await db.update(subscriptions)
+                    .set(subscriptionData)
+                    .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
+
+                logger.info('Subscription updated in database', {
+                    subscriptionId: subscription.id,
+                    status: subscriptionData.status
+                });
                 break;
             }
 

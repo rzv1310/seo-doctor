@@ -39,15 +39,27 @@ export default function ServicesPage() {
     };
 
     const subscribeToService = async (serviceId: string) => {
-        // TODO: Implement subscription API call
-        console.log('Subscribe to service:', serviceId);
-        throw new Error('Not implemented yet');
+        // Redirect to service detail page for subscription
+        window.location.href = `/dashboard/services/${serviceId}`;
     };
 
-    const cancelSubscription = async (subscriptionId: string) => {
-        // TODO: Implement cancellation API call
-        console.log('Cancel subscription:', subscriptionId);
-        throw new Error('Not implemented yet');
+    const cancelSubscription = async (subscriptionId: string, reason?: string) => {
+        const response = await fetch('/api/subscriptions/cancel-stripe-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subscriptionId,
+                reason,
+                immediate: false,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to cancel subscription');
+        }
+
+        return response.json();
     };
 
     // State for filters
@@ -254,9 +266,14 @@ export default function ServicesPage() {
                 {subscriptionToCancel && (
                     <SubscriptionCancelModal
                         subscription={subscriptionToCancel}
-                        onCancel={cancelSubscription}
-                        onClose={handleCloseModal}
                         isOpen={!!subscriptionToCancel}
+                        onClose={handleCloseModal}
+                        onCancel={async (subscriptionId, reason) => {
+                            await cancelSubscription(subscriptionId, reason);
+                            handleCloseModal();
+                            window.location.reload();
+                            return true;
+                        }}
                     />
                 )}
             </DashboardPageLayout>

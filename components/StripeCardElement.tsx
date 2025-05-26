@@ -50,23 +50,26 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
         }
 
         try {
-            const { token, error: tokenError } = await stripe.createToken(cardElement);
+            const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            });
 
-            if (tokenError) {
-                logger.error('Token creation failed', tokenError, {
-                    errorType: tokenError.type,
-                    errorCode: tokenError.code
+            if (pmError) {
+                logger.error('Payment method creation failed', pmError, {
+                    errorType: pmError.type,
+                    errorCode: pmError.code
                 });
-                throw new Error(tokenError.message);
+                throw new Error(pmError.message);
             }
 
-            if (!token) {
-                const errorMsg = 'Nu s-a putut crea token-ul';
-                logger.error('Token not created', new Error(errorMsg));
+            if (!paymentMethod) {
+                const errorMsg = 'Nu s-a putut crea metoda de plată';
+                logger.error('Payment method not created', new Error(errorMsg));
                 throw new Error(errorMsg);
             }
 
-            logger.info('Token created successfully', { tokenId: token.id });
+            logger.info('Payment method created successfully', { paymentMethodId: paymentMethod.id });
 
             const response = await fetch('/api/payment-methods', {
                 method: 'POST',
@@ -74,7 +77,7 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    token: token.id,
+                    paymentMethodId: paymentMethod.id,
                     setAsDefault: saveAsDefault,
                 }),
             });

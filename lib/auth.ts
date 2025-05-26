@@ -258,3 +258,9 @@ export function getClientUserId(): string | null {
   const token = getClientAuthToken();
   return token ? verifyAuthToken(token) : null;
 }
+
+// Helper function for API routes to get user from request
+export async function getUserFromToken(request: Request): Promise<User | null> {
+  const session = await verifyApiAuth(request);
+  return session.isAuthenticated ? session.user : null;
+}

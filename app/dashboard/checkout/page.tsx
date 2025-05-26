@@ -6,23 +6,26 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useCart } from '@/context/CartContext';
 import { useLogger } from '@/lib/client-logger';
-import { ActionButton } from '@/components/ui';
+import { ActionButton, Alert, Input } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
+import { getPriceIdByServiceId } from '@/data/payment';
+import { stripeIds } from '@/data/payment';
 
 
 
-const PaymentMethodSelector = dynamic(
-    () => import('@/components/PaymentMethodSelector'),
+const MultiSubscriptionCheckout = dynamic(
+    () => import('@/components/MultiSubscriptionCheckout'),
     {
         ssr: false,
         loading: () => (
             <div className="text-center py-8">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
-                <p className="mt-2 text-text-secondary">Se încarcă opțiunile de plată...</p>
+                <p className="mt-2 text-gray-400">Se încarcă opțiunile de plată...</p>
             </div>
         )
     }
 );
+
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -40,13 +43,16 @@ export default function CheckoutPage() {
         formattedFinalPrice
     } = useCart();
     const [inputCoupon, setInputCoupon] = useState(couponCode);
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
-    const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
-    const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [subscriptionSuccess, setSubscriptionSuccess] = useState(false);
+    const [subscriptionIds, setSubscriptionIds] = useState<string[]>([]);
+    const [subscribedServicesCount, setSubscribedServicesCount] = useState(0);
+    const [subscribedServicesNames, setSubscribedServicesNames] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    const paymentDescription = items.length === 1
-        ? `Payment for ${items[0].name} subscription`
-        : `Payment for ${items.length} services subscription`;
+    const subscriptionDescription = items.length === 1
+        ? `Abonament pentru ${items[0].name}`
+        : `Abonament pentru ${items.length} servicii`;
 
     useEffect(() => {
         logger.info('Checkout page loaded', {
@@ -55,63 +61,28 @@ export default function CheckoutPage() {
             hasCoupon: !!couponCode
         });
 
-        if (items.length === 0 && !paymentSuccess) {
+        if (items.length === 0 && !subscriptionSuccess) {
             logger.info('Redirecting to services - empty cart');
             router.push('/dashboard/services');
         }
-    }, [items, router, paymentSuccess, logger, totalPrice, couponCode]);
+    }, [items, router, subscriptionSuccess, logger, totalPrice, couponCode]);
 
-    const handlePaymentWithCard = async (cardId: string) => {
-        const amount = couponCode ? finalPrice : totalPrice;
-
-        try {
-            setPaymentError(null);
-            logger.info('Processing payment', {
-                cardId,
-                amount,
-                description: paymentDescription,
-                hasCoupon: !!couponCode
-            });
-
-            const response = await fetch('/api/process-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    amount,
-                    currency: 'usd',
-                    description: paymentDescription,
-                    cardId,
-                    metadata: {
-                        items: items.map(item => item.name).join(', '),
-                        couponCode: couponCode || '',
-                    }
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Payment failed');
-            }
-
-            logger.info('Payment processed successfully', {
-                chargeId: data.chargeId,
-                amount
-            });
-            setPaymentIntentId(data.chargeId);
-            setPaymentSuccess(true);
-            clearCart();
-        } catch (error) {
-            logger.error('Payment processing failed', error as Error, { cardId, amount });
-            throw error;
-        }
+    const handleSubscriptionSuccess = (createdSubscriptionIds: string[]) => {
+        logger.info('Subscriptions created successfully', {
+            subscriptionIds: createdSubscriptionIds,
+            serviceCount: items.length
+        });
+        // Store the items info before clearing cart
+        setSubscribedServicesCount(items.length);
+        setSubscribedServicesNames(items.map(item => item.name));
+        setSubscriptionIds(createdSubscriptionIds);
+        setSubscriptionSuccess(true);
+        clearCart();
     };
 
-    const handlePaymentError = (error: string) => {
-        logger.error('Payment error received', new Error(error));
-        setPaymentError(error);
+    const handleSubscriptionError = (error: string) => {
+        logger.error('Subscription error received', new Error(error));
+        setError(error);
     };
 
     const handleContinue = () => {
@@ -119,7 +90,7 @@ export default function CheckoutPage() {
         router.push('/dashboard');
     };
 
-    if (items.length === 0 && !paymentSuccess) {
+    if (items.length === 0 && !subscriptionSuccess) {
         return null; // Will redirect via useEffect
     }
 
@@ -136,43 +107,29 @@ export default function CheckoutPage() {
                             <h2 className="text-xl font-semibold">Plată</h2>
                         </div>
                         <div className="p-4">
-                            {paymentSuccess ? (
+                            {subscriptionSuccess ? (
                                 <div className="bg-green-900/20 border border-green-900/30 rounded-md p-6 text-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <h3 className="text-xl font-semibold text-green-300 mb-2">Plată Reușită!</h3>
-                                    <p className="text-text-primary mb-6">
-                                        Plata pentru {items.length === 1 ? `serviciul ${items[0].name}` : `${items.length} servicii`} a fost procesată cu succes.
+                                    <h3 className="text-xl font-semibold text-green-300 mb-2">Abonare Reușită!</h3>
+                                    <p className="text-gray-300 mb-6">
+                                        Abonarea pentru {subscribedServicesCount === 1 ? `serviciul ${subscribedServicesNames[0]}` : `${subscribedServicesCount} servicii`} a fost creată cu succes.
                                     </p>
-                                    <p className="text-sm text-text-primary mb-6">
-                                        ID Plată: {paymentIntentId}
+                                    <p className="text-sm text-gray-400 mb-6">
+                                        {subscriptionIds.length} abonament{subscriptionIds.length > 1 ? 'e' : ''} creat{subscriptionIds.length > 1 ? 'e' : ''}
                                     </p>
-                                    <button
-                                        onClick={handleContinue}
-                                        className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
-                                    >
-                                        Continuă la Panou de Control
-                                    </button>
+                                    <ActionButton onClick={handleContinue}>
+                                        Continuă la Servicii
+                                    </ActionButton>
                                 </div>
                             ) : (
-                                <>
-                                    <p className="mb-6 text-text-primary">
-                                        Te rugăm să introduci detaliile de plată pentru a finaliza achiziția.
-                                    </p>
-
-                                    {paymentError && (
-                                        <div className="bg-red-900/20 border border-red-900/30 rounded-md p-4 mb-6 text-danger">
-                                            {paymentError}
-                                        </div>
-                                    )}
-
-                                    <PaymentMethodSelector
-                                        amount={couponCode ? finalPrice : totalPrice}
-                                        currency="USD"
-                                        onPayment={handlePaymentWithCard}
-                                    />
-                                </>
+                                <MultiSubscriptionCheckout
+                                    items={items}
+                                    couponCode={couponCode}
+                                    onSuccess={handleSubscriptionSuccess}
+                                    onError={handleSubscriptionError}
+                                />
                             )}
                         </div>
                     </div>
@@ -192,7 +149,7 @@ export default function CheckoutPage() {
                                         {item.description}
                                     </p>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-text-primary">Abonament lunar</span>
+                                        <span className="text-gray-400">Abonament lunar</span>
                                         <span>{item.price}</span>
                                     </div>
                                 </div>
@@ -234,27 +191,27 @@ export default function CheckoutPage() {
                         </div>
 
                         {/* Price Summary */}
-                        <div className="py-2 border-t border-border-color">
+                        <div className="py-2 border-t border-gray-800">
                             <div className="flex justify-between mb-2">
-                                <span className="text-text-primary">Subtotal</span>
+                                <span className="text-gray-400">Subtotal</span>
                                 <span>{formattedTotalPrice}</span>
                             </div>
 
                             {couponCode && (
                                 <div className="flex justify-between mb-2">
-                                    <span className="text-text-primary">Discount</span>
+                                    <span className="text-gray-400">Discount</span>
                                     <span className="text-green-500">-{formattedDiscountAmount}</span>
                                 </div>
                             )}
 
                             <div className="flex justify-between mb-2">
-                                <span className="text-text-primary">Taxe</span>
-                                <span>$0.00</span>
+                                <span className="text-gray-400">Taxe</span>
+                                <span>€0.00</span>
                             </div>
 
                             <div className="flex justify-between font-bold text-lg mt-4">
-                                <span>Total</span>
-                                <span className="text-sky-400">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
+                                <span>Total lunar</span>
+                                <span className="text-green-400">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
                             </div>
                         </div>
 

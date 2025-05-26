@@ -20,9 +20,15 @@ export const GET = withLogging(async (request: NextRequest) => {
             .where(eq(subscriptions.userId, session.user.id))
             .leftJoin(services, eq(subscriptions.serviceId, services.id));
 
-        logger.info('Subscriptions fetched successfully', { userId: session.user.id, count: userSubscriptions.length });
+        // Format the response to have a cleaner structure
+        const formattedSubscriptions = userSubscriptions.map(row => ({
+            ...row.subscriptions,
+            service: row.services
+        }));
+
+        logger.info('Subscriptions fetched successfully', { userId: session.user.id, count: formattedSubscriptions.length });
         return NextResponse.json({
-            subscriptions: userSubscriptions
+            subscriptions: formattedSubscriptions
         });
     } catch (error) {
         logger.error('Error fetching subscriptions', { error: error instanceof Error ? error.message : String(error) });

@@ -13,7 +13,8 @@
         "db:seed:user": "dotenv -e .env.local -- tsx scripts/seed-user.ts",
         "db:seed:data": "dotenv -e .env.local -- tsx scripts/seed-data.ts",
         "db:seed:admin": "dotenv -e .env.local -- tsx scripts/seed-admin.ts",
-        "db:seed:all": "dotenv -e .env.local -- tsx scripts/seed-all.ts"
+        "db:seed:all": "dotenv -e .env.local -- tsx scripts/seed-all.ts",
+        "stripe:generate-products": "dotenv -e .env.local -- tsx scripts/generate-stripe-products.ts"
     },
     "dependencies": {
         "@libsql/client": "^0.15.5",
