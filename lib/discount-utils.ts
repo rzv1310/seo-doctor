@@ -1,3 +1,4 @@
+import Stripe from 'stripe';
 import stripe from './stripe-server';
 import { logger } from './logger';
 
@@ -156,10 +157,25 @@ export async function fetchSubscriptionDiscounts(
         }
 
         const originalPriceEur = originalPrice / 100;
-        const discounts = stripeSubscription.discounts.filter(
-            (discount): discount is StripeDiscountData => 
+        const discounts = stripeSubscription.discounts
+            .filter((discount): discount is Stripe.Discount => 
                 typeof discount === 'object' && discount !== null
-        );
+            )
+            .map((discount): StripeDiscountData => ({
+                id: discount.id,
+                coupon: {
+                    id: discount.coupon.id,
+                    name: discount.coupon.name,
+                    percent_off: discount.coupon.percent_off,
+                    amount_off: discount.coupon.amount_off,
+                    currency: discount.coupon.currency,
+                    duration: discount.coupon.duration,
+                    duration_in_months: discount.coupon.duration_in_months,
+                    valid: discount.coupon.valid
+                },
+                start: discount.start,
+                end: discount.end
+            }));
 
         return calculateDiscountedPrice(originalPriceEur, discounts);
     } catch (error) {

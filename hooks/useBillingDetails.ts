@@ -8,11 +8,11 @@ import { useLogger } from '@/lib/client-logger';
 
 
 interface BillingDetails {
-    billingName?: string | null;
-    billingCompany?: string | null;
-    billingVat?: string | null;
-    billingAddress?: string | null;
-    billingPhone?: string | null;
+    billingName: string | null;
+    billingCompany: string | null;
+    billingVat: string | null;
+    billingAddress: string | null;
+    billingPhone: string | null;
 }
 
 export function useBillingDetails() {
@@ -23,11 +23,11 @@ export function useBillingDetails() {
     const [error, setError] = useState<string | null>(null);
 
     const billingDetails: BillingDetails = {
-        billingName: user?.billingName,
-        billingCompany: user?.billingCompany,
-        billingVat: user?.billingVat,
-        billingAddress: user?.billingAddress,
-        billingPhone: user?.billingPhone,
+        billingName: user?.billingName ?? null,
+        billingCompany: user?.billingCompany ?? null,
+        billingVat: user?.billingVat ?? null,
+        billingAddress: user?.billingAddress ?? null,
+        billingPhone: user?.billingPhone ?? null,
     };
 
     const hasDetails = !!(billingDetails.billingName || billingDetails.billingCompany);

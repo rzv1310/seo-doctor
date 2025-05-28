@@ -49,11 +49,11 @@ export const GET = withLogging(async (
 
             // Verify the invoice belongs to this customer
             if (invoice.customer !== user.stripeCustomerId) {
-                logger.warn('Invoice does not belong to user', { 
-                    invoiceId, 
+                logger.warn('Invoice does not belong to user', {
+                    invoiceId,
                     userId: session.user.id,
                     invoiceCustomer: invoice.customer,
-                    userCustomer: user.stripeCustomerId 
+                    userCustomer: user.stripeCustomerId
                 });
                 return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
             }
@@ -68,13 +68,19 @@ export const GET = withLogging(async (
             }));
 
             // Get discount/coupon information
-            const discounts = invoice.discounts?.map(discount => ({
-                couponId: discount.coupon?.id,
-                couponName: discount.coupon?.name,
-                percentOff: discount.coupon?.percent_off,
-                amountOff: discount.coupon?.amount_off ? discount.coupon.amount_off / 100 : null,
-                currency: discount.coupon?.currency
-            })) || [];
+            const discounts = invoice.discounts?.map(discount => {
+                if (typeof discount === 'string') {
+                    return;
+                }
+
+                return {
+                    couponId: discount.coupon?.id,
+                    couponName: discount.coupon?.name,
+                    percentOff: discount.coupon?.percent_off,
+                    amountOff: discount.coupon?.amount_off ? discount.coupon.amount_off / 100 : null,
+                    currency: discount.coupon?.currency
+                }
+            }) || [];
 
             // Calculate actual discount amount from subtotal vs total (includes tax consideration)
             const actualDiscountAmount = Math.max(0, (invoice.subtotal - invoice.total + (invoice.tax || 0)) / 100);
@@ -89,8 +95,8 @@ export const GET = withLogging(async (
                 createdAt: new Date(invoice.created * 1000).toISOString(),
                 dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
                 amount: (invoice.amount_paid || invoice.amount_due) / 100, // Convert from cents
-                status: invoice.status === 'paid' ? 'paid' : 
-                        invoice.status === 'open' ? 'pending' : 
+                status: invoice.status === 'paid' ? 'paid' :
+                        invoice.status === 'open' ? 'pending' :
                         invoice.status === 'uncollectible' ? 'cancelled' : 'pending',
                 stripeInvoiceId: invoice.id,
                 serviceName: items[0]?.name || 'Subscription',
@@ -124,10 +130,10 @@ export const GET = withLogging(async (
                 logger.warn('Invoice not found in Stripe', { invoiceId, userId: session.user.id });
                 return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
             }
-            
-            logger.error('Error fetching invoice from Stripe', { 
-                invoiceId, 
-                error: error instanceof Error ? error.message : String(error) 
+
+            logger.error('Error fetching invoice from Stripe', {
+                invoiceId,
+                error: error instanceof Error ? error.message : String(error)
             });
             return NextResponse.json({ error: 'Failed to fetch invoice' }, { status: 500 });
         }

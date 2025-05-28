@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
             .from(subscriptions)
             .where(and(
                 eq(subscriptions.userId, user.id),
-                eq(subscriptions.serviceId, serviceId)
+                eq(subscriptions.serviceId, serviceId.toString())
             ))
             .limit(1);
 
