@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
+import { ActionButton } from './ui';
 
 
 
@@ -20,13 +21,58 @@ export default function Cart({ isOpen, onClose }: CartProps) {
         couponCode,
         setCouponCode,
         formattedDiscountAmount,
-        formattedFinalPrice
+        formattedFinalPrice,
+        setCouponData
     } = useCart();
 
     const [inputCoupon, setInputCoupon] = useState(couponCode);
+    const [isValidating, setIsValidating] = useState(false);
+    const [couponError, setCouponError] = useState<string | null>(null);
 
-    const handleApplyCoupon = () => {
-        setCouponCode(inputCoupon);
+    const handleApplyCoupon = async () => {
+        if (!inputCoupon.trim()) {
+            setCouponError('Vă rugăm să introduceți un cod promoțional');
+            return;
+        }
+
+        setIsValidating(true);
+        setCouponError(null);
+
+        try {
+            const response = await fetch('/api/validate-coupon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ couponCode: inputCoupon.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setCouponError(data.error || 'Cod promoțional invalid');
+                setCouponCode('');
+                setCouponData(null);
+                return;
+            }
+
+            // Valid coupon
+            setCouponCode(inputCoupon.trim());
+            setCouponData(data);
+            setCouponError(null);
+        } catch (error) {
+            console.error('Error validating coupon:', error);
+            setCouponError('Eroare la validarea codului promoțional');
+            setCouponCode('');
+            setCouponData(null);
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setCouponCode('');
+        setCouponData(null);
+        setInputCoupon('');
+        setCouponError(null);
     };
 
     if (!isOpen) return null;
@@ -49,14 +95,16 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                         </svg>
                         Coș
                     </h2>
-                    <button
+                    <ActionButton
                         onClick={onClose}
-                        className="rounded-md p-1 hover:bg-dark-blue-lighter"
+                        variant="default"
+                        size="sm"
+                        showArrow={false}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </button>
+                    </ActionButton>
                 </div>
 
                 {/* Cart body */}
@@ -68,12 +116,12 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             </svg>
                             <h3 className="text-lg font-medium mb-2">Coșul tău este gol</h3>
                             <p className="text-text-secondary mb-6">Adaugă servicii în coș pentru a continua.</p>
-                            <button
+                            <ActionButton
                                 onClick={onClose}
-                                className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors"
+                                variant="default"
                             >
                                 Continuă Cumpărăturile
-                            </button>
+                            </ActionButton>
                         </div>
                     ) : (
                         <div className="p-4 space-y-4">
@@ -88,27 +136,33 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                     </div>
                                     <div className="text-right flex flex-col items-end gap-2">
                                         <div className="font-bold">{item.price}<span className="text-xs text-text-secondary">/mo</span></div>
-                                        <button
+                                        <ActionButton
                                             onClick={() => removeItem(item.id)}
-                                            className="text-xs text-danger hover:text-red-400 transition-colors flex items-center gap-1"
+                                            variant="danger"
+                                            size="sm"
+                                            showArrow={false}
+                                            fullRounded={false}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                             Elimină
-                                        </button>
+                                        </ActionButton>
                                     </div>
                                 </div>
                             ))}
 
                             {items.length > 0 && (
                                 <div className="text-right mt-4">
-                                    <button
+                                    <ActionButton
                                         onClick={clearCart}
-                                        className="text-xs text-text-secondary hover:text-text-primary transition-colors"
+                                        variant="default"
+                                        size="sm"
+                                        showArrow={false}
+                                        fullRounded={false}
                                     >
                                         Golește Coșul
-                                    </button>
+                                    </ActionButton>
                                 </div>
                             )}
                         </div>
@@ -128,19 +182,37 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                     placeholder="Cod promoțional"
                                     className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
                                 />
-                                <button
+                                <ActionButton
                                     onClick={handleApplyCoupon}
-                                    className="px-3 py-2 bg-secondary hover:bg-secondary-dark text-white rounded text-sm transition-colors"
+                                    variant="default"
+                                    size="sm"
+                                    showArrow={false}
+                                    fullRounded={false}
+                                    loading={isValidating}
+                                    disabled={isValidating}
                                 >
                                     Aplică
-                                </button>
+                                </ActionButton>
                             </div>
-                            {couponCode && (
-                                <div className="text-xs text-green-500 flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Cod promoțional aplicat: {couponCode}
+                            {couponError && (
+                                <div className="text-xs text-danger">{couponError}</div>
+                            )}
+                            {couponCode && !couponError && (
+                                <div className="text-xs text-green-500 flex items-center justify-between">
+                                    <span className="flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Cod promoțional aplicat: {couponCode}
+                                    </span>
+                                    <button
+                                        onClick={handleRemoveCoupon}
+                                        className="text-text-secondary hover:text-danger transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -161,17 +233,18 @@ export default function Cart({ isOpen, onClose }: CartProps) {
 
                             <div className="flex justify-between items-center">
                                 <span className="text-text-secondary">Total:</span>
-                                <span className="text-lg font-bold text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
+                                <span className="text-lg font-bold text-text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
                             </div>
                         </div>
 
-                        <Link
+                        <ActionButton
                             href="/dashboard/checkout"
-                            className="block w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md transition-colors text-center font-medium"
+                            variant="default"
+                            fullWidth
                             onClick={onClose}
                         >
                             Finalizează Comanda
-                        </Link>
+                        </ActionButton>
                     </div>
                 )}
             </div>

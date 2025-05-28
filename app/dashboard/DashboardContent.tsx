@@ -9,6 +9,7 @@ import { DashboardProvider } from '@/context/DashboardContext';
 import Link from 'next/link';
 import { LinkButton, SidebarButton } from '@/components/ui';
 import dynamic from 'next/dynamic';
+import Cart from '@/components/Cart';
 
 
 
@@ -36,6 +37,7 @@ interface DashboardContentProps {
 
 export default function DashboardContent({ children }: DashboardContentProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const pathname = usePathname();
     const { user } = useAuth();
@@ -186,8 +188,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
                     {/* Cart icon in top right */}
                     <div className="fixed top-4 right-4 z-40">
-                        <Link
-                            href="/dashboard/checkout"
+                        <button
+                            onClick={() => setIsCartOpen(true)}
                             className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-glass-bg backdrop-blur-sm border border-glass-border hover:bg-sky-400/10 transition-colors"
                         >
                             <svg
@@ -208,7 +210,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                     {itemCount}
                                 </span>
                             )}
-                        </Link>
+                        </button>
                     </div>
 
                     <div className="p-4 md:p-8 flex-1 overflow-hidden flex flex-col">
@@ -223,6 +225,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         onClick={() => setIsSidebarOpen(false)}
                     />
                 )}
+
+                {/* Cart overlay */}
+                <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
             </div>
         </DashboardProvider>
     );

@@ -33,6 +33,14 @@ export default function ServiceCard({
     const isActive = service.status === 'active' || service.status === 'trial';
     const isSubscribed = isActive;
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    };
+
     return (
         <Card className="overflow-hidden flex flex-col">
             <div className="p-4 border-b border-border-color">
@@ -44,19 +52,6 @@ export default function ServiceCard({
             </div>
 
             <div className="p-4 flex-1">
-                {service.status && service.status !== 'available' && service.usage !== undefined && (
-                    <div className="mb-4">
-                        <div className="text-sm text-text-primary mb-1">Utilizare</div>
-                        <div className="w-full bg-dark-blue rounded-full h-2 mb-1">
-                            <div
-                                className={`h-2 rounded-full ${service.usage > 80 ? 'bg-danger' : 'bg-accent'}`}
-                                style={{ width: `${service.usage}%` }}>
-                            </div>
-                        </div>
-                        <div className="text-xs text-text-primary">{service.usage}%</div>
-                    </div>
-                )}
-
                 <div className="mb-4">
                     <div className="text-sm text-text-primary mb-1">Caracteristici</div>
                     <ul className="text-sm space-y-1">
@@ -81,13 +76,13 @@ export default function ServiceCard({
                     <div className="flex-1">
                         <div className="font-bold text-white text-lg">{service.price}<span className="text-xs text-text-primary">{service.period || '/mo'}</span></div>
                         {service.renewalDate && (
-                            <div className="text-xs text-text-primary">Reînnoiește: {service.renewalDate}</div>
+                            <div className="text-xs text-text-primary">Reînnoiește: {formatDate(service.renewalDate)}</div>
                         )}
                     </div>
 
                     <div className="flex gap-2 items-center">
                         <Link
-                            href={isSubscribed ? `/dashboard/services/${service.id}` : `/services/${service.id}`}
+                            href={isSubscribed ? `/dashboard/services/${service.id}` : service.url || '/'}
                             variant="primary"
                         >
                             {isSubscribed ? 'Gestionează' : 'Detalii'}

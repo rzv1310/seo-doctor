@@ -14,6 +14,18 @@ export type CartService = {
     features: string[];
 };
 
+// Define the coupon data type from Stripe
+type CouponData = {
+    valid: boolean;
+    percentOff?: number | null;
+    amountOff?: number | null;
+    currency?: string | null;
+    duration?: string;
+    durationInMonths?: number | null;
+    name?: string | null;
+    metadata?: Record<string, string>;
+};
+
 // Define the Cart context type
 type CartContextType = {
     items: CartService[];
@@ -26,6 +38,8 @@ type CartContextType = {
     formattedTotalPrice: string;
     couponCode: string;
     setCouponCode: (code: string) => void;
+    couponData: CouponData | null;
+    setCouponData: (data: CouponData | null) => void;
     discountAmount: number;
     formattedDiscountAmount: string;
     finalPrice: number;
@@ -44,6 +58,8 @@ const CartContext = createContext<CartContextType>({
     formattedTotalPrice: '$0.00',
     couponCode: '',
     setCouponCode: () => { },
+    couponData: null,
+    setCouponData: () => { },
     discountAmount: 0,
     formattedDiscountAmount: '$0.00',
     finalPrice: 0,
@@ -57,6 +73,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const logger = useLogger('CartProvider');
     const [items, setItems] = useState<CartService[]>([]);
     const [couponCode, setCouponCode] = useState('');
+    const [couponData, setCouponData] = useState<CouponData | null>(null);
     const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
@@ -94,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             logger.info('Coupon saved to localStorage', { couponCode });
         } else if (initialized) {
             localStorage.removeItem('couponCode');
+            setCouponData(null);
             logger.info('Coupon removed from localStorage');
         }
     }, [couponCode, initialized]);
@@ -139,13 +157,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const formattedTotalPrice = `$${(totalPrice / 100).toFixed(2)}`;
 
-    const applyCouponDiscount = (price: number, code: string): number => {
-        if (!code) return 0;
+    const calculateDiscount = (price: number, data: CouponData | null): number => {
+        if (!data || !data.valid) return 0;
 
-        return Math.round(price * 0.1);
+        if (data.percentOff) {
+            return Math.round((price * data.percentOff) / 100);
+        } else if (data.amountOff) {
+            // amountOff is in cents
+            return Math.min(data.amountOff, price);
+        }
+
+        return 0;
     };
 
-    const discountAmount = applyCouponDiscount(totalPrice, couponCode);
+    const discountAmount = calculateDiscount(totalPrice, couponData);
     const formattedDiscountAmount = `$${(discountAmount / 100).toFixed(2)}`;
 
     const finalPrice = totalPrice - discountAmount;
@@ -162,6 +187,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         formattedTotalPrice,
         couponCode,
         setCouponCode,
+        couponData,
+        setCouponData,
         discountAmount,
         formattedDiscountAmount,
         finalPrice,

@@ -71,7 +71,7 @@ export default function Dashboard() {
                                     </div>
 
                                     <div className="text-right">
-                                        <div className="font-bold text-sky-400 text-lg">
+                                        <div className="font-bold text-lg">
                                             {new Intl.NumberFormat('ro-RO', {
                                                 style: 'currency',
                                                 currency: 'EUR'
@@ -92,7 +92,7 @@ export default function Dashboard() {
                     <Card glass className="dashboard-card p-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-semibold text-text-primary">Total Plată Lunară</h3>
-                            <p className="text-xl font-bold text-sky-400">
+                            <p className="text-xl font-bold">
                                 {new Intl.NumberFormat('ro-RO', {
                                     style: 'currency',
                                     currency: 'EUR'
