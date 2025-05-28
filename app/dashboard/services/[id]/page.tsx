@@ -37,7 +37,7 @@ export default function ServiceDetailPage() {
 
     useEffect(() => {
         fetchSubscriptions();
-        
+
         // Check for success redirect
         if (searchParams.get('subscription_success') === 'true') {
             setShowSuccessModal(true);
@@ -116,13 +116,6 @@ export default function ServiceDetailPage() {
                             disabled={!user}
                         >
                             Abonează-te Acum
-                        </ActionButton>
-                    )}
-                    {hasActive && (
-                        <ActionButton
-                            href="/dashboard/services"
-                        >
-                            Gestionează Abonamentul
                         </ActionButton>
                     )}
                 </div>
