@@ -5,6 +5,9 @@ import db from '@/database';
 import { users, subscriptions } from '@/database/schema';
 import { eq, and } from 'drizzle-orm';
 import { getPriceIdByServiceId } from '@/data/payment';
+import { updateStripeCustomerBilling, type BillingDetails } from '@/lib/billing-utils';
+import { validateCouponCode } from '@/lib/discount-utils';
+import { logger } from '@/lib/logger';
 
 
 export async function POST(request: NextRequest) {
@@ -17,8 +20,19 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { serviceId, paymentMethodId, coupon } = body;
 
-        if (!serviceId) {
-            return NextResponse.json({ error: 'Service ID is required' }, { status: 400 });
+        // Validate input
+        if (!serviceId || typeof serviceId !== 'number') {
+            return NextResponse.json({ error: 'Valid service ID is required' }, { status: 400 });
+        }
+
+        // Validate coupon code if provided
+        if (coupon) {
+            const couponValidation = validateCouponCode(coupon);
+            if (!couponValidation.isValid) {
+                return NextResponse.json({ 
+                    error: `Invalid coupon code: ${couponValidation.error}` 
+                }, { status: 400 });
+            }
         }
 
         // Get the price ID for the service
@@ -46,6 +60,26 @@ export async function POST(request: NextRequest) {
 
         const stripeCustomerId = userRecord.stripeCustomerId;
 
+        // Update Stripe customer with current billing details
+        const billingDetails: BillingDetails = {
+            billingName: userRecord.billingName,
+            billingCompany: userRecord.billingCompany,
+            billingVat: userRecord.billingVat,
+            billingAddress: userRecord.billingAddress,
+            billingPhone: userRecord.billingPhone
+        };
+
+        try {
+            await updateStripeCustomerBilling(stripeCustomerId, billingDetails, user.id);
+        } catch (error) {
+            logger.error('Failed to update Stripe customer billing during subscription creation', {
+                error: error instanceof Error ? error.message : String(error),
+                userId: user.id,
+                stripeCustomerId
+            });
+            // Continue with subscription creation even if billing update fails
+        }
+
         // First, ensure payment method is attached and set as default
         if (paymentMethodId) {
             try {
@@ -68,18 +102,18 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Check if user already has an active subscription for this service
-        const [existingSubscription] = await db
+        // Check if user already has an active or trial subscription for this service
+        const [existingActiveSubscription] = await db
             .select()
             .from(subscriptions)
             .where(and(
                 eq(subscriptions.userId, user.id),
-                eq(subscriptions.serviceId, serviceId),
-                eq(subscriptions.status, 'active')
+                eq(subscriptions.serviceId, serviceId)
             ))
             .limit(1);
 
-        if (existingSubscription) {
+        // Only prevent if there's an active or trial subscription
+        if (existingActiveSubscription && (existingActiveSubscription.status === 'active' || existingActiveSubscription.status === 'trial')) {
             return NextResponse.json({ 
                 error: 'You already have an active subscription for this service' 
             }, { status: 400 });

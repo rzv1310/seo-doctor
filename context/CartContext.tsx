@@ -55,15 +55,15 @@ const CartContext = createContext<CartContextType>({
     isInCart: () => false,
     itemCount: 0,
     totalPrice: 0,
-    formattedTotalPrice: '$0.00',
+    formattedTotalPrice: '0,00 €',
     couponCode: '',
     setCouponCode: () => { },
     couponData: null,
     setCouponData: () => { },
     discountAmount: 0,
-    formattedDiscountAmount: '$0.00',
+    formattedDiscountAmount: '0,00 €',
     finalPrice: 0,
-    formattedFinalPrice: '$0.00',
+    formattedFinalPrice: '0,00 €',
 });
 
 // Custom hook to use the cart context
@@ -155,7 +155,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return sum + priceValue;
     }, 0);
 
-    const formattedTotalPrice = `$${(totalPrice / 100).toFixed(2)}`;
+    const formattedTotalPrice = new Intl.NumberFormat('ro-RO', {
+        style: 'currency',
+        currency: 'EUR',
+    }).format(totalPrice / 100);
 
     const calculateDiscount = (price: number, data: CouponData | null): number => {
         if (!data || !data.valid) return 0;
@@ -171,10 +174,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
 
     const discountAmount = calculateDiscount(totalPrice, couponData);
-    const formattedDiscountAmount = `$${(discountAmount / 100).toFixed(2)}`;
+    const formattedDiscountAmount = new Intl.NumberFormat('ro-RO', {
+        style: 'currency',
+        currency: 'EUR',
+    }).format(discountAmount / 100);
 
     const finalPrice = totalPrice - discountAmount;
-    const formattedFinalPrice = `$${(finalPrice / 100).toFixed(2)}`;
+    const formattedFinalPrice = new Intl.NumberFormat('ro-RO', {
+        style: 'currency',
+        currency: 'EUR',
+    }).format(finalPrice / 100);
 
     const contextValue: CartContextType = {
         items,

@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useLogger } from '@/lib/client-logger';
 import { ActionButton, Alert, Input } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
+import BillingDetailsSection from '@/components/dashboard/checkout/BillingDetailsSection';
 import { getPriceIdByServiceId } from '@/data/payment';
 import { stripeIds } from '@/data/payment';
 
@@ -103,7 +104,11 @@ export default function CheckoutPage() {
         >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
-                    <div className="dashboard-card mb-6">
+                    {!subscriptionSuccess && (
+                        <BillingDetailsSection />
+                    )}
+                    
+                    <div className={`dashboard-card mb-6 ${!subscriptionSuccess ? 'mt-6' : ''}`}>
                         <div className="p-4 border-b border-border-color">
                             <h2 className="text-xl font-semibold">Plată</h2>
                         </div>

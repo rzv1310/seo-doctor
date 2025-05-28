@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import database, { subscriptions, services } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
+import { fetchSubscriptionDiscounts } from '@/lib/discount-utils';
 
 export const GET = withLogging(async (request: NextRequest) => {
     try {
@@ -20,10 +21,28 @@ export const GET = withLogging(async (request: NextRequest) => {
             .where(eq(subscriptions.userId, session.user.id))
             .leftJoin(services, eq(subscriptions.serviceId, services.id));
 
-        // Format the response to have a cleaner structure
-        const formattedSubscriptions = userSubscriptions.map(row => ({
-            ...row.subscriptions,
-            service: row.services
+        // Format the response to have a cleaner structure and fetch Stripe discount info
+        const formattedSubscriptions = await Promise.all(userSubscriptions.map(async row => {
+            let discountInfo = null;
+
+            // Fetch discount information from Stripe if subscription has Stripe ID
+            if (row.subscriptions.stripeSubscriptionId) {
+                try {
+                    discountInfo = await fetchSubscriptionDiscounts(row.subscriptions.stripeSubscriptionId);
+                } catch (error) {
+                    logger.warn('Failed to fetch Stripe discount info', {
+                        subscriptionId: row.subscriptions.id,
+                        stripeSubscriptionId: row.subscriptions.stripeSubscriptionId,
+                        error: error instanceof Error ? error.message : String(error)
+                    });
+                }
+            }
+
+            return {
+                ...row.subscriptions,
+                service: row.services,
+                discountInfo
+            };
         }));
 
         logger.info('Subscriptions fetched successfully', { userId: session.user.id, count: formattedSubscriptions.length });

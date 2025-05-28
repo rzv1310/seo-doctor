@@ -6,6 +6,7 @@
 + add a blank line at the end of the file
 + the user interface must be in Romanian
 + Stripe IDs are stored in environment variables for security, not hardcoded in git
++ all the prices are always in EUR
 
 ## Setup Scripts
 
@@ -22,5 +23,5 @@
 
 ### Test Scripts (for development/testing):
 - `pnpm test:seed-user` - Seeds test user data
-- `pnpm test:seed-admin` - Seeds test admin data  
+- `pnpm test:seed-admin` - Seeds test admin data
 - `pnpm test:seed-data` - Seeds test data

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { useLogger } from '@/lib/client-logger';
+import type { DiscountInfo } from '@/lib/discount-utils';
 
 
 
@@ -43,6 +44,8 @@ export type Subscription = {
     };
     // Parsed metadata (added for convenience)
     parsedMetadata?: SubscriptionMetadata;
+    // Discount information from Stripe
+    discountInfo?: DiscountInfo | null;
 };
 
 export function useSubscriptions(isAuthenticated: boolean = true) {

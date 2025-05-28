@@ -155,6 +155,80 @@ export default function ServicesPage() {
         setSubscriptionToCancel(subscription);
     };
 
+    // Handle renewing/reactivating subscription
+    const handleRenewSubscription = async (serviceId: string) => {
+        if (!isAuthenticated) {
+            window.location.href = `/login?redirect=/dashboard/services`;
+            return;
+        }
+
+        setIsSubscribing(parseInt(serviceId));
+
+        try {
+            // Check if this is a pending cancellation that we need to reactivate
+            const service = servicesWithStatus.find(s => s.id.toString() === serviceId);
+            const subscription = getSubscription(serviceId);
+            
+            if (service?.isPendingCancellation && subscription?.id) {
+                // Reactivate pending cancellation by removing the cancel_at_period_end flag
+                const response = await fetch('/api/subscriptions/cancel-stripe-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscriptionId: subscription.id,
+                        reactivate: true
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to reactivate subscription');
+                }
+
+                logger.info('Subscription reactivated successfully', { serviceId });
+            } else {
+                // Create new subscription for cancelled service
+                const response = await fetch('/api/subscriptions/create-stripe-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        serviceId: parseInt(serviceId)
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to renew subscription');
+                }
+
+                const result = await response.json();
+                
+                if (result.requiresAction && result.clientSecret) {
+                    // Handle 3D Secure or other payment confirmation
+                    logger.info('Payment requires additional action', { serviceId });
+                    // You might want to handle this with Stripe Elements
+                    // For now, we'll just refresh to show the updated status
+                }
+
+                logger.info('Subscription renewed successfully', { serviceId });
+            }
+
+            // Refresh subscriptions to show updated status
+            await refreshSubscriptions();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            logger.error('Failed to renew subscription', { 
+                error: errorMessage, 
+                serviceId,
+                fullError: error 
+            });
+            // You might want to show a user-facing error message here
+            alert(`Failed to renew subscription: ${errorMessage}`);
+        } finally {
+            setIsSubscribing(null);
+        }
+    };
+
     // Close cancel subscription modal
     const handleCloseModal = () => {
         setSubscriptionToCancel(null);
@@ -180,6 +254,7 @@ export default function ServicesPage() {
                                 onToggleCart={() => handleToggleCartItem(service)}
                                 onSubscribe={() => handleSubscribe(service.id)}
                                 onCancelSubscription={handleCancelSubscriptionClick}
+                                onRenewSubscription={handleRenewSubscription}
                             />
                         );
                     })}

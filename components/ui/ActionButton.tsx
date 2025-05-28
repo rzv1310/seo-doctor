@@ -16,7 +16,7 @@ export interface ActionButtonProps {
     animate?: boolean;
     fullRounded?: boolean;
     size?: 'sm' | 'md' | 'lg';
-    variant?: 'default' | 'danger';
+    variant?: 'default' | 'danger' | 'success';
     fullWidth?: boolean;
 }
 
@@ -45,7 +45,8 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
 
         const variantClasses = {
             default: 'from-primary to-accent border-primary/30 hover:shadow-primary/30 hover:border-accent/50 before:from-accent before:to-primary',
-            danger: 'from-purple-800 to-pink-800 border-purple-800/30 hover:shadow-purple-800/30 hover:border-pink-800/50 before:from-pink-800 before:to-purple-800'
+            danger: 'from-purple-800 to-pink-800 border-purple-800/30 hover:shadow-purple-800/30 hover:border-pink-800/50 before:from-pink-800 before:to-purple-800',
+            success: 'from-green-700 to-emerald-700 border-green-700/30 hover:shadow-green-700/30 hover:border-emerald-700/50 before:from-emerald-700 before:to-green-700'
         };
 
         const baseClasses = `select-none bg-gradient-to-r font-bold text-white ${fullRounded ? 'rounded-full' : 'rounded-lg'}
@@ -61,7 +62,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
 
         const content = (
             <>
-                {loading && <Spinner size="sm" />}
+                {loading && <Spinner size="sm" color="white" />}
                 <span className="relative z-10 flex items-center gap-2">{children}</span>
                 {showArrow && !loading && (
                     <svg

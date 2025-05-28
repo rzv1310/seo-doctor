@@ -16,6 +16,7 @@ interface AuthContextType {
     logout: () => Promise<void>;
     clearError: () => void;
     setUser: (user: User | null) => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -118,6 +119,39 @@ export function AuthProvider({
         }
     };
 
+    const refreshUser = async () => {
+        try {
+            logger.info('Refreshing user data', { userId: user?.id });
+
+            const res = await fetch('/api/auth/me', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    logger.info('User not authenticated, clearing user state');
+                    setUser(null);
+                    return;
+                }
+                throw new Error('Failed to refresh user data');
+            }
+
+            const data = await res.json();
+            
+            if (data.success && data.user) {
+                setUser(data.user);
+                logger.info('User data refreshed successfully', { userId: data.user.id });
+            } else {
+                logger.warn('No user data in refresh response');
+                setUser(null);
+            }
+        } catch (err) {
+            logger.error('Failed to refresh user data', err);
+            // Don't clear user on refresh error to avoid unexpected logouts
+        }
+    };
+
     const logout = async () => {
         try {
             // Clear user state immediately to prevent any UI from showing authenticated state
@@ -161,6 +195,7 @@ export function AuthProvider({
                 logout,
                 clearError,
                 setUser,
+                refreshUser,
             }}
         >
             {children}
