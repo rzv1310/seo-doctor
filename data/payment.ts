@@ -18,14 +18,8 @@ export const stripeIds = {
 
 
 // Helper function to get price ID by service ID
-export function getPriceIdByServiceId(serviceId: number | string): string | null {
-    console.log('getPriceIdByServiceId called with:', serviceId, 'type:', typeof serviceId);
-    console.log('stripeIds.prices:', stripeIds.prices);
-
-    const id = typeof serviceId === 'string' ? parseInt(serviceId, 10) : serviceId;
-    console.log('Parsed ID:', id);
-
-    switch (id) {
+export function getPriceIdByServiceId(serviceId: number): string | null {
+    switch (serviceId) {
         case 1:
             return stripeIds.prices.gmbMaxMonthly;
         case 2:
