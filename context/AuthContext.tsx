@@ -120,7 +120,8 @@ export function AuthProvider({
 
     const logout = async () => {
         try {
-            setIsLoading(true);
+            // Clear user state immediately to prevent any UI from showing authenticated state
+            setUser(null);
             clearError();
             logger.info('Logout attempt', { userId: user?.id });
 
@@ -136,16 +137,15 @@ export function AuthProvider({
                 logger.error('Logout API error', new Error(data.error || 'Logout failed'), { status: res.status });
             }
 
-            setUser(null);
             logger.info('Logout successful');
 
-            window.location.href = '/';
+            // Use replace to prevent back button issues
+            window.location.replace('/');
         } catch (err) {
             logger.error('Logout error', err);
+            // Even on error, ensure we're logged out client-side
             setUser(null);
-            window.location.href = '/';
-        } finally {
-            setIsLoading(false);
+            window.location.replace('/');
         }
     };
 

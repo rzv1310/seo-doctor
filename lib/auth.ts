@@ -229,7 +229,22 @@ export function createLogoutResponse(): NextResponse {
       message: 'Logged out successfully'
     });
 
-    response.cookies.delete(AUTH_COOKIE_NAME);
+    // Properly clear the auth cookie
+    response.cookies.set({
+      name: AUTH_COOKIE_NAME,
+      value: '',
+      maxAge: 0,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+    
+    // Add cache control headers to prevent stale auth state
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
     return response;
   } catch (error) {
     console.error('Error creating logout response:', error);

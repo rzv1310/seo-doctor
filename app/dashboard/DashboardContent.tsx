@@ -40,7 +40,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const pathname = usePathname();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, logout } = useAuth();
     const { itemCount } = useCart();
 
     useEffect(() => {
@@ -174,8 +174,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             icon={logoutButton.icon}
                             label={logoutButton.label}
                             divider={true}
-                            onClick={async () => {
-                                await fetch('/api/auth/logout', { method: 'POST' });
+                            onClick={async (e) => {
+                                e.preventDefault();
+                                await logout();
                             }}
                         />
                     </nav>

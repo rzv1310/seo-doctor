@@ -14,11 +14,12 @@ export default function LoginRoute() {
     const logger = useLogger('LoginRoute');
 
     useEffect(() => {
-        if (isAuthenticated) {
+        // Don't redirect if we're still loading or if authentication state is being determined
+        if (!isLoading && isAuthenticated) {
             logger.info('Already authenticated, redirecting to dashboard');
             router.push('/dashboard');
         }
-    }, [isAuthenticated, router, logger]);
+    }, [isAuthenticated, isLoading, router, logger]);
 
     if (isLoading) {
         return (
