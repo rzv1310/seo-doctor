@@ -34,7 +34,7 @@ export default function GoogleOrganicServicePage() {
                     <div className="text-center mb-8">
                         <span className="inline-block text-5xl mb-6">💎</span>
                         <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text">
-                            GOOGLE ORGANIC
+                            Abonament GOOGLE ORGANIC
                         </h1>
                         <p className="text-xl md:text-2xl font-semibold mb-6">
                             GARANTAT TOP 3 ÎN REZULTATELE GOOGLE - SAU NU PLĂTEȘTI NIMIC!
@@ -43,18 +43,17 @@ export default function GoogleOrganicServicePage() {
                             <p className="text-text-secondary text-lg mb-3">
                                 Ești frustrat că site-ul tău e invizibil în Google?
                             </p>
-                            <p className="text-text-secondary text-lg mb-3">
-                                Te-ai săturat să investești în strategii SEO care nu dau rezultate concrete?
+                            <p className="text-lg mb-3">
+                                Primele 3 rezultate organice din Google primesc 68.7% din toate clickurile! 🚀
                             </p>
                             <p className="text-lg mb-3">
-                                <span className="font-semibold">GOOGLE ORGANIC</span> este soluția ta completă pentru a domina rezultatele organice
-                                și pentru a aduce mai mulți pacienți către clinica ta! 🚀
-                            </p>
-                            <p className="text-lg mb-3">
-                                Prin strategia noastră avansată SEO, creăm un website nou special pentru tine, optimizat pentru a urca rapid în Google pentru serviciul medical pe care îl dorești.
+                                A doua pagină primește mai puțin de 1% din trafic.
                             </p>
                             <p className="text-lg font-bold mb-6">
-                                PLĂTEȘTI DOAR DUPĂ CE AJUNGI ÎN TOP 3! Website-ul va aduce trafic, mai multe apeluri telefonice și, implicit, mai multe programări în cabinet!
+                                Rezultatul organic #1 primește ~ de 13 ori mai multe clickuri decât primul rezultat plătit!
+                            </p>
+                            <p className="text-lg font-bold mb-6">
+                                Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
                     </div>
@@ -71,7 +70,7 @@ export default function GoogleOrganicServicePage() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         {isAuthenticated ? (
                             <ActionButton href="/dashboard" size="lg">
-                                Achiziție Serviciu
+                                Cumpără acum!
                             </ActionButton>
                         ) : (
                             <>
@@ -118,12 +117,6 @@ export default function GoogleOrganicServicePage() {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            <span>Centre medicale care vor să se poziționeze ca lideri în serviciile lor medicale</span>
-                        </li>
-                        <li className="flex items-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
                             <span>Clinici de recuperare medicală care doresc să atragă pacienți pentru servicii specifice</span>
                         </li>
                     </ul>
@@ -137,7 +130,9 @@ export default function GoogleOrganicServicePage() {
                     <p className="font-medium mb-3 text-white">PLĂTEȘTI DOAR DUPĂ CE AJUNGI ÎN TOP 3!</p>
                     <p className="text-sm text-text-secondary mb-4">Se poate achiziționa individual sau împreună cu "GMB MAX", pentru rezultate complete.</p>
 
-                    {/* Removed duplicate button */}
+                    <p className="text-center font-bold mb-6">
+                        Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                    </p>
                 </div>
             </div>
 
@@ -327,14 +322,14 @@ export default function GoogleOrganicServicePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-xl p-6">
                             <div className="text-3xl mb-4 text-white">💰</div>
-                            <h3 className="text-xl font-bold mb-2">Fără plată până nu atingi Top 3 Google</h3>
+                            <h3 className="text-xl font-bold mb-2">Fără plată până atingi Top 3</h3>
                             <p className="text-text-secondary">Începi să plătești abonamentul doar după ce ajungi în primele 3 poziții - RISC ZERO!</p>
                         </div>
 
                         <div className="bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-xl p-6">
                             <div className="text-3xl mb-4 text-white">🌐</div>
-                            <h3 className="text-xl font-bold mb-2">Website nou dedicat brandului tău</h3>
-                            <p className="text-text-secondary">Nu modificăm site-ul tău existent, ci creăm unul nou, specializat.</p>
+                            <h3 className="text-xl font-bold mb-2">Website dedicat brandului tău</h3>
+                            <p className="text-text-secondary">Nu modificăm site-ul tău existent, ci creăm unul nou, specializat, pe cheltuiala noastră.</p>
                         </div>
 
                         <div className="bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-xl p-6">
@@ -358,7 +353,7 @@ export default function GoogleOrganicServicePage() {
                         <div className="bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-xl p-6">
                             <div className="text-3xl mb-4 text-white">⏱️</div>
                             <h3 className="text-xl font-bold mb-2">Rezultate în 1-3 luni</h3>
-                            <p className="text-text-secondary">Începi să plătești doar după ce obții rezultatele dorite.</p>
+                            <p className="text-text-secondary">Atât durează până ajungem în top, în funcție de cât de acerbă e competiția.</p>
                         </div>
                     </div>
                 </div>
@@ -395,8 +390,7 @@ export default function GoogleOrganicServicePage() {
                         <div className="border border-border-color rounded-xl p-5 h-full flex flex-col">
                             <h3 className="text-xl font-bold mb-4 text-white">GMB MAX</h3>
                             <p className="text-text-secondary mb-4">
-                                Complementează GOOGLE ORGANIC cu GMB MAX pentru a domina atât rezultatele organice cât și harta Google,
-                                maximizând vizibilitatea clinicii tale medicale.
+                                Cumpără GOOGLE ORGANIC împreună cu GMB MAX pentru a domina atât rezultatele organice cât și harta Google.
                             </p>
                             <p className="text-white font-semibold mb-4">Garantat Top 3 în Google Maps!</p>
                             <ActionButton
@@ -411,12 +405,11 @@ export default function GoogleOrganicServicePage() {
                         </div>
 
                         <div className="border border-border-color rounded-xl p-5 h-full flex flex-col">
-                            <h3 className="text-xl font-bold mb-4">Ai întrebări despre GOOGLE ORGANIC?</h3>
+                            <h3 className="text-xl font-bold mb-4">Ai întrebări?</h3>
                             <p className="text-text-secondary mb-4">
-                                Echipa noastră este disponibilă să răspundă la toate întrebările tale și să te ajute să înțelegi cum
-                                acest serviciu îți poate transforma prezența online a clinicii.
+                                Echipa noastră te ajut să înțelegi cum acest serviciu îți poate transforma radical prezența online.
                             </p>
-                            <ActionButton href="/contact" size="md" showArrow={false}>
+                            <ActionButton href="/contact" size="md" showArrow={false} fullRounded={false}>
                                 Contactează-ne
                             </ActionButton>
                         </div>
