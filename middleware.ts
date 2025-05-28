@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import CryptoJS from 'crypto-js';
-
-// Auth cookie name and secret
-const AUTH_COOKIE_NAME = 'seo_doctor_auth';
-const SECRET_KEY = process.env.AUTH_SECRET || 'your-secret-key-change-in-production';
+import { AUTH_COOKIE_NAME, SECRET_KEY } from '@/data/auth';
 
 function verifyAuthToken(token: string): string | null {
     try {
@@ -127,7 +124,22 @@ export function middleware(request: NextRequest) {
     if (isProtectedRoute && !isAuthenticated) {
         const url = new URL('/login', request.url);
         url.searchParams.set('from', pathname);
-        return NextResponse.redirect(url);
+        const response = NextResponse.redirect(url);
+        
+        // Clear any invalid auth cookie
+        if (authCookie && !userId) {
+            response.cookies.set({
+                name: AUTH_COOKIE_NAME,
+                value: '',
+                maxAge: 0,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+            });
+        }
+        
+        return response;
     }
 
     // Redirect to dashboard if already authenticated and trying to access login
@@ -143,7 +155,10 @@ export function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         // Protected routes
+        '/dashboard',
         '/dashboard/:path*',
+        
+        // API routes
         '/api/:path*',
 
         // Auth routes

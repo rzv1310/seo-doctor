@@ -17,7 +17,7 @@ export default function LandingPage({ isAuthenticated = false }: LandingPageProp
     return (
         <div className="min-h-screen bg-dark-blue flex flex-col">
             <Header isAuthenticated={isAuthenticated} navLinks={navLinks} />
-            <Hero />
+            <Hero isAuthenticated={isAuthenticated} />
             <Services isAuthenticated={isAuthenticated} />
             <Testimonials />
             <CTA isAuthenticated={isAuthenticated} />

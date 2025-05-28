@@ -1,7 +1,5 @@
 import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
 import { pageMetadata } from '@/data/metadata';
-import { getServerSession } from '@/lib/auth';
 import DashboardContent from './DashboardContent';
 import { Spinner } from '@/components/ui';
 
@@ -15,13 +13,9 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    // Check authentication server-side
-    const session = await getServerSession();
+    // Authentication is handled by middleware.ts
+    // This prevents redirect loops between middleware and server components
     
-    if (!session.isAuthenticated || !session.user) {
-        redirect('/login');
-    }
-
     return (
         <DashboardContent>
             <Suspense fallback={

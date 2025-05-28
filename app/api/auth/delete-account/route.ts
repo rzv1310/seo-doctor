@@ -4,6 +4,7 @@ import { users } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { verifyApiAuth, verifyPassword } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
+import { AUTH_COOKIE_NAME } from '@/data/auth';
 
 
 
@@ -43,7 +44,7 @@ async function deleteAccountHandler(request: NextRequest) {
         logger.auth('Delete account successful', { userId: session.user.id });
 
         const response = NextResponse.json({ message: 'Contul a fost șters cu succes' });
-        response.cookies.delete('seo_doctor_auth');
+        response.cookies.delete(AUTH_COOKIE_NAME);
 
         return response;
     } catch (error) {

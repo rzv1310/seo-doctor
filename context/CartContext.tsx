@@ -78,7 +78,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const storedCart = localStorage.getItem('cart');
-        const storedCoupon = localStorage.getItem('couponCode');
 
         if (storedCart) {
             try {
@@ -90,9 +89,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        if (storedCoupon) {
-            setCouponCode(storedCoupon);
-            logger.info('Coupon loaded from localStorage', { couponCode: storedCoupon });
+        // Clear any stored coupon codes to prevent automatic application
+        try {
+            localStorage.removeItem('couponCode');
+            logger.info('Cleared stored coupon code from localStorage');
+        } catch (error) {
+            logger.error('Failed to clear coupon from localStorage', error as Error);
         }
 
         setInitialized(true);
@@ -106,13 +108,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [items, initialized]);
 
     useEffect(() => {
-        if (initialized && couponCode) {
-            localStorage.setItem('couponCode', couponCode);
-            logger.info('Coupon saved to localStorage', { couponCode });
-        } else if (initialized) {
-            localStorage.removeItem('couponCode');
+        // Don't persist coupon codes in localStorage
+        // Coupons should be explicitly entered by users each time
+        if (initialized && !couponCode) {
             setCouponData(null);
-            logger.info('Coupon removed from localStorage');
+            logger.info('Coupon data cleared');
         }
     }, [couponCode, initialized]);
 

@@ -5,11 +5,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
-
-// Configuration
-const AUTH_COOKIE_NAME = 'seo_doctor_auth';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
-const SECRET_KEY = process.env.AUTH_SECRET || 'your-secret-key-change-in-production';
+import { AUTH_COOKIE_NAME, SECRET_KEY, COOKIE_MAX_AGE } from '@/data/auth';
 
 // Types
 export interface User {

@@ -3,35 +3,38 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LoginPage from '@/containers/LoginPage';
-import { useAuth } from '@/context/AuthContext';
-import { useLogger } from '@/lib/client-logger';
 
 
 
 export default function LoginRoute() {
     const router = useRouter();
-    const { isAuthenticated, isLoading } = useAuth();
-    const logger = useLogger('LoginRoute');
-
+    
     useEffect(() => {
-        // Don't redirect if we're still loading or if authentication state is being determined
-        if (!isLoading && isAuthenticated) {
-            logger.info('Already authenticated, redirecting to dashboard');
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, isLoading, router, logger]);
-
-    if (isLoading) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center bg-dark-blue">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            </div>
-        );
-    }
-
-    if (isAuthenticated) {
-        return null;
-    }
-
+        // Check if there's a stale auth cookie
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                // If authenticated with a valid user, redirect to dashboard
+                if (data.authenticated && data.user) {
+                    router.push('/dashboard');
+                } else if (!data.authenticated) {
+                    // If not authenticated, clear any stale cookies by calling logout
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        };
+        
+        checkAuth();
+    }, [router]);
+    
     return <LoginPage />;
 }

@@ -5,7 +5,11 @@ import { ActionButton } from '@/components/ui';
 
 
 
-export default function Hero() {
+interface HeroProps {
+    isAuthenticated?: boolean;
+}
+
+export default function Hero({ isAuthenticated = false }: HeroProps) {
     return (
         <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
             <h1 className="mt-8 md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
@@ -15,7 +19,7 @@ export default function Hero() {
                 Soluții garantate de optimizare SEO, mai mulți pacienti în clinica ta.
             </p>
             <ActionButton
-                href="/dashboard"
+                href={isAuthenticated ? "/dashboard" : "/login"}
                 size="lg"
                 animate
             >
