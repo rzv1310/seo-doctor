@@ -26,11 +26,11 @@ export default function InvoicesTable({
         });
     };
 
-    const formatPrice = (price: number) => {
+    const formatPrice = (price: number, currency?: string) => {
         return new Intl.NumberFormat('ro-RO', {
             style: 'currency',
-            currency: 'EUR'
-        }).format(price / 100);
+            currency: currency?.toUpperCase() || 'EUR'
+        }).format(price);
     };
 
     const getStatusText = (status: string) => {
@@ -93,12 +93,12 @@ export default function InvoicesTable({
                                 <Link
                                     href={`/dashboard/invoices/${invoice.id}`}
                                 >
-                                    {invoice.id}
+                                    {invoice.number || invoice.id}
                                 </Link>
                             </td>
                             <td className="px-4 py-4 whitespace-nowrap text-sm">{formatDate(invoice.createdAt)}</td>
                             <td className="px-4 py-4 whitespace-nowrap text-sm">{invoice.serviceName || 'N/A'}</td>
-                            <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(invoice.amount)}</td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm">{formatPrice(invoice.amount, invoice.currency)}</td>
                             <td className="px-4 py-4 whitespace-nowrap text-sm">
                                 <span className={`px-2 py-1 rounded-full text-xs
                   ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
@@ -115,9 +115,16 @@ export default function InvoicesTable({
                                     >
                                         Vizualizare
                                     </Link>
-                                    <button className="text-text-primary transition-colors">
-                                        Descărcare
-                                    </button>
+                                    {invoice.invoicePdf && (
+                                        <a 
+                                            href={invoice.invoicePdf}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-text-primary transition-colors hover:text-primary"
+                                        >
+                                            Descărcare
+                                        </a>
+                                    )}
                                 </div>
                             </td>
                         </tr>

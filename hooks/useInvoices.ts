@@ -9,12 +9,18 @@ export interface Invoice {
     userId: string;
     orderId: string | null;
     createdAt: string;
-    dueDate: string;
+    dueDate: string | null;
     amount: number;
     status: 'paid' | 'pending' | 'overdue' | 'cancelled';
     stripeInvoiceId: string | null;
     orderServiceId: string | null;
     serviceName: string | null;
+    // Additional Stripe fields
+    number?: string;
+    currency?: string;
+    hostedInvoiceUrl?: string | null;
+    invoicePdf?: string | null;
+    subscriptionId?: string | null;
 }
 
 export interface InvoiceDetail extends Invoice {
@@ -25,6 +31,7 @@ export interface InvoiceDetail extends Invoice {
         city: string;
         country: string;
         postalCode: string;
+        company?: string;
     };
     items: {
         name: string;
@@ -33,6 +40,18 @@ export interface InvoiceDetail extends Invoice {
         unitPrice: number;
         total: number;
     }[];
+    discounts?: {
+        couponId?: string;
+        couponName?: string;
+        percentOff?: number;
+        amountOff?: number;
+        currency?: string;
+    }[];
+    // Additional fields from Stripe
+    subtotal?: number;
+    tax?: number;
+    total?: number;
+    discountTotal?: number;
 }
 
 export interface PaginationResult {

@@ -50,8 +50,8 @@ export default function InvoicesPage() {
         } else if (sortBy === 'amount') {
             return sortDirection === 'asc' ? a.amount - b.amount : b.amount - a.amount;
         } else if (sortBy === 'dueDate') {
-            const dueDateA = new Date(a.dueDate);
-            const dueDateB = new Date(b.dueDate);
+            const dueDateA = a.dueDate ? new Date(a.dueDate) : new Date(0);
+            const dueDateB = b.dueDate ? new Date(b.dueDate) : new Date(0);
             return sortDirection === 'asc' ? dueDateA.getTime() - dueDateB.getTime() : dueDateB.getTime() - dueDateA.getTime();
         }
         return 0;
