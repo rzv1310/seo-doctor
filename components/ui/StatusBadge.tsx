@@ -50,9 +50,12 @@ export function StatusBadge({
     const baseClasses = 'inline-flex items-center border rounded-full font-medium capitalize';
     const finalClassName = `${baseClasses} ${variantClasses} ${sizeClasses} ${className}`.trim();
 
+    // Display "Activ" in Romanian if status is "active"
+    const displayStatus = status.toLowerCase() === 'active' ? 'Activ' : status;
+
     return (
         <span className={finalClassName}>
-            {status}
+            {displayStatus}
         </span>
     );
 }

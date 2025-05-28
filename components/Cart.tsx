@@ -81,14 +81,14 @@ export default function Cart({ isOpen, onClose }: CartProps) {
         <div className="fixed inset-0 z-50 flex justify-end">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/70 transition-opacity"
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
 
             {/* Cart panel */}
-            <div className="relative w-full max-w-md bg-dark-blue overflow-auto flex flex-col h-full border-l border-border-color shadow-xl transform transition-transform">
+            <div className="relative w-full max-w-md bg-glass-bg backdrop-blur-md overflow-auto flex flex-col h-full border-l border-glass-border shadow-xl transform transition-transform">
                 {/* Header */}
-                <div className="p-4 border-b border-border-color flex justify-between items-center">
+                <div className="p-4 border-b border-glass-border flex justify-between items-center">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -128,7 +128,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             {items.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="p-3 border border-border-color rounded-lg flex justify-between items-start"
+                                    className="p-3 bg-dark-blue/30 backdrop-blur-sm border border-glass-border rounded-lg flex justify-between items-start"
                                 >
                                     <div>
                                         <h3 className="font-medium">{item.name}</h3>
@@ -171,7 +171,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
 
                 {/* Footer with checkout */}
                 {items.length > 0 && (
-                    <div className="p-4 border-t border-border-color bg-dark-blue-lighter">
+                    <div className="p-4 border-t border-glass-border bg-dark-blue/50 backdrop-blur-sm">
                         {/* Coupon Code Input */}
                         <div className="mb-4">
                             <div className="flex items-center gap-2 mb-1">
@@ -180,7 +180,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                     value={inputCoupon}
                                     onChange={(e) => setInputCoupon(e.target.value)}
                                     placeholder="Cod promoțional"
-                                    className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
+                                    className="flex-1 px-3 py-2 rounded bg-dark-blue/50 backdrop-blur-sm border border-glass-border focus:border-primary focus:outline-none text-sm"
                                 />
                                 <ActionButton
                                     onClick={handleApplyCoupon}
@@ -241,7 +241,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             href="/dashboard/checkout"
                             variant="default"
                             fullWidth
-                            onClick={onClose}
+                            onClick={(e) => {
+                                onClose();
+                                // Small delay to ensure the overlay closes smoothly before navigation
+                                setTimeout(() => {
+                                    // Navigation will happen automatically due to href
+                                }, 100);
+                            }}
                         >
                             Finalizează Comanda
                         </ActionButton>

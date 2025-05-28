@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { ActionButton, Alert, Input, Spinner } from './ui';
 import { formatCurrency } from '@/lib/utils';
 import { stripeIds } from '@/data/payment';
+import { useCart } from '@/context/CartContext';
 import type { CartService } from '@/context/CartContext';
 import SimplePaymentMethodSelector from './SimplePaymentMethodSelector';
 import StripeCardElement from './StripeCardElement';
@@ -25,11 +26,13 @@ export default function MultiSubscriptionCheckout({
     onSuccess,
     onError,
 }: MultiSubscriptionCheckoutProps) {
+    const { setCouponCode, setCouponData } = useCart();
     const [loading, setLoading] = useState(false);
     const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [localCouponCode, setLocalCouponCode] = useState(couponCode || '');
     const [discount, setDiscount] = useState(0);
+    const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent');
     const [validatingCoupon, setValidatingCoupon] = useState(false);
     const [couponValid, setCouponValid] = useState(false);
     const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -47,14 +50,11 @@ export default function MultiSubscriptionCheckout({
     }, []);
 
     useEffect(() => {
-        if (couponCode) {
-            setLocalCouponCode(couponCode);
-            if (couponCode.toUpperCase() === stripeIds.coupons.SEO70) {
-                setDiscount(70);
-                setCouponValid(true);
-            }
+        if (couponCode && localCouponCode) {
+            // Validate the coupon on load to get proper discount data
+            validateCoupon();
         }
-    }, [couponCode]);
+    }, [localCouponCode]);
 
     const fetchPaymentMethods = async () => {
         try {
@@ -101,11 +101,23 @@ export default function MultiSubscriptionCheckout({
                 throw new Error(data.error || 'Cod promoțional invalid');
             }
 
-            setDiscount(data.percentOff || 0);
+            if (data.percentOff) {
+                setDiscount(data.percentOff);
+                setDiscountType('percent');
+            } else if (data.amountOff) {
+                setDiscount(data.amountOff);
+                setDiscountType('amount');
+            }
             setCouponValid(true);
+            // Update cart context with validated coupon
+            setCouponCode(localCouponCode.toUpperCase());
+            setCouponData(data);
         } catch (err: any) {
             setError(err.message);
             setCouponValid(false);
+            // Clear cart coupon on error
+            setCouponCode('');
+            setCouponData(null);
         } finally {
             setValidatingCoupon(false);
         }
@@ -194,34 +206,6 @@ export default function MultiSubscriptionCheckout({
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-                <h3 className="text-xl font-semibold mb-4">Detalii Abonament</h3>
-                <div className="space-y-3">
-                    {items.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center">
-                            <span className="text-gray-300">{item.name}</span>
-                            <span className="font-medium">{formatCurrency(item.priceValue)}/lună</span>
-                        </div>
-                    ))}
-                    
-                    {discount > 0 && (
-                        <div className="border-t border-gray-800 pt-3 mt-3">
-                            <div className="flex justify-between text-green-400">
-                                <span>Discount ({discount}%):</span>
-                                <span>-{formatCurrency(totalPrice * discount / 100)}</span>
-                            </div>
-                            <div className="flex justify-between text-lg font-semibold mt-2">
-                                <span>Total:</span>
-                                <span>{formatCurrency(discountedPrice)}/lună</span>
-                            </div>
-                            <p className="text-sm text-gray-400 mt-1">
-                                *Discount se aplică pentru primele 3 luni
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
             {/* Coupon Code Input */}
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-300">
@@ -247,9 +231,27 @@ export default function MultiSubscriptionCheckout({
                     </ActionButton>
                 </div>
                 {couponValid && (
-                    <p className="text-sm text-green-400">
-                        ✓ Cod promoțional aplicat cu succes!
-                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                        <p className="text-green-400">
+                            ✓ Cod promoțional aplicat cu succes! 
+                            {discountType === 'percent' ? ` (${discount}% discount)` : ` (-${formatCurrency(discount)})`}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setCouponValid(false);
+                                setDiscount(0);
+                                setLocalCouponCode('');
+                                setCouponCode('');
+                                setCouponData(null);
+                            }}
+                            className="text-text-secondary hover:text-danger transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 )}
             </div>
 

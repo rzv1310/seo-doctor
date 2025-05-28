@@ -1,6 +1,7 @@
 export { Link } from './Link';
 export { LinkButton } from './LinkButton';
 export { ActionButton } from './ActionButton';
+export { AcceptButton } from './AcceptButton';
 export { Card, DashboardCard } from './Card';
 export { Spinner } from './Spinner';
 export { StatusBadge } from './StatusBadge';

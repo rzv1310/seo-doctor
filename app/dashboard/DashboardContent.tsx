@@ -186,32 +186,34 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         <h1 className="text-lg font-semibold text-text-primary">SEO Doctor</h1>
                     </div>
 
-                    {/* Cart icon in top right */}
-                    <div className="fixed top-4 right-4 z-40">
-                        <button
-                            onClick={() => setIsCartOpen(true)}
-                            className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-glass-bg backdrop-blur-sm border border-glass-border hover:bg-sky-400/10 transition-colors"
-                        >
-                            <svg
-                                className="w-6 h-6 text-text-primary"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                    {/* Cart icon in top right - hidden on checkout page */}
+                    {pathname !== '/dashboard/checkout' && (
+                        <div className="fixed top-4 right-4 z-40">
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-glass-bg backdrop-blur-sm border border-glass-border hover:bg-sky-400/10 transition-colors"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                            {itemCount > 0 && (
-                                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-sky-400 rounded-full">
-                                    {itemCount}
-                                </span>
-                            )}
-                        </button>
-                    </div>
+                                <svg
+                                    className="w-6 h-6 text-text-primary"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
+                                </svg>
+                                {itemCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-sky-400 rounded-full">
+                                        {itemCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    )}
 
                     <div className="p-4 md:p-8 flex-1 overflow-hidden flex flex-col">
                         {children}

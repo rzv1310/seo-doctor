@@ -32,11 +32,13 @@ export default function CheckoutPage() {
     const logger = useLogger('CheckoutPage');
     const {
         items,
+        removeItem,
         totalPrice,
         formattedTotalPrice,
         clearCart,
         couponCode,
         setCouponCode,
+        setCouponData,
         discountAmount,
         formattedDiscountAmount,
         finalPrice,
@@ -99,7 +101,6 @@ export default function CheckoutPage() {
             title="Finalizează Comanda"
             subtitle="Completează plata pentru serviciile selectate"
         >
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
                     <div className="dashboard-card mb-6">
@@ -107,6 +108,58 @@ export default function CheckoutPage() {
                             <h2 className="text-xl font-semibold">Plată</h2>
                         </div>
                         <div className="p-4">
+                            {/* Services List with Remove Option */}
+                            {!subscriptionSuccess && items.length > 0 && (
+                                <div className="mb-6 space-y-3">
+                                    <h3 className="text-sm font-medium text-gray-400 mb-3">Servicii selectate:</h3>
+                                    {items.map((item) => (
+                                        <div key={item.id} className="flex justify-between items-center p-3 bg-dark-blue-lighter rounded-lg border border-border-color">
+                                            <div className="flex-1">
+                                                <h4 className="font-medium">{item.name}</h4>
+                                                <p className="text-sm text-text-secondary">{item.description}</p>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-semibold">{item.price}/lună</span>
+                                                <ActionButton
+                                                    onClick={() => {
+                                                        removeItem(item.id);
+                                                        logger.interaction('item_removed_from_checkout', {
+                                                            itemId: item.id,
+                                                            itemName: item.name
+                                                        });
+                                                    }}
+                                                    variant="danger"
+                                                    size="sm"
+                                                    showArrow={false}
+                                                    fullRounded={false}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Elimină
+                                                </ActionButton>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div className="pt-3 border-t border-border-color space-y-2">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-400">Subtotal:</span>
+                                            <span>{formattedTotalPrice}/lună</span>
+                                        </div>
+                                        {couponCode && (
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-gray-400">Discount ({couponCode}):</span>
+                                                <span className="text-green-500">-{formattedDiscountAmount}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center pt-2 border-t border-border-color">
+                                            <span className="font-medium">Total:</span>
+                                            <span className="text-lg font-bold text-text-primary">{couponCode ? formattedFinalPrice : formattedTotalPrice}/lună</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {subscriptionSuccess ? (
                                 <div className="bg-green-900/20 border border-green-900/30 rounded-md p-6 text-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -136,87 +189,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="dashboard-card h-fit">
-                    <div className="p-4 border-b border-border-color">
-                        <h2 className="text-xl font-semibold">Rezumat Comandă</h2>
-                    </div>
                     <div className="p-4">
-                        {/* Cart Items */}
-                        <div className="mb-4 space-y-3">
-                            {items.map((item) => (
-                                <div key={item.id} className="pb-3 border-b border-border-color last:border-0">
-                                    <h3 className="font-semibold">{item.name}</h3>
-                                    <p className="text-text-primary text-sm mb-2">
-                                        {item.description}
-                                    </p>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">Abonament lunar</span>
-                                        <span>{item.price}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Coupon Code Input */}
-                        <div className="pt-4 pb-4 border-t border-border-color">
-                            <div className="mb-4">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <input
-                                        type="text"
-                                        value={inputCoupon}
-                                        onChange={(e) => setInputCoupon(e.target.value)}
-                                        placeholder="Cod promoțional"
-                                        className="flex-1 px-3 py-2 rounded bg-dark-blue border border-border-color focus:border-primary focus:outline-none text-sm"
-                                    />
-                                    <ActionButton
-                                        onClick={() => {
-                                            setCouponCode(inputCoupon);
-                                            logger.interaction('coupon_applied', { couponCode: inputCoupon });
-                                        }}
-                                        size="sm"
-                                        showArrow={false}
-                                        fullRounded={false}
-                                    >
-                                        Aplică
-                                    </ActionButton>
-                                </div>
-                                {couponCode && (
-                                    <div className="text-xs text-green-500 flex items-center gap-1 mt-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Cod promoțional aplicat: {couponCode}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Price Summary */}
-                        <div className="py-2 border-t border-gray-800">
-                            <div className="flex justify-between mb-2">
-                                <span className="text-gray-400">Subtotal</span>
-                                <span>{formattedTotalPrice}</span>
-                            </div>
-
-                            {couponCode && (
-                                <div className="flex justify-between mb-2">
-                                    <span className="text-gray-400">Discount</span>
-                                    <span className="text-green-500">-{formattedDiscountAmount}</span>
-                                </div>
-                            )}
-
-                            <div className="flex justify-between mb-2">
-                                <span className="text-gray-400">Taxe</span>
-                                <span>€0.00</span>
-                            </div>
-
-                            <div className="flex justify-between font-bold text-lg mt-4">
-                                <span>Total lunar</span>
-                                <span className="text-green-400">{couponCode ? formattedFinalPrice : formattedTotalPrice}</span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 text-xs text-text-primary">
-                            <p className="mb-2">Finalizând achiziția, ești de acord cu:</p>
+                        <div className="text-xs text-text-primary">
+                            <p className="mb-2">Finalizând achiziția, sunteți de acord cu:</p>
                             <ul className="space-y-1">
                                 <li>
                                     <Link href="/legal?tab=terms" target="_blank">Termenii de Serviciu</Link>

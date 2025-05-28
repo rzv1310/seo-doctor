@@ -1,6 +1,6 @@
 'use client';
 
-import { LinkButton } from '@/components/ui';
+import { LinkButton, AcceptButton } from '@/components/ui';
 import { getCardIcon } from './utils';
 
 
@@ -67,13 +67,18 @@ export default function PaymentMethodCard({
                             Setează ca Implicit
                         </LinkButton>
                     )}
-                    <LinkButton
-                        onClick={() => onDelete(method.id)}
+                    <AcceptButton
+                        onAccept={() => onDelete(method.id)}
+                        confirmTitle="Ștergeți cardul?"
+                        confirmMessage={`Sunteți sigur că doriți să ștergeți cardul •••• ${last4}?`}
+                        acceptText="Da"
+                        cancelText="Nu"
                         variant="danger"
                         size="sm"
+                        showArrow={false}
                     >
                         Șterge
-                    </LinkButton>
+                    </AcceptButton>
                 </div>
             </div>
         </div>
