@@ -305,7 +305,7 @@ pnpm stripe:generate-products
 
 ### Prerequisites
 
-- Ensure `STRIPE_SECRET_KEY` is set in your `.env.local` file
+- Ensure `STRIPE_SECRET_KEY` is set in your `.env` file
 - Use test mode Stripe key for development/testing
 - Use live mode Stripe key for production
 
@@ -319,7 +319,7 @@ The script will:
 ### Generated File Structure
 
 The script:
-1. **Updates `.env.local`** with Stripe IDs:
+1. **Updates `.env`** with Stripe IDs:
 ```env
 STRIPE_PRODUCT_GMB_MAX=prod_...
 STRIPE_PRODUCT_GOOGLE_ORGANIC=prod_...

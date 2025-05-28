@@ -3,6 +3,7 @@ import { services } from '../database/schema/services';
 import { eq } from 'drizzle-orm';
 
 
+
 async function seedStripeServices() {
     try {
         console.log('Seeding Stripe services...');

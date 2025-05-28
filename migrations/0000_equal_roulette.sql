@@ -11,6 +11,7 @@ CREATE TABLE `users` (
 	`billing_address` text,
 	`billing_phone` text,
 	`stripe_customer_id` text,
+	`default_payment_method_id` text,
 	`admin` integer DEFAULT false
 );
 --> statement-breakpoint
@@ -32,6 +33,7 @@ CREATE TABLE `orders` (
 	`price` real NOT NULL,
 	`status` text NOT NULL,
 	`notes` text,
+	`stripe_payment_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON UPDATE no action ON DELETE no action
 );

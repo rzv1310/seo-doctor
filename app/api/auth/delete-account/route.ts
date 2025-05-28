@@ -43,7 +43,7 @@ async function deleteAccountHandler(request: NextRequest) {
         logger.auth('Delete account successful', { userId: session.user.id });
 
         const response = NextResponse.json({ message: 'Contul a fost șters cu succes' });
-        response.cookies.delete('minidash_auth');
+        response.cookies.delete('seo_doctor_auth');
 
         return response;
     } catch (error) {

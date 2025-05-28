@@ -7,7 +7,7 @@ import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
 
 // Configuration
-const AUTH_COOKIE_NAME = 'minidash_auth';
+const AUTH_COOKIE_NAME = 'seo_doctor_auth';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 const SECRET_KEY = process.env.AUTH_SECRET || 'your-secret-key-change-in-production';
 

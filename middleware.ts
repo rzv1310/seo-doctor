@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import CryptoJS from 'crypto-js';
 
 // Auth cookie name and secret
-const AUTH_COOKIE_NAME = 'minidash_auth';
+const AUTH_COOKIE_NAME = 'seo_doctor_auth';
 const SECRET_KEY = process.env.AUTH_SECRET || 'your-secret-key-change-in-production';
 
 function verifyAuthToken(token: string): string | null {

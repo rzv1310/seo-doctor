@@ -1,6 +1,6 @@
-# MiniDash
+# SEO-Doctor
 
-MiniDash is a dashboard application for managing digital services and subscriptions. It provides a clean and modern interface for users to track their orders, services, invoices, and payment methods.
+SEO-Doctor is a dashboard application for managing digital services and subscriptions. It provides a clean and modern interface for users to track their orders, services, invoices, and payment methods.
 
 ## Features
 
@@ -31,8 +31,8 @@ MiniDash is a dashboard application for managing digital services and subscripti
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/minidash.git
-   cd minidash
+   git clone https://github.com/yourusername/seo-doctor.git
+   cd seo-doctor
    ```
 
 2. Install dependencies:
@@ -41,7 +41,7 @@ MiniDash is a dashboard application for managing digital services and subscripti
    ```
 
 3. Set up environment variables:
-   - Copy `.env.local.example` to `.env.local`
+   - Copy `.env.example` to `.env`
    - Fill in your Turso and Stripe credentials
 
 4. Set up the database:
@@ -77,26 +77,26 @@ MiniDash is a dashboard application for managing digital services and subscripti
 
 ## Database Setup
 
-MiniDash uses Turso SQLite for data storage. To set up your database:
+SEO-Doctor uses Turso SQLite for data storage. To set up your database:
 
 1. Install the Turso CLI
 2. Create a new database:
    ```bash
-   turso db create minidash
+   turso db create seo-doctor
    ```
 3. Get your database URL and auth token:
    ```bash
-   turso db show minidash --url
-   turso db tokens create minidash
+   turso db show seo-doctor --url
+   turso db tokens create seo-doctor
    ```
-4. Add these to your `.env.local` file
+4. Add these to your `.env` file
 
 ## Stripe Integration
 
 This project uses Stripe for payment processing. To set up Stripe:
 
 1. Create a Stripe account and get your API keys
-2. Add your publishable key and secret key to `.env.local`
+2. Add your publishable key and secret key to `.env`
 3. Set up a webhook endpoint for receiving Stripe events:
    - Use Stripe CLI for local testing or deploy to receive real webhook events
    - The webhook endpoint is `/api/webhook`

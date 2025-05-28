@@ -1,13 +1,11 @@
-import dotenv from 'dotenv';
 import Stripe from 'stripe';
 import fs from 'fs/promises';
 import path from 'path';
 
 
-dotenv.config({ path: '.env.local' });
 
 if (!process.env.STRIPE_SECRET_KEY) {
-    console.error('STRIPE_SECRET_KEY is not set in .env.local');
+    console.error('STRIPE_SECRET_KEY is not set in .env');
     process.exit(1);
 }
 
@@ -118,13 +116,13 @@ async function generateStripeProducts() {
         stripeIds.coupons.SEO70 = seo70Coupon.id;
         console.log(`✓ SEO70 coupon created: ${seo70Coupon.id}`);
 
-        // Read current .env.local file
-        const envPath = path.join(process.cwd(), '.env.local');
+        // Read current .env file
+        const envPath = path.join(process.cwd(), '.env');
         let envContent = '';
         try {
             envContent = await fs.readFile(envPath, 'utf8');
         } catch (error) {
-            console.log('Creating new .env.local file...');
+            console.log('Creating new .env file...');
         }
 
         // Prepare environment variables to add/update
@@ -153,16 +151,16 @@ async function generateStripeProducts() {
             const regex = new RegExp(`^${key}=.*$`, 'm');
             if (existingVars.has(key)) {
                 updatedEnvContent = updatedEnvContent.replace(regex, `${key}=${value}`);
-                console.log(`✓ Updated ${key} in .env.local`);
+                console.log(`✓ Updated ${key} in .env`);
             } else {
                 updatedEnvContent += `\n${key}=${value}`;
-                console.log(`✓ Added ${key} to .env.local`);
+                console.log(`✓ Added ${key} to .env`);
             }
         });
 
-        // Write updated .env.local file
+        // Write updated .env file
         await fs.writeFile(envPath, updatedEnvContent);
-        console.log(`\n✓ Updated .env.local with all Stripe IDs`);
+        console.log(`\n✓ Updated .env with all Stripe IDs`);
 
         // Generate payment.ts file content that reads from environment variables
         const paymentTsContent = `// Stripe product and price IDs
@@ -215,7 +213,7 @@ export function getProductIdByServiceId(serviceId: number): string | null {
         console.log(`✓ Generated data/payment.ts that reads from environment variables`);
 
         console.log('\n🎉 All Stripe products, prices, and coupons created successfully!');
-        console.log('\nEnvironment variables added to .env.local:');
+        console.log('\nEnvironment variables added to .env:');
         Object.entries(envVars).forEach(([key, value]) => {
             console.log(`${key}=${value}`);
         });
