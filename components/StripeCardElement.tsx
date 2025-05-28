@@ -29,6 +29,9 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        e.stopPropagation();
+        
+        logger.info('Card form submit initiated');
 
         if (!stripe || !elements) {
             logger.warn('Stripe or Elements not loaded');
@@ -108,7 +111,7 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <div>
             <div className="mb-4">
                 <label className="block text-sm text-text-secondary mb-2">
                     Detalii Card
@@ -173,17 +176,22 @@ function StripeCardForm({ onSuccess, onCancel, setAsDefault = false }: StripeCar
                     Anulare
                 </LinkButton>
                 <ActionButton
-                    type="submit"
+                    type="button"
                     size="sm"
                     showArrow={false}
                     fullRounded={false}
                     disabled={!stripe || processing}
                     loading={processing}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSubmit(e);
+                    }}
                 >
                     {processing ? 'Se procesează...' : 'Adaugă Card'}
                 </ActionButton>
             </div>
-        </form>
+        </div>
     );
 }
 

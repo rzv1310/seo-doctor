@@ -201,7 +201,12 @@ export default function MultiSubscriptionCheckout({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await createSubscriptions();
+        e.stopPropagation();
+        
+        // Only submit if we're not showing the add card form
+        if (!showAddCard) {
+            await createSubscriptions();
+        }
     };
 
     return (
@@ -299,7 +304,11 @@ export default function MultiSubscriptionCheckout({
                                 <p className="text-gray-400 mb-4">Nu ai nicio metodă de plată salvată</p>
                                 <ActionButton
                                     type="button"
-                                    onClick={() => setShowAddCard(true)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setShowAddCard(true);
+                                    }}
                                     size="sm"
                                     showArrow={false}
                                 >
