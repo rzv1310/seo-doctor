@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+
 import { useCart } from '../context/CartContext';
+import { useLogger } from '@/lib/client-logger';
+
 import { ActionButton } from './ui';
 
 
@@ -25,6 +28,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
         setCouponData
     } = useCart();
 
+    const logger = useLogger('Cart');
     const [inputCoupon, setInputCoupon] = useState(couponCode);
     const [isValidating, setIsValidating] = useState(false);
     const [couponError, setCouponError] = useState<string | null>(null);
@@ -54,12 +58,11 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 return;
             }
 
-            // Valid coupon
             setCouponCode(inputCoupon.trim());
             setCouponData(data);
             setCouponError(null);
         } catch (error) {
-            console.error('Error validating coupon:', error);
+            logger.error('Error validating coupon', error);
             setCouponError('Eroare la validarea codului promoțional');
             setCouponCode('');
             setCouponData(null);

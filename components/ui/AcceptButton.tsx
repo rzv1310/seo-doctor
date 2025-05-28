@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+
 import { ActionButton } from './ActionButton';
+import { useLogger } from '@/lib/client-logger';
 import type { ActionButtonProps } from './ActionButton';
+
 
 
 interface AcceptButtonProps extends Omit<ActionButtonProps, 'onClick'> {
@@ -22,6 +25,7 @@ export function AcceptButton({
     children,
     ...buttonProps
 }: AcceptButtonProps) {
+    const logger = useLogger('AcceptButton');
     const [showConfirm, setShowConfirm] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -37,7 +41,7 @@ export function AcceptButton({
             await onAccept();
             setShowConfirm(false);
         } catch (error) {
-            console.error('Error in accept action:', error);
+            logger.error('Error in accept action', error);
         } finally {
             setIsProcessing(false);
         }

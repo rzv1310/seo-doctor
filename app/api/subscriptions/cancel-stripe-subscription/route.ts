@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { eq, and } from 'drizzle-orm';
+
 import { getUserFromToken } from '@/lib/auth';
 import stripe from '@/lib/stripe-server';
+import { logger } from '@/lib/logger';
 import db from '@/database';
 import { subscriptions } from '@/database/schema';
-import { eq, and } from 'drizzle-orm';
+
 
 
 export async function POST(request: NextRequest) {
@@ -16,13 +19,16 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { subscriptionId, reason, immediate = false } = body;
 
-        console.log('Cancel subscription request:', { subscriptionId, userId: user.id, immediate });
+        logger.info('Cancel subscription request', { 
+            subscriptionId, 
+            userId: user.id, 
+            immediate 
+        });
 
         if (!subscriptionId) {
             return NextResponse.json({ error: 'Subscription ID is required' }, { status: 400 });
         }
 
-        // Get the subscription from database
         const [subscription] = await db
             .select()
             .from(subscriptions)
@@ -32,10 +38,11 @@ export async function POST(request: NextRequest) {
             ))
             .limit(1);
 
-        console.log('Found subscription:', subscription);
-
         if (!subscription) {
-            console.error('Subscription not found in database:', { subscriptionId, userId: user.id });
+            logger.error('Subscription not found in database', { 
+                subscriptionId, 
+                userId: user.id 
+            });
             return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
         }
 
@@ -45,7 +52,6 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-        // Cancel the subscription in Stripe
         const canceledSubscription = await stripe.subscriptions.update(
             subscription.stripeSubscriptionId,
             {
@@ -61,12 +67,10 @@ export async function POST(request: NextRequest) {
             }
         );
 
-        // If immediate cancellation, delete the subscription
         if (immediate) {
             await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
         }
 
-        // Update local subscription record
         const metadata = JSON.parse(subscription.metadata || '{}');
         const updateData = {
             status: immediate ? 'cancelled' : subscription.status,
@@ -83,14 +87,17 @@ export async function POST(request: NextRequest) {
             updatedAt: new Date().toISOString(),
         };
 
-        console.log('Updating subscription with data:', updateData);
-
-        const updateResult = await db
+        await db
             .update(subscriptions)
             .set(updateData)
             .where(eq(subscriptions.id, subscriptionId));
 
-        console.log('Update result:', updateResult);
+        logger.info('Subscription cancelled successfully', {
+            subscriptionId,
+            userId: user.id,
+            immediate,
+            cancelAt: canceledSubscription.cancel_at
+        });
 
         return NextResponse.json({
             success: true,
@@ -102,7 +109,10 @@ export async function POST(request: NextRequest) {
                 : null,
         });
     } catch (error: any) {
-        console.error('Cancel subscription error:', error);
+        logger.error('Cancel subscription error', { 
+            error: error.message || 'Failed to cancel subscription',
+            stack: error.stack 
+        });
         return NextResponse.json(
             { error: error.message || 'Failed to cancel subscription' },
             { status: 500 }

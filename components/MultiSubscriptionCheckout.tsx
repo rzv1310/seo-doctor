@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+
 import { ActionButton, Alert, Input, Spinner } from './ui';
 import { formatCurrency } from '@/lib/utils';
 import { stripeIds } from '@/data/payment';
 import { useCart } from '@/context/CartContext';
+import { useLogger } from '@/lib/client-logger';
 import type { CartService } from '@/context/CartContext';
+
 import SimplePaymentMethodSelector from './SimplePaymentMethodSelector';
 import StripeCardElement from './StripeCardElement';
 
@@ -27,6 +30,7 @@ export default function MultiSubscriptionCheckout({
     onError,
 }: MultiSubscriptionCheckoutProps) {
     const { setCouponCode, setCouponData } = useCart();
+    const logger = useLogger('MultiSubscriptionCheckout');
     const [loading, setLoading] = useState(false);
     const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -47,14 +51,14 @@ export default function MultiSubscriptionCheckout({
     // Fetch payment methods on mount
     useEffect(() => {
         fetchPaymentMethods();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (couponCode && localCouponCode) {
             // Validate the coupon on load to get proper discount data
             validateCoupon();
         }
-    }, [localCouponCode]);
+    }, [localCouponCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchPaymentMethods = async () => {
         try {
@@ -70,7 +74,7 @@ export default function MultiSubscriptionCheckout({
                 }
             }
         } catch (err) {
-            console.error('Failed to fetch payment methods:', err);
+            logger.error('Failed to fetch payment methods', err);
         } finally {
             setLoadingPaymentMethods(false);
         }
@@ -134,11 +138,16 @@ export default function MultiSubscriptionCheckout({
         const createdSubscriptions = [];
 
         try {
-            console.log('Creating subscriptions with payment method:', selectedPaymentMethod);
+            logger.info('Creating subscriptions', { 
+                paymentMethodId: selectedPaymentMethod,
+                itemCount: items.length 
+            });
             
-            // Create subscriptions for each service
             for (const item of items) {
-                console.log(`Creating subscription for service ${item.id}:`, item.name);
+                logger.info('Creating subscription for service', { 
+                    serviceId: item.id, 
+                    serviceName: item.name 
+                });
                 
                 const response = await fetch('/api/subscriptions/create-stripe-subscription', {
                     method: 'POST',
@@ -151,7 +160,6 @@ export default function MultiSubscriptionCheckout({
                 });
 
                 const data = await response.json();
-                console.log('Subscription response:', data);
 
                 if (!response.ok) {
                     throw new Error(data.error || `Failed to create subscription for ${item.name}`);
@@ -169,7 +177,7 @@ export default function MultiSubscriptionCheckout({
             const allActive = createdSubscriptions.every(sub => sub.status === 'active');
             const requiresAction = createdSubscriptions.some(sub => sub.requiresAction);
             
-            console.log('Subscriptions created:', {
+            logger.info('Subscriptions created', {
                 count: createdSubscriptions.length,
                 allActive,
                 requiresAction,
@@ -177,9 +185,7 @@ export default function MultiSubscriptionCheckout({
             });
 
             if (requiresAction) {
-                // Handle 3D Secure or other payment confirmations if needed
-                console.log('Payment requires additional action');
-                // For now, we'll still consider it a success since the subscription is created
+                logger.info('Payment requires additional action');
             }
 
             // Call success callback regardless of status
@@ -188,7 +194,7 @@ export default function MultiSubscriptionCheckout({
                 onSuccess(createdSubscriptions.map(sub => sub.subscriptionId));
             }
         } catch (err: any) {
-            console.error('Subscription creation error:', err);
+            logger.error('Subscription creation error', err);
             const errorMessage = err.message || 'A apărut o eroare la crearea abonamentelor';
             setError(errorMessage);
             if (onError) {

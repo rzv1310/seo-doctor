@@ -1,3 +1,7 @@
+import { logger } from '@/lib/logger';
+
+
+
 interface ClientInfo {
     controller: ReadableStreamDefaultController;
     isAdmin: boolean;
@@ -7,20 +11,25 @@ export const clients = new Map<string, ClientInfo>();
 
 export function sendMessageToUser(userId: string, message: any) {
     const clientInfo = clients.get(userId);
-    console.log(`Sending message to user ${userId}, connected: ${!!clientInfo}`);
+    logger.debug('Sending SSE message to user', { 
+        userId, 
+        connected: !!clientInfo,
+        messageType: message.type 
+    });
+    
     if (clientInfo) {
         const encoder = new TextEncoder();
         const data = `data: ${JSON.stringify(message)}\n\n`;
         try {
             clientInfo.controller.enqueue(encoder.encode(data));
-            console.log(`Message sent successfully to ${userId}`);
+            logger.debug('SSE message sent successfully', { userId });
         } catch (error) {
-            console.error(`Failed to send to ${userId}:`, error);
-            // Client disconnected, remove from map
+            logger.error('Failed to send SSE message', { 
+                userId, 
+                error: error instanceof Error ? error.message : String(error) 
+            });
             clients.delete(userId);
         }
-    } else {
-        console.log(`User ${userId} not connected to SSE`);
     }
 }
 
@@ -35,11 +44,13 @@ export function broadcastToAdmins(message: any) {
                 clientInfo.controller.enqueue(encoder.encode(data));
                 adminCount++;
             } catch (error) {
-                // Client disconnected, remove from map
                 clients.delete(userId);
             }
         }
     });
     
-    console.log(`Broadcast to ${adminCount} admin(s):`, message.type);
+    logger.debug('Broadcast to admins', { 
+        adminCount, 
+        messageType: message.type 
+    });
 }

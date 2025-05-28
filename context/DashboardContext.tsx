@@ -1,10 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+
 import { Invoice } from '@/hooks/useInvoices';
 import { PaymentMethod } from '@/types/payment-method';
 import { Order } from '@/types/order';
 import { Subscription } from '@/hooks/useSubscriptions';
+import { useLogger } from '@/lib/client-logger';
 
 
 
@@ -69,6 +71,7 @@ const initialState: DashboardData = {
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
+    const logger = useLogger('DashboardProvider');
     const [data, setData] = useState<DashboardData>(initialState);
 
     const fetchPaymentMethods = useCallback(async (forceRefresh = false, silent = false) => {
@@ -241,7 +244,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                         parsedMetadata,
                     };
                 } catch (e) {
-                    console.error('Error parsing subscription metadata:', e);
+                    logger.error('Error parsing subscription metadata', e, { subscriptionId: subscription.id });
                     return {
                         ...subscription,
                         parsedMetadata: {},

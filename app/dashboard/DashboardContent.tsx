@@ -3,12 +3,14 @@
 import { sidebarItems, logoutButton } from './data';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { DashboardProvider } from '@/context/DashboardContext';
-import Link from 'next/link';
+import { useLogger } from '@/lib/client-logger';
 import { LinkButton, SidebarButton } from '@/components/ui';
-import dynamic from 'next/dynamic';
 import Cart from '@/components/Cart';
 
 
@@ -36,6 +38,7 @@ interface DashboardContentProps {
 }
 
 export default function DashboardContent({ children }: DashboardContentProps) {
+    const logger = useLogger('DashboardContent');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -73,7 +76,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     setUnreadCount(data.unreadCount);
                 }
             } catch (error) {
-                console.error('Error fetching unread count:', error);
+                logger.error('Error fetching unread count', error);
             }
         };
 
@@ -98,7 +101,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         };
 
         eventSource.onerror = (error) => {
-            console.error('SSE error in DashboardContent:', error);
+            logger.error('SSE error in DashboardContent', error);
             eventSource.close();
         };
 
@@ -110,7 +113,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             eventSource.close();
             clearInterval(interval);
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Filter sidebar items based on user role
     // Use a stable filter to prevent hydration mismatches
@@ -174,9 +177,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             icon={logoutButton.icon}
                             label={logoutButton.label}
                             divider={true}
-                            onClick={async (e) => {
-                                e.preventDefault();
-                                await logout();
+                            onClick={() => {
+                                logout();
                             }}
                         />
                     </nav>

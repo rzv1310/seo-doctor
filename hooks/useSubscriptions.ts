@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
+import { useLogger } from '@/lib/client-logger';
+
 
 
 export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired';
@@ -44,6 +46,7 @@ export type Subscription = {
 };
 
 export function useSubscriptions(isAuthenticated: boolean = true) {
+    const logger = useLogger('useSubscriptions');
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -64,7 +67,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
                 parsedMetadata,
             };
         } catch (e) {
-            console.error('Error parsing subscription metadata:', e);
+            logger.error('Error parsing subscription metadata', e, { subscriptionId: subscription.id });
             return {
                 ...subscription,
                 parsedMetadata: {},
@@ -93,7 +96,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
             setSubscriptions(processedSubscriptions);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
-            console.error('Error fetching subscriptions:', err);
+            logger.error('Error fetching subscriptions', err);
         } finally {
             setIsLoading(false);
         }
@@ -161,7 +164,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
             };
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
-            console.error('Error subscribing to service:', err);
+            logger.error('Error subscribing to service', err, { serviceId });
             return null;
         }
     }, [isAuthenticated, fetchSubscriptions]);
@@ -215,7 +218,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
             };
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
-            console.error('Error updating subscription:', err);
+            logger.error('Error updating subscription', err, { subscriptionId });
             return null;
         }
     }, [isAuthenticated, fetchSubscriptions]);
@@ -253,7 +256,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
             return true;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
-            console.error('Error cancelling subscription:', err);
+            logger.error('Error cancelling subscription', err, { subscriptionId });
             return false;
         }
     }, [isAuthenticated, fetchSubscriptions]);
@@ -279,7 +282,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
             return !!result;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
-            console.error('Error pausing subscription:', err);
+            logger.error('Error pausing subscription', err, { subscriptionId, pauseUntil });
             return false;
         }
     }, [isAuthenticated, updateSubscription]);

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import { useLogger } from '@/lib/client-logger';
+
 
 
 export interface User {
@@ -16,6 +18,7 @@ export interface User {
 }
 
 export function useUsers() {
+    const logger = useLogger('useUsers');
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -42,7 +45,7 @@ export function useUsers() {
             setUsers(data.users);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error fetching users');
-            console.error('Error fetching users:', err);
+            logger.error('Error fetching users', err);
         } finally {
             setIsLoading(false);
         }

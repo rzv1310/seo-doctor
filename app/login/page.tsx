@@ -2,15 +2,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
 import LoginPage from '@/containers/LoginPage';
+import { useLogger } from '@/lib/client-logger';
 
 
 
 export default function LoginRoute() {
+    const logger = useLogger('LoginRoute');
     const router = useRouter();
     
     useEffect(() => {
-        // Check if there's a stale auth cookie
         const checkAuth = async () => {
             try {
                 const response = await fetch('/api/auth/me', {
@@ -18,23 +20,21 @@ export default function LoginRoute() {
                 });
                 const data = await response.json();
                 
-                // If authenticated with a valid user, redirect to dashboard
                 if (data.authenticated && data.user) {
                     router.push('/dashboard');
                 } else if (!data.authenticated) {
-                    // If not authenticated, clear any stale cookies by calling logout
                     await fetch('/api/auth/logout', {
                         method: 'POST',
                         credentials: 'include'
                     });
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                logger.error('Auth check error', error);
             }
         };
         
         checkAuth();
-    }, [router]);
+    }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
     
     return <LoginPage />;
 }

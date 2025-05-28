@@ -44,7 +44,7 @@ export default function ServiceDetailPage() {
             // Clean up URL
             router.replace(`/dashboard/services/${serviceId}`);
         }
-    }, [serviceId, searchParams]);
+    }, [serviceId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSubscriptionSuccess = (subscriptionId: string) => {
         setShowCheckout(false);

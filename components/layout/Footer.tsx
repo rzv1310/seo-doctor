@@ -75,12 +75,9 @@ export default function Footer({
                         behavior: 'smooth'
                     });
 
-                    // Clear the stored section
                     sessionStorage.removeItem('scrollToSection');
-                } else {
-                    console.log(`Could not find element with ID: ${sectionId}`);
                 }
-            }, 500); // Half-second delay to ensure the page is loaded
+            }, 500);
         }
     }, [pathname]);
 

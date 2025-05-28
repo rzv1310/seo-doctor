@@ -40,7 +40,7 @@ export default function SubscriptionCheckout({
     // Create subscription on mount
     useEffect(() => {
         createSubscription();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const createSubscription = async (applyCoupon?: string) => {
         setLoading(true);

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useLogger } from '@/lib/client-logger';
+
 
 
 export interface Invoice {
@@ -41,6 +43,7 @@ export interface PaginationResult {
 }
 
 export function useInvoices(page: number = 1, limit: number = 20) {
+    const logger = useLogger('useInvoices');
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [pagination, setPagination] = useState<PaginationResult>({
         page: 1,
@@ -66,7 +69,7 @@ export function useInvoices(page: number = 1, limit: number = 20) {
                 setPagination(data.pagination);
                 setError(null);
             } catch (err) {
-                console.error('Error fetching invoices:', err);
+                logger.error('Error fetching invoices', err);
                 setError('Failed to load invoices. Please try again later.');
             } finally {
                 setLoading(false);
@@ -80,6 +83,7 @@ export function useInvoices(page: number = 1, limit: number = 20) {
 }
 
 export function useInvoice(invoiceId: string) {
+    const logger = useLogger('useInvoice');
     const [invoice, setInvoice] = useState<InvoiceDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -103,7 +107,7 @@ export function useInvoice(invoiceId: string) {
                 setInvoice(data.invoice);
                 setError(null);
             } catch (err) {
-                console.error(`Error fetching invoice ${invoiceId}:`, err);
+                logger.error('Error fetching invoice', err, { invoiceId });
                 setError('Failed to load invoice details. Please try again later.');
             } finally {
                 setLoading(false);

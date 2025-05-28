@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import { useAuth } from '@/context/AuthContext';
+import { useLogger } from '@/lib/client-logger';
 
 
 
@@ -25,6 +27,7 @@ interface UserChat {
 
 export function useChat() {
     const { user } = useAuth();
+    const logger = useLogger('useChat');
     const [messages, setMessages] = useState<Message[]>([]);
     const [userChats, setUserChats] = useState<UserChat[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,7 +47,7 @@ export function useChat() {
             setError(null);
         } catch (err) {
             setError('Failed to load messages');
-            console.error('Error fetching messages:', err);
+            logger.error('Error fetching messages', err);
         } finally {
             setLoading(false);
         }
@@ -60,18 +63,17 @@ export function useChat() {
             const data = await response.json();
             setUserChats(data);
         } catch (err) {
-            console.error('Error fetching user chats:', err);
+            logger.error('Error fetching user chats', err);
         }
     }, [user]);
 
     // Send message
     const sendMessage = useCallback(async (content: string, userId?: string) => {
         try {
-            // Clear any previous errors when attempting to send
             setError(null);
-            
-            console.log('Sending message:', { content, userId });
-            
+
+            logger.info('Sending message', { userId, contentLength: content.length });
+
             const response = await fetch('/api/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,19 +82,18 @@ export function useChat() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                console.error('Send message failed:', response.status, errorData);
+                logger.error('Send message failed', new Error(errorData.error), { status: response.status });
                 throw new Error(errorData.error || 'Failed to send message');
             }
             const newMessage = await response.json();
-            console.log('Message sent successfully:', newMessage);
+            logger.info('Message sent successfully', { messageId: newMessage.id });
 
-            // Optimistically update UI
             setMessages(prev => [...prev, newMessage]);
 
             return newMessage;
         } catch (err) {
             setError('Failed to send message');
-            console.error('Error sending message:', err);
+            logger.error('Error sending message', err);
             throw err;
         }
     }, []);
@@ -117,7 +118,7 @@ export function useChat() {
                 )
             );
         } catch (err) {
-            console.error('Error marking messages as read:', err);
+            logger.error('Error marking messages as read', err);
         }
     }, []);
 
@@ -129,22 +130,16 @@ export function useChat() {
 
         es.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log('SSE message received:', data);
+            logger.info('SSE message received', { type: data.type });
 
             if (data.type === 'new_message') {
-                console.log('New message via SSE:', data.message);
-                // For regular users, add all their messages
                 if (!user.admin) {
                     setMessages(prev => [...prev, data.message]);
                 } else {
-                    // For admin, add to messages array and refresh user chats
                     setMessages(prev => [...prev, data.message]);
-                    // Also refresh user chats to update last message and unread count
                     fetchUserChats();
                 }
             } else if (data.type === 'message_read') {
-                console.log('Message read event received:', data);
-                // Update local message state to mark as read
                 if (data.messageIds && Array.isArray(data.messageIds)) {
                     setMessages(prev =>
                         prev.map(msg =>
@@ -153,20 +148,15 @@ export function useChat() {
                                 : msg
                         )
                     );
-                    // Refresh user chats for admin to update unread counts
                     if (user.admin) {
                         fetchUserChats();
                     }
                 }
             } else if (data.type === 'conversation_deleted') {
-                console.log('Conversation deleted event received:', data);
-                // Handle conversation deletion
                 if (!user.admin && data.userId === user.id) {
-                    // For regular users, clear all messages if their conversation was deleted
                     setMessages([]);
                     setError('Your conversation has been deleted by an administrator');
                 } else if (user.admin) {
-                    // For admins, remove messages and update user chats
                     setMessages(prev => prev.filter(msg => msg.userId !== data.userId));
                     setUserChats(prev => prev.filter(chat => chat.userId !== data.userId));
                 }
@@ -174,8 +164,7 @@ export function useChat() {
         };
 
         es.onerror = (error) => {
-            console.error('SSE error:', error);
-            // Don't close here as it might be a temporary issue
+            logger.error('SSE error', error);
         };
 
         setEventSource(es);
@@ -183,7 +172,7 @@ export function useChat() {
         return () => {
             es.close();
         };
-    }, [user, fetchUserChats]);
+    }, [user]);
 
     // Initial data fetch
     useEffect(() => {
@@ -193,7 +182,7 @@ export function useChat() {
                 fetchUserChats();
             }
         }
-    }, [user, fetchMessages, fetchUserChats]);
+    }, [user]);
 
     // Delete conversation (admin only)
     const deleteConversation = useCallback(async (userId: string) => {
@@ -212,7 +201,7 @@ export function useChat() {
 
             return true;
         } catch (err) {
-            console.error('Error deleting conversation:', err);
+            logger.error('Error deleting conversation', err);
             setError('Failed to delete conversation');
             return false;
         }

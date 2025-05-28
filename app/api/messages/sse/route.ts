@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { verifyApiAuth } from '@/lib/auth';
-import { withLogging } from '@/lib/logger';
+import { withLogging, logger } from '@/lib/logger';
+
 import { clients } from './sse-helpers';
 
 
@@ -14,21 +16,26 @@ export const GET = withLogging(async (request: NextRequest) => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
         start(controller) {
-            // Store the controller for this user with admin status
             clients.set(session.user.id, {
                 controller,
                 isAdmin: session.user.admin || false
             });
-            console.log(`SSE: User ${session.user.id} (${session.user.email}) connected. Admin: ${session.user.admin}. Total clients: ${clients.size}`);
+            logger.info('SSE client connected', {
+                userId: session.user.id,
+                userEmail: session.user.email,
+                isAdmin: session.user.admin,
+                totalClients: clients.size
+            });
 
-            // Send initial connection message
             const data = `data: ${JSON.stringify({ type: 'connected', userId: session.user.id })}\n\n`;
             controller.enqueue(encoder.encode(data));
 
-            // Clean up on disconnect
             request.signal.addEventListener('abort', () => {
                 clients.delete(session.user.id);
-                console.log(`SSE: User ${session.user.id} disconnected. Total clients: ${clients.size}`);
+                logger.info('SSE client disconnected', {
+                    userId: session.user.id,
+                    totalClients: clients.size
+                });
                 controller.close();
             });
         },

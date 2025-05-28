@@ -3,9 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import CryptoJS from 'crypto-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import database, { users } from '@/database';
 import { eq } from 'drizzle-orm';
+
+import database, { users } from '@/database';
 import { AUTH_COOKIE_NAME, SECRET_KEY, COOKIE_MAX_AGE } from '@/data/auth';
+import { logger } from './logger';
 
 // Types
 export interface User {
@@ -85,13 +87,11 @@ export async function getServerSession(): Promise<SessionResult> {
     const tokenCookie = cookieStore.get(AUTH_COOKIE_NAME);
 
     if (!tokenCookie?.value) {
-      console.log('No auth cookie found');
       return { user: null, isAuthenticated: false };
     }
 
     const userId = verifyAuthToken(tokenCookie.value);
     if (!userId) {
-      console.log('Invalid auth token');
       return { user: null, isAuthenticated: false };
     }
 
@@ -118,7 +118,7 @@ export async function getServerSession(): Promise<SessionResult> {
 
     return { user, isAuthenticated: true };
   } catch (error) {
-    console.error('Error getting server session:', error);
+    logger.error('Error getting server session', { error });
     return { user: null, isAuthenticated: false };
   }
 }
@@ -146,7 +146,7 @@ export function getAuthTokenFromRequest(request: Request): string | null {
 
     return null;
   } catch (error) {
-    console.error('Error extracting auth token:', error);
+    logger.error('Error extracting auth token', { error });
     return null;
   }
 }
@@ -186,7 +186,7 @@ export async function verifyApiAuth(request: Request): Promise<SessionResult> {
 
     return { user, isAuthenticated: true };
   } catch (error) {
-    console.error('Error verifying API auth:', error);
+    logger.error('Error verifying API auth', { error });
     return { user: null, isAuthenticated: false };
   }
 }
@@ -213,7 +213,7 @@ export function createAuthResponse(user: User): NextResponse {
 
     return response;
   } catch (error) {
-    console.error('Error creating auth response:', error);
+    logger.error('Error creating auth response', { error });
     throw new Error('Failed to create authentication response');
   }
 }
@@ -243,7 +243,7 @@ export function createLogoutResponse(): NextResponse {
     
     return response;
   } catch (error) {
-    console.error('Error creating logout response:', error);
+    logger.error('Error creating logout response', { error });
     throw new Error('Failed to create logout response');
   }
 }
@@ -260,7 +260,6 @@ export function getClientAuthToken(): string | null {
     
     return cookieValue ? decodeURIComponent(cookieValue) : null;
   } catch (error) {
-    console.error('Error getting client auth token:', error);
     return null;
   }
 }

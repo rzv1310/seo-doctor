@@ -3,8 +3,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { ro } from 'date-fns/locale';
+
 import { ChatMessage } from './ChatMessage';
 import { ActionButton, Spinner } from '@/components/ui';
+import { useLogger } from '@/lib/client-logger';
+
 
 
 interface Message {
@@ -37,6 +40,7 @@ export function ChatWindow({
     recipientName,
     showDateHeaders = true,
 }: ChatWindowProps) {
+    const logger = useLogger('ChatWindow');
     const [messageInput, setMessageInput] = useState('');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,7 +62,7 @@ export function ChatWindow({
             await onSendMessage(messageInput.trim());
             setMessageInput('');
         } catch (error) {
-            console.error('Failed to send message:', error);
+            logger.error('Failed to send message', error);
         } finally {
             setIsSending(false);
         }

@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/context/CartContext';
 import { services as serviceData, type Service } from '@/data/services';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
+import { useLogger } from '@/lib/client-logger';
 import type { Subscription } from '@/hooks/useSubscriptions';
+
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
 import { Card, Grid, ActionButton, Spinner } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
@@ -15,6 +18,7 @@ import ServiceCard from '@/components/dashboard/services/ServiceCard';
 
 
 export default function ServicesPage() {
+    const logger = useLogger('ServicesPage');
     const { addItem, isInCart, removeItem, items } = useCart();
     const { isAuthenticated } = useAuth();
 
@@ -75,7 +79,7 @@ export default function ServicesPage() {
         const subscription = getSubscription(service.id.toString());
 
         // Check if subscription is pending cancellation
-        let status = subscription?.status || 'available';
+        const status = subscription?.status || 'available';
         const metadata = subscription?.parsedMetadata || {};
         const isPendingCancellation = subscription && metadata.cancelAtPeriodEnd === true;
 
@@ -139,10 +143,8 @@ export default function ServicesPage() {
 
         try {
             await subscribeToService(serviceId.toString());
-            // Success notification could be added here
         } catch (error) {
-            console.error('Failed to subscribe:', error);
-            // Error notification could be added here
+            logger.error('Failed to subscribe', error, { serviceId });
         } finally {
             setIsSubscribing(null);
         }

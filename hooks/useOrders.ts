@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useLogger } from '@/lib/client-logger';
+
 
 
 export interface Order {
@@ -13,6 +15,7 @@ export interface Order {
 }
 
 export function useOrders() {
+    const logger = useLogger('useOrders');
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -31,7 +34,7 @@ export function useOrders() {
                 setOrders(data.orders);
                 setError(null);
             } catch (err) {
-                console.error('Error fetching orders:', err);
+                logger.error('Error fetching orders', err);
                 setError('Failed to load orders. Please try again later.');
             } finally {
                 setLoading(false);
@@ -45,6 +48,7 @@ export function useOrders() {
 }
 
 export function useOrder(orderId: string) {
+    const logger = useLogger('useOrder');
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -68,7 +72,7 @@ export function useOrder(orderId: string) {
                 setOrder(data.order);
                 setError(null);
             } catch (err) {
-                console.error(`Error fetching order ${orderId}:`, err);
+                logger.error('Error fetching order', err, { orderId });
                 setError('Failed to load order details. Please try again later.');
             } finally {
                 setLoading(false);
