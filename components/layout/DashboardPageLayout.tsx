@@ -21,7 +21,7 @@ export default function DashboardPageLayout({
     if (fullHeight) {
         // For pages that need full height control (like Chat)
         return (
-            <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex flex-col h-full overflow-hidden" suppressHydrationWarning>
                 <div className="shrink-0">
                     <PageHeader title={title} subtitle={subtitle} />
                 </div>
@@ -32,7 +32,7 @@ export default function DashboardPageLayout({
 
     // Standard scrollable layout
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden" suppressHydrationWarning>
             <div className="shrink-0">
                 <PageHeader title={title} subtitle={subtitle} />
             </div>

@@ -40,7 +40,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const pathname = usePathname();
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { itemCount } = useCart();
 
     useEffect(() => {
@@ -113,10 +113,12 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     }, []);
 
     // Filter sidebar items based on user role
+    // Use a stable filter to prevent hydration mismatches
     const filteredSidebarItems = sidebarItems.filter(item => {
         // Only show admin-only items to admin users
         if (item.adminOnly) {
-            return user?.admin;
+            // Default to false to ensure consistent server/client rendering
+            return user?.admin === true;
         }
         return true;
     });
