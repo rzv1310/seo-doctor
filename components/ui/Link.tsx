@@ -29,8 +29,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
             muted: 'text-text-secondary hover:text-text-primary'
         };
 
-        const baseClasses = `transition-colors duration-200 ${variantClasses[variant]}
-      ${underline ? 'hover:underline' : ''}`;
+        const baseClasses = `flex items-center transition-colors duration-200 ${variantClasses[variant]} ${underline ? 'hover:underline' : ''}`;
 
         // External links or special protocols
         if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {

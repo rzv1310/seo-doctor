@@ -65,17 +65,12 @@ export default function GmbMaxServicePage() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         {isAuthenticated ? (
                             <ActionButton href="/dashboard" size="lg">
-                                Achiziție Serviciu
+                                Cumpără acum!
                             </ActionButton>
                         ) : (
-                            <>
-                                <ActionButton href="/login" size="lg">
-                                    Autentificare pentru Achiziție
-                                </ActionButton>
-                                <ActionButton href="/#services" size="lg" fullRounded={false}>
-                                    Află mai multe despre servicii
-                                </ActionButton>
-                            </>
+                            <ActionButton href="/login" size="lg">
+                                Cumpără acum!
+                            </ActionButton>
                         )}
                     </div>
                 </div>

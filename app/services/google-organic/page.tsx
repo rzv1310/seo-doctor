@@ -73,14 +73,9 @@ export default function GoogleOrganicServicePage() {
                                 Cumpără acum!
                             </ActionButton>
                         ) : (
-                            <>
-                                <ActionButton href="/login" size="lg">
-                                    Autentificare pentru Achiziție
-                                </ActionButton>
-                                <ActionButton href="/#services" size="lg" fullRounded={false}>
-                                    Află mai multe despre servicii
-                                </ActionButton>
-                            </>
+                            <ActionButton href="/login" size="lg">
+                                Cumpără acum!
+                            </ActionButton>
                         )}
                     </div>
                 </div>
