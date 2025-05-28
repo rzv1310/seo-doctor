@@ -50,8 +50,20 @@ export function StatusBadge({
     const baseClasses = 'inline-flex items-center border rounded-full font-medium capitalize';
     const finalClassName = `${baseClasses} ${variantClasses} ${sizeClasses} ${className}`.trim();
 
-    // Display "Activ" in Romanian if status is "active"
-    const displayStatus = status.toLowerCase() === 'active' ? 'Activ' : status;
+    // Display status in Romanian
+    const statusTranslations: Record<string, string> = {
+        active: 'Activ',
+        cancelled: 'Anulat',
+        pending: 'În așteptare',
+        trial: 'Perioadă de probă',
+        expired: 'Expirat',
+        failed: 'Eșuat',
+        completed: 'Finalizat',
+        paid: 'Plătit',
+        processing: 'În procesare'
+    };
+    
+    const displayStatus = statusTranslations[status.toLowerCase()] || status;
 
     return (
         <span className={finalClassName}>

@@ -16,6 +16,8 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { subscriptionId, reason, immediate = false } = body;
 
+        console.log('Cancel subscription request:', { subscriptionId, userId: user.id, immediate });
+
         if (!subscriptionId) {
             return NextResponse.json({ error: 'Subscription ID is required' }, { status: 400 });
         }
@@ -30,7 +32,10 @@ export async function POST(request: NextRequest) {
             ))
             .limit(1);
 
+        console.log('Found subscription:', subscription);
+
         if (!subscription) {
+            console.error('Subscription not found in database:', { subscriptionId, userId: user.id });
             return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
         }
 
@@ -62,19 +67,30 @@ export async function POST(request: NextRequest) {
         }
 
         // Update local subscription record
-        await db
+        const metadata = JSON.parse(subscription.metadata || '{}');
+        const updateData = {
+            status: immediate ? 'cancelled' : subscription.status,
+            cancelledAt: new Date().toISOString(),
+            endDate: canceledSubscription.cancel_at 
+                ? new Date(canceledSubscription.cancel_at * 1000).toISOString()
+                : subscription.endDate,
+            metadata: JSON.stringify({
+                ...metadata,
+                cancelReason: reason,
+                cancelAtPeriodEnd: !immediate,
+                stripeCancelAt: canceledSubscription.cancel_at,
+            }),
+            updatedAt: new Date().toISOString(),
+        };
+
+        console.log('Updating subscription with data:', updateData);
+
+        const updateResult = await db
             .update(subscriptions)
-            .set({
-                status: immediate ? 'cancelled' : subscription.status,
-                cancelledAt: new Date().toISOString(),
-                metadata: JSON.stringify({
-                    ...JSON.parse(subscription.metadata || '{}'),
-                    cancelReason: reason,
-                    cancelAtPeriodEnd: !immediate,
-                }),
-                updatedAt: new Date().toISOString(),
-            })
+            .set(updateData)
             .where(eq(subscriptions.id, subscriptionId));
+
+        console.log('Update result:', updateResult);
 
         return NextResponse.json({
             success: true,

@@ -10,8 +10,11 @@ interface ServiceCardProps {
     service: Service & {
         status: string;
         renewalDate?: string;
+        endDate?: string;
         usage?: number;
         subscriptionId?: string | number;
+        isPendingCancellation?: boolean;
+        cancelledAt?: string;
     };
     subscription?: Subscription | null;
     isInCart: boolean;
@@ -46,7 +49,10 @@ export default function ServiceCard({
             <div className="p-4 border-b border-border-color">
                 <div className="flex justify-between items-start">
                     <h3 className="text-lg font-semibold">{service.name}</h3>
-                    <StatusBadge status={service.status} />
+                    <StatusBadge 
+                        status={service.isPendingCancellation ? 'cancelled' : service.status} 
+                        variant={service.isPendingCancellation ? 'warning' : undefined}
+                    />
                 </div>
                 <p className="text-text-primary text-sm mt-2">{service.description}</p>
             </div>
@@ -75,9 +81,11 @@ export default function ServiceCard({
                 <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                     <div className="flex-1">
                         <div className="font-bold text-white text-lg">{service.price}<span className="text-xs text-text-primary">{service.period || '/mo'}</span></div>
-                        {service.renewalDate && (
+                        {service.isPendingCancellation && service.endDate ? (
+                            <div className="text-xs text-red-400">Se anulează la: {formatDate(service.endDate)}</div>
+                        ) : service.renewalDate ? (
                             <div className="text-xs text-text-primary">Reînnoiește: {formatDate(service.renewalDate)}</div>
-                        )}
+                        ) : null}
                     </div>
 
                     <div className="flex gap-2 items-center">
@@ -89,13 +97,17 @@ export default function ServiceCard({
                         </Link>
 
                         {isSubscribed ? (
-                            <LinkButton
-                                variant="danger"
-                                size="sm"
-                                onClick={() => subscription && onCancelSubscription(subscription)}
-                            >
-                                Anulează
-                            </LinkButton>
+                            service.isPendingCancellation ? (
+                                <span className="text-xs text-red-400 px-3 py-1">Anulare în curs</span>
+                            ) : (
+                                <LinkButton
+                                    variant="danger"
+                                    size="sm"
+                                    onClick={() => subscription && onCancelSubscription(subscription)}
+                                >
+                                    Anulează
+                                </LinkButton>
+                            )
                         ) : (
                             <ActionButton
                                 variant={isInCart ? "danger" : "default"}

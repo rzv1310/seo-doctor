@@ -223,7 +223,31 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
             if (!response.ok) throw new Error('Failed to fetch subscriptions');
 
             const result = await response.json();
-            const subscriptions = result.subscriptions || [];
+            const rawSubscriptions = result.subscriptions || [];
+            
+            // Parse metadata for each subscription
+            const subscriptions = rawSubscriptions.map((subscription: Subscription) => {
+                if (!subscription.metadata) {
+                    return {
+                        ...subscription,
+                        parsedMetadata: {},
+                    };
+                }
+
+                try {
+                    const parsedMetadata = JSON.parse(subscription.metadata);
+                    return {
+                        ...subscription,
+                        parsedMetadata,
+                    };
+                } catch (e) {
+                    console.error('Error parsing subscription metadata:', e);
+                    return {
+                        ...subscription,
+                        parsedMetadata: {},
+                    };
+                }
+            });
 
             setData(prev => ({
                 ...prev,

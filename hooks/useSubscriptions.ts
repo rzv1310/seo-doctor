@@ -220,7 +220,7 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
         }
     }, [isAuthenticated, fetchSubscriptions]);
 
-    // Cancel a subscription (convenience method that uses updateSubscription)
+    // Cancel a subscription with Stripe
     const cancelSubscription = useCallback(async (subscriptionId: string, cancelReason?: string) => {
         if (!isAuthenticated) {
             setError('You must be logged in to cancel a subscription');
@@ -228,18 +228,35 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
         }
 
         try {
-            const result = await updateSubscription(subscriptionId, {
-                status: 'cancelled',
-                cancelReason
+            const response = await fetch('/api/subscriptions/cancel-stripe-subscription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subscriptionId,
+                    reason: cancelReason,
+                    immediate: false // Cancel at end of period
+                }),
             });
 
-            return !!result;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to cancel subscription');
+            }
+
+            const data = await response.json();
+
+            // Refresh subscriptions list
+            await fetchSubscriptions();
+
+            return true;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
             console.error('Error cancelling subscription:', err);
             return false;
         }
-    }, [isAuthenticated, updateSubscription]);
+    }, [isAuthenticated, fetchSubscriptions]);
 
     // Pause a subscription (convenience method)
     const pauseSubscription = useCallback(async (

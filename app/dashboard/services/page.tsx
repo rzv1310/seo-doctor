@@ -21,7 +21,8 @@ export default function ServicesPage() {
     const {
         subscriptions,
         isLoading: subscriptionsLoading,
-        error: subscriptionsError
+        error: subscriptionsError,
+        refresh: refreshSubscriptions
     } = useDashboardSubscriptions();
 
     // Helper functions for subscription management
@@ -73,16 +74,21 @@ export default function ServicesPage() {
         // Get the user's subscription to this service, if any
         const subscription = getSubscription(service.id.toString());
 
-        // Default to 'available' status if no subscription found
-        const status = subscription?.status || 'available';
+        // Check if subscription is pending cancellation
+        let status = subscription?.status || 'available';
+        const metadata = subscription?.parsedMetadata || {};
+        const isPendingCancellation = subscription && metadata.cancelAtPeriodEnd === true;
 
         // Use subscription data if available
         return {
             ...service,
             status,
             renewalDate: subscription?.renewalDate,
+            endDate: subscription?.endDate,
             usage: subscription?.usage !== undefined ? subscription.usage : service.usage,
-            subscriptionId: subscription?.id
+            subscriptionId: subscription?.id,
+            isPendingCancellation,
+            cancelledAt: subscription?.cancelledAt
         };
     });
 
@@ -226,10 +232,13 @@ export default function ServicesPage() {
                         isOpen={!!subscriptionToCancel}
                         onClose={handleCloseModal}
                         onCancel={async (subscriptionId, reason) => {
-                            await cancelSubscription(subscriptionId, reason);
-                            handleCloseModal();
-                            window.location.reload();
-                            return true;
+                            const success = await cancelSubscription(subscriptionId, reason);
+                            if (success) {
+                                handleCloseModal();
+                                // Refresh subscriptions to show updated status
+                                await refreshSubscriptions();
+                            }
+                            return success;
                         }}
                     />
                 )}
