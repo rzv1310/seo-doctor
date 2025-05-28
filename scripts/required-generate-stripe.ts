@@ -37,7 +37,7 @@ async function generateStripeProducts() {
         // Create products and prices for each service from data/services.ts
         for (const service of services) {
             console.log(`Creating product for ${service.name}...`);
-            
+
             const product = await stripe.products.create({
                 name: service.name,
                 description: service.description,
@@ -45,13 +45,13 @@ async function generateStripeProducts() {
                     service_id: service.id.toString(),
                 },
             });
-            
+
             const productKey = service.name.toLowerCase().replace(/\s+/g, '');
             stripeIds.products[productKey] = product.id;
             console.log(`✓ ${service.name} product created: ${product.id}`);
 
             console.log(`Creating price for ${service.name}...`);
-            
+
             const price = await stripe.prices.create({
                 product: product.id,
                 unit_amount: service.priceValue, // Price from services data
@@ -63,7 +63,7 @@ async function generateStripeProducts() {
                     service_id: service.id.toString(),
                 },
             });
-            
+
             const priceKey = `${productKey}Monthly`;
             stripeIds.prices[priceKey] = price.id;
             console.log(`✓ ${service.name} price created: ${price.id}\n`);
@@ -95,21 +95,21 @@ async function generateStripeProducts() {
 
         // Prepare environment variables to add/update
         const envVars: Record<string, string> = {};
-        
+
         // Add product IDs
         services.forEach(service => {
             const productKey = service.name.toLowerCase().replace(/\s+/g, '');
             const envKey = `STRIPE_PRODUCT_${service.name.toUpperCase().replace(/\s+/g, '_')}`;
             envVars[envKey] = stripeIds.products[productKey];
         });
-        
+
         // Add price IDs
         services.forEach(service => {
             const productKey = service.name.toLowerCase().replace(/\s+/g, '');
             const envKey = `STRIPE_PRICE_${service.name.toUpperCase().replace(/\s+/g, '_')}_MONTHLY`;
             envVars[envKey] = stripeIds.prices[`${productKey}Monthly`];
         });
-        
+
         // Add coupon
         envVars['STRIPE_COUPON_SEO70'] = stripeIds.coupons.SEO70;
 

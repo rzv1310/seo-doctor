@@ -10,7 +10,7 @@ async function seedDatabase() {
 
     try {
         console.log('📋 Seeding services...');
-        
+
         for (const service of services) {
             // Check if service already exists
             const [existingService] = await db
@@ -39,7 +39,7 @@ async function seedDatabase() {
 
         console.log('\n✅ Database seeding completed successfully!');
         console.log(`📊 Total services seeded: ${services.length}`);
-        
+
         // Summary of what was seeded
         console.log('\n📝 Services in database:');
         services.forEach(service => {

@@ -8,7 +8,7 @@ const PROJECT_ROOT = process.cwd();
 function runCommand(command: string, description: string) {
     console.log(`\n🔄 ${description}...`);
     console.log(`📝 Running: ${command}`);
-    
+
     try {
         execSync(command, {
             cwd: PROJECT_ROOT,
