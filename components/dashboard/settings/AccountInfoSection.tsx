@@ -1,13 +1,9 @@
 'use client';
 
 import { Card, Grid, FormSection } from '@/components/ui';
+import { User } from '@/types/auth';
 
 
-
-interface User {
-    email?: string;
-    name?: string;
-}
 
 interface AccountInfoSectionProps {
     user: User | null;

@@ -2,46 +2,14 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 
-import { Invoice } from '@/hooks/useInvoices';
+import { DashboardData, DashboardContextType } from '@/types/dashboard';
+import { Invoice } from '@/types/invoice';
 import { PaymentMethod } from '@/types/payment-method';
 import { Order } from '@/types/order';
-import { Subscription } from '@/hooks/useSubscriptions';
+import { Subscription } from '@/types/subscription';
 import { useLogger } from '@/lib/client-logger';
 
 
-
-interface DashboardData {
-    paymentMethods: PaymentMethod[];
-    invoices: Invoice[];
-    orders: Order[];
-    subscriptions: Subscription[];
-    isLoading: {
-        paymentMethods: boolean;
-        invoices: boolean;
-        orders: boolean;
-        subscriptions: boolean;
-    };
-    error: {
-        paymentMethods: string | null;
-        invoices: string | null;
-        orders: string | null;
-        subscriptions: string | null;
-    };
-    lastFetched: {
-        paymentMethods: number | null;
-        invoices: number | null;
-        orders: number | null;
-        subscriptions: number | null;
-    };
-}
-
-interface DashboardContextType extends DashboardData {
-    fetchPaymentMethods: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
-    fetchInvoices: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
-    fetchOrders: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
-    fetchSubscriptions: (forceRefresh?: boolean, silent?: boolean) => Promise<void>;
-    refreshAll: () => Promise<void>;
-}
 
 const initialState: DashboardData = {
     paymentMethods: [],

@@ -1,65 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { useLogger } from '@/lib/client-logger';
+import { Invoice, InvoiceDetail, PaginationResult } from '@/types/invoice';
 
 
-
-export interface Invoice {
-    id: string;
-    userId: string;
-    orderId: string | null;
-    createdAt: string;
-    dueDate: string | null;
-    amount: number;
-    status: 'paid' | 'pending' | 'overdue' | 'cancelled';
-    stripeInvoiceId: string | null;
-    orderServiceId: string | null;
-    serviceName: string | null;
-    // Additional Stripe fields
-    number?: string;
-    currency?: string;
-    hostedInvoiceUrl?: string | null;
-    invoicePdf?: string | null;
-    subscriptionId?: string | null;
-}
-
-export interface InvoiceDetail extends Invoice {
-    billingAddress: {
-        name: string;
-        email: string;
-        address: string;
-        city: string;
-        country: string;
-        postalCode: string;
-        company?: string;
-    };
-    items: {
-        name: string;
-        description: string;
-        quantity: number;
-        unitPrice: number;
-        total: number;
-    }[];
-    discounts?: {
-        couponId?: string;
-        couponName?: string;
-        percentOff?: number;
-        amountOff?: number;
-        currency?: string;
-    }[];
-    // Additional fields from Stripe
-    subtotal?: number;
-    tax?: number;
-    total?: number;
-    discountTotal?: number;
-}
-
-export interface PaginationResult {
-    page: number;
-    limit: number;
-    totalItems: number;
-    totalPages: number;
-}
 
 export function useInvoices(page: number = 1, limit: number = 20) {
     const logger = useLogger('useInvoices');

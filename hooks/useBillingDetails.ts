@@ -4,16 +4,9 @@ import { useState, useEffect } from 'react';
 
 import { useAuth } from '@/context/AuthContext';
 import { useLogger } from '@/lib/client-logger';
+import { BillingDetails } from '@/types/billing';
 
 
-
-interface BillingDetails {
-    billingName: string | null;
-    billingCompany: string | null;
-    billingVat: string | null;
-    billingAddress: string | null;
-    billingPhone: string | null;
-}
 
 export function useBillingDetails() {
     const logger = useLogger('useBillingDetails');

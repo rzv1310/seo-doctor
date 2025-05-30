@@ -1,12 +1,8 @@
 'use client';
 
-interface BillingDetails {
-    billingName?: string | null;
-    billingCompany?: string | null;
-    billingVat?: string | null;
-    billingAddress?: string | null;
-    billingPhone?: string | null;
-}
+import { BillingDetails } from '@/types/billing';
+
+
 
 interface BillingDetailsDisplayProps {
     details: BillingDetails;

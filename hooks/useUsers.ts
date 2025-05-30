@@ -1,21 +1,9 @@
 import { useState, useEffect } from 'react';
 
 import { useLogger } from '@/lib/client-logger';
+import { User } from '@/types/auth';
 
 
-
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
-    billingName?: string;
-    billingCompany?: string;
-    billingVat?: string;
-    billingAddress?: string;
-    billingPhone?: string;
-    admin?: boolean;
-}
 
 export function useUsers() {
     const logger = useLogger('useUsers');

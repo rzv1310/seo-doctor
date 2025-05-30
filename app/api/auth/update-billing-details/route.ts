@@ -7,9 +7,9 @@ import { logger, withLogging } from '@/lib/logger';
 import { 
     validateBillingDetails, 
     sanitizeBillingDetails, 
-    updateStripeCustomerBilling,
-    type BillingDetails 
+    updateStripeCustomerBilling
 } from '@/lib/billing-utils';
+import { BillingDetails } from '@/types/billing';
 
 
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Subscription } from '@/hooks/useSubscriptions';
+import type { Subscription } from '@/types/subscription';
 
 
 

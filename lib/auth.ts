@@ -8,39 +8,9 @@ import { eq } from 'drizzle-orm';
 import database, { users } from '@/database';
 import { AUTH_COOKIE_NAME, SECRET_KEY, COOKIE_MAX_AGE } from '@/data/auth';
 import { logger } from './logger';
+import { User, AuthSession, NoAuthSession, SessionResult, TokenPayload } from '@/types/auth';
 
-// Types
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string | null;
-  createdAt: string;
-  billingName?: string | null;
-  billingCompany?: string | null;
-  billingVat?: string | null;
-  billingAddress?: string | null;
-  billingPhone?: string | null;
-  stripeCustomerId?: string | null;
-  admin?: boolean | null;
-}
 
-export interface AuthSession {
-  user: User;
-  isAuthenticated: true;
-}
-
-export interface NoAuthSession {
-  user: null;
-  isAuthenticated: false;
-}
-
-export type SessionResult = AuthSession | NoAuthSession;
-
-interface TokenPayload {
-  userId: string;
-  exp: number;
-}
 
 // Core utilities
 export function generateUserId(): string {

@@ -1,11 +1,8 @@
 import { logger } from '@/lib/logger';
+import { ClientInfo } from '@/types/message';
 
 
 
-interface ClientInfo {
-    controller: ReadableStreamDefaultController;
-    isAdmin: boolean;
-}
 
 export const clients = new Map<string, ClientInfo>();
 

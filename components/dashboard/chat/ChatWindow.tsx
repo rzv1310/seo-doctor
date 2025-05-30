@@ -7,19 +7,7 @@ import { ro } from 'date-fns/locale';
 import { ChatMessage } from './ChatMessage';
 import { ActionButton, Spinner } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
-
-
-
-interface Message {
-    id: string;
-    userId: string;
-    content: string;
-    isFromAdmin: boolean;
-    isRead: boolean;
-    createdAt: string;
-    userName?: string;
-    userEmail?: string;
-}
+import { Message } from '@/types/message';
 
 interface ChatWindowProps {
     messages: Message[];

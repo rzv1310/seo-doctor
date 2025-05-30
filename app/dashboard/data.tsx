@@ -1,11 +1,5 @@
-export interface SidebarItem {
-    id: string;
-    label: string;
-    href: string;
-    icon: React.ReactNode;
-    divider?: boolean;
-    adminOnly?: boolean;
-}
+import { SidebarItem } from '@/types/dashboard';
+
 
 export const sidebarItems: SidebarItem[] = [
     {

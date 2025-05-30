@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useDashboardInvoices } from '@/context/DashboardContext';
-import { Invoice } from '@/hooks/useInvoices';
+import { Invoice } from '@/types/invoice';
 import { LinkButton } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import InvoiceFilters from '@/components/dashboard/invoices/InvoiceFilters';

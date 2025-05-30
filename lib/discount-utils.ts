@@ -1,50 +1,9 @@
 import Stripe from 'stripe';
 import stripe from './stripe-server';
 import { logger } from './logger';
+import { CouponInfo, DiscountInfo, StripeDiscountData } from '@/types/discount';
 
 
-
-// TypeScript interfaces for discount data
-export interface CouponInfo {
-    id: string;
-    name?: string | null;
-    percentOff?: number | null;
-    amountOff?: number | null;
-    currency?: string | null;
-    duration?: string;
-    durationInMonths?: number | null;
-    valid?: boolean;
-}
-
-export interface DiscountInfo {
-    couponId: string;
-    couponName?: string | null;
-    percentOff?: number | null;
-    amountOff?: number | null;
-    currency?: string | null;
-    originalPrice: number;
-    discountedPrice: number;
-    appliedCoupons: CouponInfo[];
-    totalPercentOff: number;
-    totalAmountOff: number;
-    totalSavings: number;
-}
-
-export interface StripeDiscountData {
-    id: string;
-    coupon: {
-        id: string;
-        name?: string | null;
-        percent_off?: number | null;
-        amount_off?: number | null;
-        currency?: string | null;
-        duration?: string;
-        duration_in_months?: number | null;
-        valid?: boolean;
-    };
-    start: number;
-    end?: number | null;
-}
 
 // Calculate discounted price from original price and coupons
 export function calculateDiscountedPrice(

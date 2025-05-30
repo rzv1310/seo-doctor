@@ -2,28 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { useAuth } from '@/context/AuthContext';
 import { useLogger } from '@/lib/client-logger';
-
-
-
-interface Message {
-    id: string;
-    userId: string;
-    content: string;
-    isFromAdmin: boolean;
-    isRead: boolean;
-    createdAt: string;
-    userName?: string;
-    userEmail?: string;
-}
-
-interface UserChat {
-    userId: string;
-    userName: string;
-    userEmail: string;
-    lastMessage: string;
-    lastMessageTime: string;
-    unreadCount: number;
-}
+import { Message, UserChat } from '@/types/message';
 
 export function useChat() {
     const { user } = useAuth();

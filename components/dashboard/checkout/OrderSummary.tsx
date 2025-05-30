@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ActionButton } from '@/components/ui';
-import type { CartService } from '@/context/CartContext';
+import type { CartService } from '@/types/cart';
 
 
 

@@ -5,9 +5,10 @@ import db from '@/database';
 import { users, subscriptions } from '@/database/schema';
 import { eq, and } from 'drizzle-orm';
 import { getPriceIdByServiceId } from '@/data/payment';
-import { updateStripeCustomerBilling, type BillingDetails } from '@/lib/billing-utils';
+import { updateStripeCustomerBilling } from '@/lib/billing-utils';
 import { validateCouponCode } from '@/lib/discount-utils';
 import { logger } from '@/lib/logger';
+import { BillingDetails } from '@/types/billing';
 
 
 export async function POST(request: NextRequest) {

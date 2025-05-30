@@ -1,19 +1,10 @@
-type LogLevel = 'info' | 'warn' | 'error';
+import { ClientLogLevel, ClientLogContext } from '@/types/logging';
 
 
-
-interface ClientLogContext {
-    userId?: string;
-    sessionId?: string;
-    component?: string;
-    action?: string;
-    error?: Error;
-    [key: string]: any;
-}
 
 class ClientLogger {
     private isDevelopment = process.env.NODE_ENV === 'development';
-    private buffer: Array<{ level: LogLevel; message: string; context?: ClientLogContext; timestamp: string }> = [];
+    private buffer: Array<{ level: ClientLogLevel; message: string; context?: ClientLogContext; timestamp: string }> = [];
     private flushInterval: NodeJS.Timeout | null = null;
     private maxBufferSize = 50;
 
@@ -43,7 +34,7 @@ class ClientLogger {
         }
     }
 
-    private formatMessage(level: LogLevel, message: string, context?: ClientLogContext): any {
+    private formatMessage(level: ClientLogLevel, message: string, context?: ClientLogContext): any {
         const timestamp = new Date().toISOString();
         const baseLog = {
             timestamp,
@@ -65,7 +56,7 @@ class ClientLogger {
         return baseLog;
     }
 
-    private log(level: LogLevel, message: string, context?: ClientLogContext): void {
+    private log(level: ClientLogLevel, message: string, context?: ClientLogContext): void {
         const formattedMessage = this.formatMessage(level, message, context);
 
         // In development, log to console
@@ -143,7 +134,7 @@ class ClientLogger {
 
     // Helper for tracking API calls
     api(method: string, path: string, status: number, duration: number, error?: Error): void {
-        const level: LogLevel = status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info';
+        const level: ClientLogLevel = status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info';
         const message = `API: ${method} ${path} ${status} ${duration}ms`;
 
         this.log(level, message, {
@@ -166,7 +157,7 @@ class ClientLogger {
 
     // Helper for tracking form submissions
     form(action: string, formName: string, success: boolean, error?: Error): void {
-        const level: LogLevel = error ? 'error' : success ? 'info' : 'warn';
+        const level: ClientLogLevel = error ? 'error' : success ? 'info' : 'warn';
         const message = `Form: ${formName} ${action} ${success ? 'succeeded' : 'failed'}`;
 
         this.log(level, message, {

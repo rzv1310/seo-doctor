@@ -2,16 +2,13 @@
 
 import { useState } from 'react';
 import { ActionButton, LinkButton } from '@/components/ui';
+import { BillingDetails } from '@/types/billing';
+
+
 
 interface BillingDetailsFormProps {
-    initialData: {
-        billingName: string | null;
-        billingCompany: string | null;
-        billingVat: string | null;
-        billingAddress: string | null;
-        billingPhone: string | null;
-    };
-    onSave: (data: any) => Promise<void>;
+    initialData: BillingDetails;
+    onSave: (data: BillingDetails) => Promise<void>;
     onCancel: () => void;
 }
 

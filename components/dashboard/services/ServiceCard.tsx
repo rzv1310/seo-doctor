@@ -2,8 +2,8 @@
 
 import { Card, Link, LinkButton, ActionButton, StatusBadge } from '@/components/ui';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
-import type { Service } from '@/data/services';
-import type { Subscription } from '@/hooks/useSubscriptions';
+import type { Service } from '@/types/service';
+import type { Subscription } from '@/types/subscription';
 
 
 

@@ -1,32 +1,8 @@
 import stripe from './stripe-server';
 import { logger } from './logger';
+import { BillingDetails, ParsedAddress, StripeCustomerUpdateData } from '@/types/billing';
 
 
-
-// TypeScript interfaces for billing data
-export interface BillingDetails {
-    billingName?: string | null;
-    billingCompany?: string | null;
-    billingVat?: string | null;
-    billingAddress?: string | null;
-    billingPhone?: string | null;
-}
-
-export interface ParsedAddress {
-    line1: string;
-    line2?: string;
-    city: string;
-    postal_code: string;
-    state?: string;
-    country: string;
-}
-
-export interface StripeCustomerUpdateData {
-    name?: string;
-    address?: ParsedAddress;
-    phone?: string;
-    tax_exempt?: 'none' | 'exempt' | 'reverse';
-}
 
 // Utility function to parse Romanian address format
 export function parseAddress(addressString: string): ParsedAddress {

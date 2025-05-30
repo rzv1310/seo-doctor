@@ -4,11 +4,12 @@ import { useState } from 'react';
 
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import type { CartService } from '@/context/CartContext';
-import { services as serviceData, type Service } from '@/data/services';
+import type { CartService } from '@/types/cart';
+import { services as serviceData } from '@/data/services';
+import type { Service } from '@/types/service';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import { useLogger } from '@/lib/client-logger';
-import type { Subscription } from '@/hooks/useSubscriptions';
+import type { Subscription } from '@/types/subscription';
 
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
 import { Card, Grid, ActionButton, Spinner } from '@/components/ui';

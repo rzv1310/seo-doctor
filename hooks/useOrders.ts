@@ -1,18 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useLogger } from '@/lib/client-logger';
-
-
-
-export interface Order {
-    id: string;
-    serviceId: string;
-    serviceName: string;
-    createdAt: string;
-    price: number;
-    status: 'pending' | 'completed' | 'cancelled';
-    notes?: string;
-}
+import { Order } from '@/types/order';
 
 export function useOrders() {
     const logger = useLogger('useOrders');

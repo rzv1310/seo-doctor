@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { LogLevel, LogContext } from '@/types/logging';
 
 
-
-type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'auth';
-
-interface LogContext {
-    userId?: string;
-    userEmail?: string;
-    method?: string;
-    path?: string;
-    statusCode?: number;
-    duration?: number;
-    error?: any;
-    [key: string]: any;
-}
 
 class Logger {
     private formatMessage(level: LogLevel, message: string, context?: LogContext): string {

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import type { User } from '@/lib/auth';
+import type { User } from '@/types/auth';
 
 
 interface ChatUser extends User {

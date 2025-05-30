@@ -1,31 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { User } from '@/lib/auth';
 import { useLogger } from '@/lib/client-logger';
+import { User, AuthContextType, AuthProviderProps } from '@/types/auth';
 
 
-
-interface AuthContextType {
-    user: User | null;
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    error: string | null;
-    login: (email: string, password: string) => Promise<void>;
-    signup: (email: string, password: string, name: string) => Promise<void>;
-    logout: () => Promise<void>;
-    clearError: () => void;
-    setUser: (user: User | null) => void;
-    refreshUser: () => Promise<void>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-    children: ReactNode;
-    initialUser?: User | null;
-    initialAuth?: boolean;
-}
 
 export function AuthProvider({
     children,

@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 import { stripeIds } from '@/data/payment';
 import { useCart } from '@/context/CartContext';
 import { useLogger } from '@/lib/client-logger';
-import type { CartService } from '@/context/CartContext';
+import type { CartService } from '@/types/cart';
 
 import SimplePaymentMethodSelector from './SimplePaymentMethodSelector';
 import StripeCardElement from './StripeCardElement';

@@ -307,11 +307,11 @@ export default function PaymentMethodsPage() {
                                 billingPhone: billingPhone
                             }}
                             onSave={async (data) => {
-                                setBillingName(data.billingName);
-                                setBillingCompany(data.billingCompany);
-                                setBillingVat(data.billingVat);
-                                setBillingAddress(data.billingAddress);
-                                setBillingPhone(data.billingPhone);
+                                setBillingName(data.billingName || '');
+                                setBillingCompany(data.billingCompany || '');
+                                setBillingVat(data.billingVat || '');
+                                setBillingAddress(data.billingAddress || '');
+                                setBillingPhone(data.billingPhone || '');
                                 await handleBillingUpdate();
                             }}
                             onCancel={() => {

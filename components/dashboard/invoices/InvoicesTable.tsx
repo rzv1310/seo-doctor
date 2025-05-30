@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/components/ui';
-import { Invoice } from '@/hooks/useInvoices';
+import { Invoice } from '@/types/invoice';
 
 
 
