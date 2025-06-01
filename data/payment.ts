@@ -13,6 +13,7 @@ export const stripeIds = {
     },
     coupons: {
         SEO70: process.env.STRIPE_COUPON_SEO70!,
+        SEO99: 'SEO99',
     },
 } as const;
 
