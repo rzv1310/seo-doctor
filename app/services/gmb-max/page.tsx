@@ -34,7 +34,7 @@ export default function GmbMaxServicePage() {
                     <div className="text-center mb-8">
                         <span className="inline-block text-5xl mb-6">💎</span>
                         <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text">
-                            GMB MAX
+                            Abonament GMB MAX
                         </h1>
                         <p className="text-xl md:text-2xl font-semibold mb-6">
                             GARANTAT TOP 3 ÎN GOOGLE MAP - SAU NU PLĂTEȘTI NIMIC!
@@ -43,12 +43,12 @@ export default function GmbMaxServicePage() {
                             <p className="text-text-secondary text-lg mb-3">
                                 Ești sătul ca listarea ta în Harta Google să fie îngropată sub competitori?
                             </p>
-                            <p className="text-text-secondary text-lg mb-3">
-                                Te-ai saturat de colaborări cu agenții de marketing care îți iau banii și nu livrează rezultate?
-                            </p>
                             <p className="text-lg mb-6">
                                 <span className="font-semibold">GMB MAX</span> este arma ta secretă pentru a domina Pachetul de hărți Google
                                 și pentru a aduce mai mulți pacienți către clinica ta! 🚀
+                            </p>
+                            <p className="text-lg text-center flex place-items-center gap-2 font-bold mb-6">
+                                Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
                     </div>

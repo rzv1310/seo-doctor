@@ -52,7 +52,7 @@ export default function GoogleOrganicServicePage() {
                             <p className="text-lg font-bold mb-6">
                                 Rezultatul organic #1 primește ~ de 13 ori mai multe clickuri decât primul rezultat plătit!
                             </p>
-                            <p className="text-lg font-bold mb-6">
+                            <p className="text-lg text-center flex place-items-center font-bold mb-6">
                                 Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
