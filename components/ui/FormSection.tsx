@@ -48,7 +48,7 @@ interface FormGroupProps {
 
 export function FormGroup({ children, className = '' }: FormGroupProps) {
     return (
-        <div className={`space-y-4 ${className}`}>
+        <div className={`space-y-4 mb-6 ${className}`}>
             {children}
         </div>
     );

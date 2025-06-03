@@ -10,6 +10,7 @@ export interface LinkProps {
     rel?: string;
     underline?: boolean;
     variant?: 'default' | 'primary' | 'muted';
+    inline?: boolean;
     onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
@@ -21,6 +22,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         rel,
         underline = false,
         variant = 'default',
+        inline = false,
         ...props
     }, ref) => {
         const variantClasses = {
@@ -29,7 +31,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
             muted: 'text-text-secondary hover:text-text-primary'
         };
 
-        const baseClasses = `flex items-center transition-colors duration-200 ${variantClasses[variant]} ${underline ? 'hover:underline' : ''}`;
+        const baseClasses = `${inline ? 'inline' : 'flex items-center'} transition-colors duration-200 ${variantClasses[variant]} ${underline ? 'hover:underline' : ''}`;
 
         // External links or special protocols
         if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {

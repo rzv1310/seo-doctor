@@ -2,6 +2,7 @@
 
 import { Header, Footer } from '@/components/layout';
 import { useAuth } from '@/context/AuthContext';
+import { Link } from '@/components/ui';
 import ContactForm from './ContactForm';
 
 
@@ -38,7 +39,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium">Email</p>
-                                        <a href="mailto:contact@seodoctor.ro" className="text-text-secondary hover:text-white hover:underline transition-colors">contact@seodoctor.ro</a>
+                                        <Link href="mailto:contact@seodoctor.ro" variant="muted" underline inline>contact@seodoctor.ro</Link>
                                     </div>
                                 </div>
 
@@ -50,7 +51,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium">Telefon</p>
-                                        <a href="tel:+40742702982" className="text-text-secondary hover:text-white hover:underline transition-colors">+40 742 702 982</a>
+                                        <Link href="tel:+40742702982" variant="muted" underline inline>+40 742 702 982</Link>
                                     </div>
                                 </div>
                             </div>

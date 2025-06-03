@@ -8,6 +8,7 @@ import {
     StripeElementsOptions,
 } from '@stripe/stripe-js';
 import stripePromise from '../utils/stripe';
+import { Spinner } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
 
 
@@ -194,7 +195,7 @@ const PaymentForm = ({
     if (loadingSecret) {
         return (
             <div className="flex justify-center items-center py-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <Spinner size="lg" />
             </div>
         );
     }

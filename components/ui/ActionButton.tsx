@@ -62,7 +62,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
 
         const content = (
             <>
-                {loading && <Spinner size="sm" color="white" />}
+                {loading && <Spinner size="sm" />}
                 <span className="relative z-10 flex items-center gap-2">{children}</span>
                 {showArrow && !loading && (
                     <svg

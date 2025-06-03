@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useUsers } from '@/hooks/useUsers';
+import { Spinner } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { DashboardPageLayout } from '@/components/layout';
@@ -65,7 +66,7 @@ export default function UsersPage() {
             {/* Loading state */}
             {isLoading ? (
                 <div className="flex justify-center items-center h-64">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    <Spinner size="lg" />
                 </div>
             ) : (
                 /* Users table */

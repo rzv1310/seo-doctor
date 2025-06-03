@@ -137,9 +137,7 @@ export function ConfirmationModal({
                                 : 'bg-primary hover:bg-primary-dark text-white'
                         }`}
                 >
-                    {loading && (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    )}
+                    {loading && <Spinner size="sm" />}
                     {confirmText}
                 </button>
             </div>

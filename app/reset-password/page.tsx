@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { Link, PasswordInput, Spinner } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
 
 
@@ -121,7 +121,7 @@ function ResetPasswordForm() {
             <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4 sm:p-6">
                 <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8">
                     <div className="text-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+                        <Spinner size="lg" center className="mb-4" />
                         <p className="text-text-primary/60">Verificare link...</p>
                     </div>
                 </div>
@@ -133,7 +133,7 @@ function ResetPasswordForm() {
         <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4 sm:p-6">
             <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8">
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-block">
+                    <Link href="/" variant="default">
                         <h1 className="text-2xl sm:text-3xl font-bold">SEO Doctor</h1>
                     </Link>
                     <p className="text-text-primary/80 mt-2">
@@ -160,43 +160,30 @@ function ResetPasswordForm() {
                         <p className="text-text-primary/80 mb-6">
                             Parola ta a fost schimbată cu succes. Vei fi redirecționat către pagina de autentificare...
                         </p>
-                        <Link
-                            href="/login"
-                            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-md transition-all"
-                        >
+                        <Link href="/login" variant="primary">
                             Mergi la autentificare
                         </Link>
                     </div>
                 ) : tokenValid ? (
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
-                            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                                Parolă nouă
-                            </label>
-                            <input
+                            <PasswordInput
                                 id="password"
-                                type="password"
+                                label="Parolă nouă"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-white/20 focus:outline-none focus:border-white"
-                                placeholder="••••••••"
                                 disabled={isSubmitting}
                                 minLength={6}
+                                helperText="Minim 6 caractere"
                             />
-                            <p className="text-xs text-text-primary/60 mt-1">Minim 6 caractere</p>
                         </div>
 
                         <div className="mb-6">
-                            <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                                Confirmă parola nouă
-                            </label>
-                            <input
+                            <PasswordInput
                                 id="confirmPassword"
-                                type="password"
+                                label="Confirmă parola nouă"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-white/20 focus:outline-none focus:border-white"
-                                placeholder="••••••••"
                                 disabled={isSubmitting}
                             />
                         </div>
@@ -207,9 +194,7 @@ function ResetPasswordForm() {
                             className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 px-4 rounded-md transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span className="flex items-center justify-center">
-                                {isSubmitting ? (
-                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
-                                ) : null}
+                                {isSubmitting && <Spinner size="sm" className="mr-2" />}
                                 Resetează parola
                             </span>
                         </button>
@@ -219,10 +204,7 @@ function ResetPasswordForm() {
                         <p className="text-text-primary/80 mb-6">
                             Linkul de resetare este invalid sau a expirat. Te rugăm să soliciți un nou link.
                         </p>
-                        <Link
-                            href="/login"
-                            className="inline-block bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-md transition-all"
-                        >
+                        <Link href="/login" variant="primary">
                             Înapoi la autentificare
                         </Link>
                     </div>
@@ -238,7 +220,7 @@ export default function ResetPasswordPage() {
             <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4 sm:p-6">
                 <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8">
                     <div className="text-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+                        <Spinner size="lg" center className="mb-4" />
                         <p className="text-text-primary/60">Se încarcă...</p>
                     </div>
                 </div>

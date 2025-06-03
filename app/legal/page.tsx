@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Header, Footer } from '@/components/layout';
 import { useAuth } from '@/context/AuthContext';
+import { Link } from '@/components/ui';
 
 
 
@@ -324,7 +325,7 @@ function LegalPage() {
                                 <ul className="list-disc pl-6 space-y-2">
                                     <li><strong>Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP)</strong></li>
                                     <li>Adresă: B-dul G-ral. Gheorghe Magheru 28-30, Sector 1, cod poștal 010336, București, România</li>
-                                    <li>Website: <a href="https://www.dataprotection.ro/" className="text-primary hover:underline">https://www.dataprotection.ro/</a></li>
+                                    <li>Website: <Link href="https://www.dataprotection.ro/" variant="primary" underline inline>https://www.dataprotection.ro/</Link></li>
                                 </ul>
 
                                 <h3 className="text-xl font-semibold">9. Contactați-ne</h3>

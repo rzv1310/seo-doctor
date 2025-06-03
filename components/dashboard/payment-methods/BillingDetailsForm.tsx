@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ActionButton, LinkButton } from '@/components/ui';
+import { ActionButton, LinkButton, Input, Textarea } from '@/components/ui';
 import { BillingDetails } from '@/types/billing';
 
 
@@ -75,110 +75,77 @@ export default function BillingDetailsForm({
     return (
         <div className="p-4 border border-border-color rounded-lg">
             <h3 className="font-medium mb-4">Editează Detaliile de Facturare</h3>
-            
+
             {errors.general && (
                 <div className="mb-4 p-3 bg-red-900/20 border border-red-900/30 rounded-md">
                     <p className="text-red-300 text-sm">{errors.general}</p>
                 </div>
             )}
-            
+
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="billingName" className="block text-sm text-text-secondary mb-1">
-                            Nume persoană fizică
-                        </label>
-                        <input
-                            id="billingName"
-                            type="text"
-                            value={billingName}
-                            onChange={(e) => setBillingName(e.target.value)}
-                            placeholder="Numele și prenumele"
-                            className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                        />
-                    </div>
+                    <Input
+                        id="billingName"
+                        label="Nume persoană fizică"
+                        type="text"
+                        value={billingName}
+                        onChange={(e) => setBillingName(e.target.value)}
+                        placeholder="Numele și prenumele"
+                    />
 
-                    <div>
-                        <label htmlFor="billingCompany" className="block text-sm text-text-secondary mb-1">
-                            Denumire companie
-                        </label>
-                        <input
-                            id="billingCompany"
-                            type="text"
-                            value={billingCompany}
-                            onChange={(e) => setBillingCompany(e.target.value)}
-                            placeholder="Denumirea companiei"
-                            className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
-                        />
-                    </div>
+                    <Input
+                        id="billingCompany"
+                        label="Denumire companie"
+                        type="text"
+                        value={billingCompany}
+                        onChange={(e) => setBillingCompany(e.target.value)}
+                        placeholder="Denumirea companiei"
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="billingVat" className="block text-sm text-text-secondary mb-1">
-                            Cod fiscal / CUI {billingCompany && <span className="text-danger">*</span>}
-                        </label>
-                        <input
-                            id="billingVat"
-                            type="text"
-                            value={billingVat}
-                            onChange={(e) => setBillingVat(e.target.value)}
-                            placeholder="RO12345678"
-                            className={`w-full bg-dark-blue-lighter/50 border ${errors.billingVat ? 'border-red-500' : 'border-border-color'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200`}
-                        />
-                        {errors.billingVat && (
-                            <p className="text-red-400 text-xs mt-1">{errors.billingVat}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label htmlFor="billingRegistrationNumber" className="block text-sm text-text-secondary mb-1">
-                            Nr. Reg. Com. {billingCompany && <span className="text-danger">*</span>}
-                        </label>
-                        <input
-                            id="billingRegistrationNumber"
-                            type="text"
-                            value={billingRegistrationNumber}
-                            onChange={(e) => setBillingRegistrationNumber(e.target.value)}
-                            placeholder="J40/1234/2024"
-                            className={`w-full bg-dark-blue-lighter/50 border ${errors.billingRegistrationNumber ? 'border-red-500' : 'border-border-color'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200`}
-                        />
-                        {errors.billingRegistrationNumber && (
-                            <p className="text-red-400 text-xs mt-1">{errors.billingRegistrationNumber}</p>
-                        )}
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="billingAddress" className="block text-sm text-text-secondary mb-1">
-                        Adresă <span className="text-danger">*</span>
-                    </label>
-                    <textarea
-                        id="billingAddress"
-                        value={billingAddress}
-                        onChange={(e) => setBillingAddress(e.target.value)}
-                        placeholder="Strada și număr, Oraș, Județ, Cod poștal, Țară (ex: Strada Mihai Eminescu nr. 15, București, Sector 1, 010511, România)"
-                        className={`w-full bg-dark-blue-lighter/50 border ${errors.billingAddress ? 'border-red-500' : 'border-border-color'} rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 min-h-[100px]`}
-                        required
-                    />
-                    {errors.billingAddress && (
-                        <p className="text-red-400 text-xs mt-1">{errors.billingAddress}</p>
-                    )}
-                </div>
-
-                <div>
-                    <label htmlFor="billingPhone" className="block text-sm text-text-secondary mb-1">
-                        Telefon
-                    </label>
-                    <input
-                        id="billingPhone"
+                    <Input
+                        id="billingVat"
+                        label={"Cod fiscal"}
                         type="text"
-                        value={billingPhone}
-                        onChange={(e) => setBillingPhone(e.target.value)}
-                        placeholder="Număr de telefon"
-                        className="w-full bg-dark-blue-lighter/50 border border-border-color rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+                        value={billingVat}
+                        onChange={(e) => setBillingVat(e.target.value)}
+                        placeholder="RO12345678"
+                        error={errors.billingVat}
+                        required={!!billingCompany}
+                    />
+
+                    <Input
+                        id="billingRegistrationNumber"
+                        label={"Nr. Reg. Com."}
+                        type="text"
+                        value={billingRegistrationNumber}
+                        onChange={(e) => setBillingRegistrationNumber(e.target.value)}
+                        placeholder="J40/1234/2024"
+                        error={errors.billingRegistrationNumber}
+                        required={!!billingCompany}
                     />
                 </div>
+
+                <Textarea
+                    id="billingAddress"
+                    label="Adresă"
+                    value={billingAddress}
+                    onChange={(e) => setBillingAddress(e.target.value)}
+                    placeholder="Strada și număr, Oraș, Județ, Cod poștal, Țară (ex: Strada Mihai Eminescu nr. 15, București, Sector 1, 010511, România)"
+                    error={errors.billingAddress}
+                    required
+                    rows={3}
+                />
+
+                <Input
+                    id="billingPhone"
+                    label="Telefon"
+                    type="tel"
+                    value={billingPhone}
+                    onChange={(e) => setBillingPhone(e.target.value)}
+                    placeholder="Număr de telefon"
+                />
 
                 <div className="flex justify-end gap-3">
                     <LinkButton

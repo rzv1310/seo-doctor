@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Spinner } from '@/components/ui';
 import { useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
 
@@ -66,7 +67,7 @@ export default function InvoiceDetailsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-full py-16">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <Spinner size="lg" />
             </div>
         );
     }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useDashboardPaymentMethods } from '@/context/DashboardContext';
-import { ActionButton, LinkButton, Toggle } from '@/components/ui';
+import { ActionButton, LinkButton, Toggle, Spinner } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import PaymentMethodCard from '@/components/dashboard/payment-methods/PaymentMethodCard';
 import BillingDetailsForm from '@/components/dashboard/payment-methods/BillingDetailsForm';
@@ -18,7 +18,7 @@ const StripeCardElement = dynamic(
         ssr: false,
         loading: () => (
             <div className="text-center py-8">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
+                <Spinner size="lg" center className="mb-2" />
                 <p className="mt-2 text-text-secondary">Se încarcă formularul...</p>
             </div>
         )
@@ -224,7 +224,7 @@ export default function PaymentMethodsPage() {
 
                     {isLoadingCards ? (
                         <div className="text-center py-8">
-                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                            <Spinner size="lg" center className="mb-2" />
                             <p className="mt-2 text-text-secondary">Se încarcă metodele de plată...</p>
                         </div>
                     ) : paymentMethods.length > 0 ? (

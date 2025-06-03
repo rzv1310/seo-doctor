@@ -47,8 +47,8 @@ export default function GmbMaxServicePage() {
                                 <span className="font-semibold">GMB MAX</span> este arma ta secretă pentru a domina Pachetul de hărți Google
                                 și pentru a aduce mai mulți pacienți către clinica ta! 🚀
                             </p>
-                            <p className="text-lg text-center flex place-items-center gap-2 font-bold mb-6">
-                                Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                            <p className="text-lg text-center font-bold mb-6">
+                                Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
                     </div>
@@ -251,7 +251,7 @@ export default function GmbMaxServicePage() {
                     {/* Removed duplicate CTA section */}
 
                     <p className="text-text-secondary">
-                        Sună la <Link href="tel:+40742702982" variant="primary">+40 742 702 982</Link> pentru un call gratuit de 15 min!
+                        Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min!
                     </p>
                 </div>
             </div>

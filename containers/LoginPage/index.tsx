@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { ActionButton, LinkButton, Link } from '@/components/ui';
+import { ActionButton, LinkButton, Link, PasswordInput, Input } from '@/components/ui';
 import { useLogger } from '@/lib/client-logger';
 
 
@@ -68,9 +68,11 @@ export default function LoginPage() {
         <div className="min-h-screen bg-dark-blue flex flex-col items-center justify-center p-4 sm:p-6">
             <div className="dashboard-card w-full max-w-md p-5 sm:p-6 md:p-8 border-2 sm:border border-white/20 sm:border-primary/20">
                 <div className="text-center mb-8">
-                    <Link href="/" variant="default">
-                        <h1 className="text-2xl sm:text-3xl font-bold">SEO Doctor</h1>
-                    </Link>
+                    <div className="flex justify-center">
+                        <Link href="/" variant="default">
+                            <h1 className="text-2xl sm:text-3xl font-bold">SEO Doctor</h1>
+                        </Link>
+                    </div>
                     <p className="text-text-primary/80 mt-2">
                         {isLoggingIn ? 'Conectează-te la contul tău' : 'Crează contul tău'}
                     </p>
@@ -86,15 +88,12 @@ export default function LoginPage() {
                     {/* Name field (only for signup) */}
                     {!isLoggingIn && (
                         <div className="mb-4">
-                            <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                                Nume
-                            </label>
-                            <input
+                            <Input
                                 id="name"
+                                label="Nume"
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-dark-blue-lighter rounded-md py-3 sm:py-2.5 px-4 sm:px-3 text-white border border-white/20 focus:outline-none focus:border-white text-base sm:text-base"
                                 placeholder="Numele tău"
                                 disabled={isSubmitting}
                             />
@@ -103,15 +102,12 @@ export default function LoginPage() {
 
                     {/* Email field */}
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                            Email
-                        </label>
-                        <input
+                        <Input
                             id="email"
+                            label="Email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-white/20 focus:outline-none focus:border-white text-base sm:text-base"
                             placeholder="email@exemplu.ro"
                             disabled={isSubmitting}
                         />
@@ -119,16 +115,11 @@ export default function LoginPage() {
 
                     {/* Password field */}
                     <div className="mb-6">
-                        <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                            Parolă
-                        </label>
-                        <input
+                        <PasswordInput
                             id="password"
-                            type="password"
+                            label="Parolă"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-white/20 focus:outline-none focus:border-white text-base sm:text-base"
-                            placeholder="••••••••"
                             disabled={isSubmitting}
                         />
                     </div>
@@ -199,11 +190,11 @@ export default function LoginPage() {
 
                 <div className="mt-4 sm:mt-8 text-center text-xs text-text-primary/70">
                     Continuând, ești de acord cu{' '}
-                    <Link href="/legal?tab=terms" variant="primary" underline>
+                    <Link href="/legal?tab=terms" variant="primary" underline inline>
                         Termenii și Condițiile
                     </Link>{' '}
                     și{' '}
-                    <Link href="/legal?tab=privacy" variant="primary" underline>
+                    <Link href="/legal?tab=privacy" variant="primary" underline inline>
                         Politica de Confidențialitate
                     </Link>
                     .
@@ -281,17 +272,13 @@ export default function LoginPage() {
                                     }
                                 }}>
                                     <div className="mb-6">
-                                        <label htmlFor="reset-email" className="block text-xs sm:text-sm font-medium text-text-primary/90 mb-1">
-                                            Email
-                                        </label>
-                                        <input
+                                        <Input
                                             id="reset-email"
+                                            label="Email"
                                             type="email"
                                             value={resetEmail}
                                             onChange={(e) => setResetEmail(e.target.value)}
-                                            className="w-full bg-dark-blue-lighter rounded-md py-2.5 px-3 text-white border border-white/20 focus:outline-none focus:border-white"
                                             placeholder="email@exemplu.ro"
-                                            autoFocus
                                         />
                                     </div>
 

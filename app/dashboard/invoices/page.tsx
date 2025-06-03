@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useDashboardInvoices } from '@/context/DashboardContext';
 import { Invoice } from '@/types/invoice';
-import { LinkButton } from '@/components/ui';
+import { LinkButton, Spinner } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import InvoiceFilters from '@/components/dashboard/invoices/InvoiceFilters';
 import InvoicesTable from '@/components/dashboard/invoices/InvoicesTable';
@@ -193,7 +193,7 @@ export default function InvoicesPage() {
                 <div className="p-4">
                     {loading ? (
                         <div className="flex justify-center items-center p-8">
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                            <Spinner size="lg" />
                         </div>
                     ) : error ? (
                         <div className="text-center py-8 text-danger">
