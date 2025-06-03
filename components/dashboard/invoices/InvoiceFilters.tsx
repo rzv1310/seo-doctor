@@ -64,6 +64,7 @@ export default function InvoiceFilters({
                         <option value="pending">În așteptare</option>
                         <option value="overdue">Restante</option>
                         <option value="cancelled">Anulate</option>
+                        <option value="void">Anulate (void)</option>
                     </select>
                 </div>
             </div>

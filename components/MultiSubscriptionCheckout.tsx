@@ -109,15 +109,18 @@ export default function MultiSubscriptionCheckout({
         try {
             // Process each subscription that requires 3D Secure
             for (const subscription of subscriptionsRequiring3DS) {
-                logger.info('Processing 3D Secure for subscription', {
+                logger.info('Processing payment confirmation for subscription', {
                     subscriptionId: subscription.subscriptionId,
-                    serviceName: subscription.serviceName
+                    serviceName: subscription.serviceName,
+                    clientSecret: subscription.clientSecret
                 });
 
+                // For subscriptions with default_incomplete, we need to confirm with the payment method
                 const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
                     subscription.clientSecret,
                     {
-                        payment_method: selectedPaymentMethod
+                        payment_method: selectedPaymentMethod,
+                        return_url: `${window.location.origin}/dashboard/services`
                     }
                 );
 
@@ -125,21 +128,21 @@ export default function MultiSubscriptionCheckout({
                     throw new Error(confirmError.message || 'Autentificarea 3D Secure a eșuat');
                 }
 
-                logger.info('3D Secure authentication successful', {
+                logger.info('Payment confirmation successful', {
                     subscriptionId: subscription.subscriptionId,
                     paymentIntentStatus: paymentIntent?.status
                 });
             }
 
-            // All 3D Secure authentications successful
-            logger.info('All 3D Secure authentications completed successfully');
+            // All payment confirmations successful
+            logger.info('All payment confirmations completed successfully');
             
             // Now all payments are complete, call success
             if (onSuccess) {
                 onSuccess(subscriptionsRequiring3DS.map(sub => sub.subscriptionId));
             }
         } catch (err: any) {
-            logger.error('3D Secure authentication failed', err);
+            logger.error('Payment confirmation failed', err);
             setError(err.message || 'Autentificarea 3D Secure a eșuat. Te rugăm să încerci din nou.');
         } finally {
             setProcessing3DS(false);
@@ -253,7 +256,12 @@ export default function MultiSubscriptionCheckout({
                 count: createdSubscriptions.length,
                 allActive,
                 requiresAction,
-                statuses: createdSubscriptions.map(s => ({ id: s.subscriptionId, status: s.status }))
+                statuses: createdSubscriptions.map(s => ({ 
+                    id: s.subscriptionId, 
+                    status: s.status,
+                    requiresAction: s.requiresAction,
+                    hasClientSecret: !!s.clientSecret
+                }))
             });
 
             if (requiresAction) {
@@ -262,17 +270,29 @@ export default function MultiSubscriptionCheckout({
                 const subscriptionsRequiring3DS = createdSubscriptions.filter(sub => sub.requiresAction && sub.clientSecret);
                 
                 if (subscriptionsRequiring3DS.length > 0) {
+                    logger.info('Processing 3D Secure for subscriptions', {
+                        count: subscriptionsRequiring3DS.length,
+                        subscriptions: subscriptionsRequiring3DS.map(s => ({
+                            id: s.subscriptionId,
+                            serviceName: s.serviceName
+                        }))
+                    });
+                    
                     // Process 3D Secure authentication
                     await handle3DSecureAuthentication(subscriptionsRequiring3DS);
                     setIsSubmitting(false); // Reset after 3D Secure handling
                     return;
+                } else {
+                    logger.error('Subscriptions require action but no client secret provided');
+                    setError('Plata necesită autentificare suplimentară, dar nu s-a putut iniția. Te rugăm să încerci din nou.');
                 }
             }
 
             // Only call success if all subscriptions are active
             if (allActive && onSuccess) {
                 onSuccess(createdSubscriptions.map(sub => sub.subscriptionId));
-            } else if (!allActive) {
+            } else if (!allActive && !requiresAction) {
+                // Only show error if payment failed and doesn't require 3D Secure
                 setError('Una sau mai multe plăți nu au putut fi procesate. Te rugăm să verifici detaliile cardului și să încerci din nou.');
             }
         } catch (err: any) {

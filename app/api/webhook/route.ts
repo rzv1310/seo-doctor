@@ -110,6 +110,7 @@ export const POST = withLogging(async (req: NextRequest) => {
                 const subscriptionData: any = {
                     status: subscription.status === 'active' ? 'active' : 
                            subscription.status === 'trialing' ? 'trial' : 
+                           subscription.status === 'incomplete' || subscription.status === 'past_due' ? 'pending_payment' :
                            subscription.status === 'canceled' ? 'cancelled' : 'inactive',
                     startDate: new Date(subscription.current_period_start * 1000).toISOString(),
                     endDate: new Date(subscription.current_period_end * 1000).toISOString(),
@@ -174,6 +175,20 @@ export const POST = withLogging(async (req: NextRequest) => {
                     attemptCount: invoice.attempt_count,
                     nextAttempt: invoice.next_payment_attempt
                 });
+                
+                // Update subscription status to pending_payment if it exists
+                if (invoice.subscription) {
+                    await db.update(subscriptions)
+                        .set({
+                            status: 'pending_payment',
+                            updatedAt: new Date().toISOString()
+                        })
+                        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+                    
+                    logger.info('Subscription marked as pending_payment after invoice failure', {
+                        subscriptionId: invoice.subscription
+                    });
+                }
                 break;
             }
 

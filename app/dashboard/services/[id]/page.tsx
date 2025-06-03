@@ -12,6 +12,8 @@ import { formatCurrency } from '@/lib/utils';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useAuth } from '@/context/AuthContext';
 import { getPriceIdByServiceId } from '@/data/payment';
+import { usePendingPayments } from '@/hooks/usePendingPayments';
+import { useLogger } from '@/lib/client-logger';
 
 
 const SubscriptionCheckout = dynamic(() => import('@/components/SubscriptionCheckout'), {
@@ -24,16 +26,25 @@ export default function ServiceDetailPage() {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const logger = useLogger('ServiceDetailPage');
     const serviceId = parseInt(params.id as string);
     const [showCheckout, setShowCheckout] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [processing3DS, setProcessing3DS] = useState(false);
     const { subscriptions, fetchSubscriptions, isSubscribed } = useSubscriptions();
     const { user } = useAuth();
+    const { pendingSubscriptions, refresh: refreshPendingPayments } = usePendingPayments();
 
     // Get service from static data
     const service = services.find(s => s.id === serviceId);
     const subscription = subscriptions.find(s => s.serviceId === serviceId.toString());
     const hasActive = isSubscribed(serviceId.toString());
+    const isPendingPayment = subscription?.status === 'pending_payment';
+    
+    // Find pending payment subscription for this service
+    const pendingSubscription = pendingSubscriptions.find(s => 
+        s.serviceId === serviceId.toString()
+    );
 
     useEffect(() => {
         fetchSubscriptions();
@@ -50,7 +61,9 @@ export default function ServiceDetailPage() {
         setShowCheckout(false);
         setShowSuccessModal(true);
         fetchSubscriptions();
+        refreshPendingPayments();
     };
+    
 
     if (!service) {
         return (
@@ -99,6 +112,31 @@ export default function ServiceDetailPage() {
                 </div>
             </Modal>
 
+            {/* Pending Payment Notice */}
+            {(isPendingPayment || pendingSubscription) && (
+                <Alert type="warning" className="mb-6">
+                    <div className="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p className="font-medium">Plată în așteptare</p>
+                            <p className="text-sm mt-1">
+                                Ai o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata pentru a activa abonamentul.
+                            </p>
+                            {pendingSubscription && (
+                                <p className="text-xs mt-2 text-amber-200">
+                                    Suma: {new Intl.NumberFormat('ro-RO', {
+                                        style: 'currency',
+                                        currency: 'RON'
+                                    }).format(pendingSubscription.price / 100)}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </Alert>
+            )}
+
             {/* Action Buttons */}
             <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-3">
@@ -110,14 +148,21 @@ export default function ServiceDetailPage() {
                     )}
                 </div>
                 <div className="flex gap-3 mt-4 md:mt-0">
-                    {!hasActive && priceId && (
+                    {isPendingPayment || pendingSubscription ? (
+                        <ActionButton
+                            onClick={() => setShowCheckout(true)}
+                            variant="warning"
+                        >
+                            Finalizează Plata
+                        </ActionButton>
+                    ) : !hasActive && priceId ? (
                         <ActionButton
                             onClick={() => setShowCheckout(true)}
                             disabled={!user}
                         >
                             Abonează-te Acum
                         </ActionButton>
-                    )}
+                    ) : null}
                 </div>
             </div>
 

@@ -43,6 +43,8 @@ export default function InvoicesTable({
                 return 'Restantă';
             case 'cancelled':
                 return 'Anulată';
+            case 'void':
+                return 'Anulată';
             default:
                 return status.charAt(0).toUpperCase() + status.slice(1);
         }
@@ -104,7 +106,9 @@ export default function InvoicesTable({
                   ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
                                         invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
                                             invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
-                                                'bg-red-900/30 text-red-300'}`}>
+                                                invoice.status === 'cancelled' ? 'bg-gray-900/30 text-gray-300' :
+                                                    invoice.status === 'void' ? 'bg-gray-900/30 text-gray-300' :
+                                                        'bg-red-900/30 text-red-300'}`}>
                                     {getStatusText(invoice.status)}
                                 </span>
                             </td>

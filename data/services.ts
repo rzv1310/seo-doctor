@@ -9,8 +9,8 @@ export const services: Service[] = [
         name: 'GMB MAX',
         tag: 'Premium',
         tagClass: 'bg-green-900/30 text-green-300',
-        price: '1000 €',
-        priceValue: 100000, // 1000 EUR in cents
+        price: '1.000 €', // Display price in EUR
+        priceValue: 100000, // 1000 EUR in cents for display
         period: '/lună',
         description: 'GARANTAT TOP 3 ÎN GOOGLE MAPS - SAU NU PLĂTEȘTI NIMIC!',
         status: 'available',
@@ -42,8 +42,8 @@ export const services: Service[] = [
         name: 'GOOGLE ORGANIC',
         tag: 'Premium',
         tagClass: 'bg-green-900/30 text-green-300',
-        price: '1000 €',
-        priceValue: 100000, // 1000 EUR in cents
+        price: '1.000 €', // Display price in EUR
+        priceValue: 100000, // 1000 EUR in cents for display
         period: '/lună',
         description: 'GARANTAT TOP 3 ÎN REZULTATELE GOOGLE - SAU NU PLĂTEȘTI NIMIC!',
         status: 'available',
@@ -77,7 +77,7 @@ export const prices = [
     {
         id: 1,
         name: 'GMB MAX',
-        price: '1000 €',
+        price: '1.000 €', // Display price in EUR
         period: '/lună',
         description: 'Pentru afaceri medicale care vor să domine căutările locale în Google Maps',
         features: [
@@ -95,7 +95,7 @@ export const prices = [
     {
         id: 2,
         name: 'GOOGLE ORGANIC',
-        price: '1000 €',
+        price: '1.000 €', // Display price in EUR
         period: '/lună',
         description: 'Pentru clinici medicale care vor să domine rezultatele organice Google',
         features: [

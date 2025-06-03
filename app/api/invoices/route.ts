@@ -5,6 +5,7 @@ import database, { users } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
 import stripe from '@/lib/stripe-server';
+import { convertRONtoEUR } from '@/lib/currency-utils';
 
 
 
@@ -60,10 +61,11 @@ export const GET = withLogging(async (request: NextRequest) => {
                 orderId: null, // Stripe invoices don't have orderId
                 createdAt: new Date(invoice.created * 1000).toISOString(),
                 dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
-                amount: invoice.amount_paid / 100, // Convert from cents to dollars
+                amount: invoice.amount_paid / 100, // Keep in original currency (RON)
                 status: invoice.status === 'paid' ? 'paid' : 
                         invoice.status === 'open' ? 'pending' : 
-                        invoice.status === 'uncollectible' ? 'cancelled' : 'pending',
+                        invoice.status === 'uncollectible' ? 'cancelled' : 
+                        invoice.status === 'void' ? 'void' : 'pending',
                 stripeInvoiceId: invoice.id,
                 orderServiceId: null,
                 serviceName: serviceName,

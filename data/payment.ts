@@ -12,7 +12,7 @@ export const stripeIds = {
         googleorganicMonthly: process.env.STRIPE_PRICE_GOOGLE_ORGANIC_MONTHLY!,
     },
     coupons: {
-        MEDSTOM70: process.env.STRIPE_COUPON_MEDSTOM70!,
+        SEO70: process.env.STRIPE_COUPON_SEO70!,
     },
 } as const;
 

@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import CryptoJS from 'crypto-js';
+import { eq } from 'drizzle-orm';
+import database, { users } from '@/database';
 import { AUTH_COOKIE_NAME, SECRET_KEY } from '@/data/auth';
 
-function verifyAuthToken(token: string): string | null {
+async function verifyAuthToken(token: string): Promise<string | null> {
     try {
         const bytes = CryptoJS.AES.decrypt(token, SECRET_KEY);
         const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         const payload = JSON.parse(decryptedData) as { userId: string; exp: number };
 
         if (payload.exp < Math.floor(Date.now() / 1000)) {
+            return null;
+        }
+
+        // Check if user exists in database
+        const [user] = await database.select({ id: users.id })
+            .from(users)
+            .where(eq(users.id, payload.userId))
+            .limit(1);
+
+        if (!user) {
             return null;
         }
 
@@ -46,12 +58,12 @@ const AUTH_ROUTES = [
     '/login/',
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Check for auth cookie
     const authCookie = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-    const userId = authCookie ? verifyAuthToken(authCookie) : null;
+    const userId = authCookie ? await verifyAuthToken(authCookie) : null;
     const isAuthenticated = !!userId;
 
     // Check if it's a protected route
@@ -77,6 +89,37 @@ export function middleware(request: NextRequest) {
     // Skip middleware for logout requests to prevent interference
     if (pathname === '/api/auth/logout') {
         return NextResponse.next();
+    }
+
+    // If there's an auth cookie but no valid userId (user not found in DB),
+    // clear the cookie regardless of the route
+    if (authCookie && !userId) {
+        const response = NextResponse.next();
+        response.cookies.set({
+            name: AUTH_COOKIE_NAME,
+            value: '',
+            maxAge: 0,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+        });
+        
+        // If it's an auth route, let them proceed to login
+        if (isAuthRoute) {
+            return response;
+        }
+        
+        // If it's a protected route, redirect to login
+        if (isProtectedRoute) {
+            const url = new URL('/login', request.url);
+            url.searchParams.set('from', pathname);
+            return NextResponse.redirect(url, {
+                headers: response.headers,
+            });
+        }
+        
+        return response;
     }
 
     // Handle API routes with proper CORS
@@ -124,22 +167,7 @@ export function middleware(request: NextRequest) {
     if (isProtectedRoute && !isAuthenticated) {
         const url = new URL('/login', request.url);
         url.searchParams.set('from', pathname);
-        const response = NextResponse.redirect(url);
-        
-        // Clear any invalid auth cookie
-        if (authCookie && !userId) {
-            response.cookies.set({
-                name: AUTH_COOKIE_NAME,
-                value: '',
-                maxAge: 0,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/',
-            });
-        }
-        
-        return response;
+        return NextResponse.redirect(url);
     }
 
     // Redirect to dashboard if already authenticated and trying to access login
@@ -154,6 +182,9 @@ export function middleware(request: NextRequest) {
 // Configure the middleware to run only for specific paths
 export const config = {
     matcher: [
+        // Root path
+        '/',
+        
         // Protected routes
         '/dashboard',
         '/dashboard/:path*',

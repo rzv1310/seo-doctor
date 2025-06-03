@@ -38,7 +38,9 @@ export default function InvoiceDetailsPage() {
             case 'overdue':
                 return 'bg-red-900/30 text-red-300';
             case 'cancelled':
-                return 'bg-red-900/30 text-red-300';
+                return 'bg-gray-900/30 text-gray-300';
+            case 'void':
+                return 'bg-gray-900/30 text-gray-300';
             default:
                 return 'bg-gray-900/30 text-gray-300';
         }
@@ -53,6 +55,8 @@ export default function InvoiceDetailsPage() {
             case 'overdue':
                 return 'Restantă';
             case 'cancelled':
+                return 'Anulată';
+            case 'void':
                 return 'Anulată';
             default:
                 return 'Necunoscut';
@@ -312,13 +316,13 @@ export default function InvoiceDetailsPage() {
                         </div>
                     )}
 
-                    {invoice.status === 'cancelled' && (
-                        <div className="bg-red-900/20 border border-red-900/30 rounded-md p-4">
+                    {(invoice.status === 'cancelled' || invoice.status === 'void') && (
+                        <div className="bg-gray-900/20 border border-gray-900/30 rounded-md p-4">
                             <div className="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-red-300 font-medium">Factură Anulată</span>
+                                <span className="text-gray-300 font-medium">Factură Anulată</span>
                             </div>
                             <p className="text-text-secondary text-sm mt-2">
                                 Această factură a fost anulată și nu mai este validă.

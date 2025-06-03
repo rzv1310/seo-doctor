@@ -120,9 +120,12 @@ export function AuthProvider({
 
             const data = await res.json();
             
-            if (data.success && data.user) {
+            if (data.success && data.authenticated && data.user) {
                 setUser(data.user);
                 logger.info('User data refreshed successfully', { userId: data.user.id });
+            } else if (data.success && !data.authenticated) {
+                logger.info('User not authenticated, clearing user state');
+                setUser(null);
             } else {
                 logger.warn('No user data in refresh response');
                 setUser(null);

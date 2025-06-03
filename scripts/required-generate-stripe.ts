@@ -54,8 +54,8 @@ async function generateStripeProducts() {
 
             const price = await stripe.prices.create({
                 product: product.id,
-                unit_amount: service.priceValue, // Price from services data
-                currency: 'eur',
+                unit_amount: 500000, // 5000 RON in bani (RON smallest unit)
+                currency: 'ron',
                 recurring: {
                     interval: 'month',
                 },

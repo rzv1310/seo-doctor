@@ -154,7 +154,17 @@ export async function POST(request: NextRequest) {
             customer: stripeCustomerId,
             items: [{ price: priceId }],
             default_payment_method: paymentMethodId,
-            expand: ['latest_invoice'],
+            expand: ['latest_invoice', 'pending_setup_intent'],
+            payment_behavior: 'default_incomplete',
+            payment_settings: {
+                save_default_payment_method: 'on_subscription',
+                payment_method_types: ['card'],
+                payment_method_options: {
+                    card: {
+                        request_three_d_secure: 'any'
+                    }
+                }
+            },
             metadata: {
                 userId: user.id.toString(),
                 serviceId: serviceId.toString(),
@@ -173,6 +183,53 @@ export async function POST(request: NextRequest) {
         // 4. Set the payment method as default for the subscription
         const stripeSubscription = await stripe.subscriptions.create(subscriptionParams);
 
+        // Check if payment requires additional action (e.g., 3D Secure)
+        const invoice = stripeSubscription.latest_invoice as any;
+        let requiresAction = false;
+        let clientSecret = null;
+        let paymentStatus = 'processing';
+        
+        // With payment_behavior: 'default_incomplete', the subscription will be in 'incomplete' state
+        // and we need to confirm the payment intent
+        if (stripeSubscription.status === 'incomplete' && invoice && invoice.payment_intent) {
+            let paymentIntent;
+            
+            // If payment_intent is a string, retrieve it
+            if (typeof invoice.payment_intent === 'string') {
+                paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
+            } else {
+                paymentIntent = invoice.payment_intent;
+            }
+            
+            paymentStatus = paymentIntent.status;
+            
+            // The payment intent should be in requires_payment_method or requires_confirmation state
+            if (paymentIntent.status === 'requires_payment_method' || 
+                paymentIntent.status === 'requires_confirmation' ||
+                paymentIntent.status === 'requires_action') {
+                requiresAction = true;
+                clientSecret = paymentIntent.client_secret;
+                
+                logger.info('Payment confirmation required', {
+                    subscriptionId: stripeSubscription.id,
+                    paymentIntentId: paymentIntent.id,
+                    status: paymentIntent.status,
+                    nextAction: paymentIntent.next_action
+                });
+            }
+        } else if (stripeSubscription.pending_setup_intent) {
+            // Handle setup intent for future payments
+            const setupIntent = stripeSubscription.pending_setup_intent as any;
+            if (setupIntent.status === 'requires_action' || setupIntent.status === 'requires_confirmation') {
+                requiresAction = true;
+                clientSecret = setupIntent.client_secret;
+                logger.info('Setup intent requires action', {
+                    subscriptionId: stripeSubscription.id,
+                    setupIntentId: setupIntent.id
+                });
+            }
+        }
+
         // Create local subscription record
         const currentPeriodStart = stripeSubscription.current_period_start 
             ? new Date(stripeSubscription.current_period_start * 1000).toISOString()
@@ -189,9 +246,9 @@ export async function POST(request: NextRequest) {
                 userId: user.id,
                 serviceId: serviceId.toString(),
                 stripeSubscriptionId: stripeSubscription.id,
-                status: stripeSubscription.status === 'active' && paymentStatus === 'succeeded' ? 'active' : 
+                status: paymentStatus === 'succeeded' ? 'active' :
                        stripeSubscription.status === 'trialing' ? 'trial' : 
-                       requiresAction ? 'pending_payment' : 'inactive',
+                       requiresAction || stripeSubscription.status === 'incomplete' ? 'pending_payment' : 'inactive',
                 price: stripeSubscription.items.data[0].price.unit_amount || 0,
                 startDate: currentPeriodStart,
                 endDate: currentPeriodEnd,
@@ -204,36 +261,6 @@ export async function POST(request: NextRequest) {
                 updatedAt: new Date().toISOString(),
             })
             .returning();
-
-        // Check if payment requires additional action (e.g., 3D Secure)
-        const invoice = stripeSubscription.latest_invoice as any;
-        let requiresAction = false;
-        let clientSecret = null;
-        let paymentStatus = 'succeeded';
-        
-        if (invoice && invoice.payment_intent) {
-            // If payment_intent is just an ID string, retrieve it
-            let paymentIntent: any;
-            if (typeof invoice.payment_intent === 'string') {
-                paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
-            } else {
-                paymentIntent = invoice.payment_intent;
-            }
-            
-            paymentStatus = paymentIntent.status;
-            if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
-                requiresAction = true;
-                clientSecret = paymentIntent.client_secret;
-            }
-            
-            // Log payment intent status for debugging
-            logger.info('Payment intent status for subscription', {
-                subscriptionId: stripeSubscription.id,
-                paymentIntentId: paymentIntent.id,
-                status: paymentIntent.status,
-                requiresAction
-            });
-        }
 
         return NextResponse.json({
             subscriptionId: stripeSubscription.id,

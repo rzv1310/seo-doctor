@@ -5,7 +5,7 @@ export interface Invoice {
     createdAt: string;
     dueDate: string | null;
     amount: number;
-    status: 'paid' | 'pending' | 'overdue' | 'cancelled';
+    status: 'paid' | 'pending' | 'overdue' | 'cancelled' | 'void';
     stripeInvoiceId: string | null;
     orderServiceId: string | null;
     serviceName: string | null;

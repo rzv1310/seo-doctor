@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import stripe from './stripe-server';
 import { logger } from './logger';
 import { CouponInfo, DiscountInfo, StripeDiscountData } from '@/types/discount';
+import { convertRONtoEUR } from './currency-utils';
 
 
 
@@ -115,7 +116,13 @@ export async function fetchSubscriptionDiscounts(
             return null;
         }
 
-        const originalPriceEur = originalPrice / 100;
+        // Convert price to EUR for display if it's in RON
+        const currency = stripeSubscription.items.data[0]?.price?.currency || 'eur';
+        const originalPriceInSmallestUnit = originalPrice;
+        const originalPriceForCalculation = currency === 'ron' 
+            ? convertRONtoEUR(originalPriceInSmallestUnit) / 100 // Convert RON to EUR
+            : originalPriceInSmallestUnit / 100; // Already in EUR or other currency
+            
         const discounts = stripeSubscription.discounts
             .filter((discount): discount is Stripe.Discount => 
                 typeof discount === 'object' && discount !== null
@@ -136,7 +143,7 @@ export async function fetchSubscriptionDiscounts(
                 end: discount.end
             }));
 
-        return calculateDiscountedPrice(originalPriceEur, discounts);
+        return calculateDiscountedPrice(originalPriceForCalculation, discounts);
     } catch (error) {
         logger.error('Failed to fetch subscription discounts', {
             error: error instanceof Error ? error.message : String(error),

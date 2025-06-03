@@ -38,7 +38,7 @@ export default function BillingDetailsDisplay({ details }: BillingDetailsDisplay
                             </div>
                         )}
 
-                        {details.billingRegistrationNumber && (
+                        {details.billingRegistrationNumber && details.billingRegistrationNumber.trim() !== '' && (
                             <div>
                                 <p className="text-sm text-text-secondary">Nr. Reg. Com.:</p>
                                 <p className="text-base">{details.billingRegistrationNumber}</p>

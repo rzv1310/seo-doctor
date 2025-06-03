@@ -10,9 +10,10 @@ import type { Service } from '@/types/service';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import { useLogger } from '@/lib/client-logger';
 import type { Subscription } from '@/types/subscription';
+import { usePendingPayments } from '@/hooks/usePendingPayments';
 
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
-import { Card, Grid, ActionButton, Spinner } from '@/components/ui';
+import { Card, Grid, ActionButton, Spinner, Alert } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import ServiceCard from '@/components/dashboard/services/ServiceCard';
 
@@ -29,6 +30,12 @@ export default function ServicesPage() {
         error: subscriptionsError,
         refresh: refreshSubscriptions
     } = useDashboardSubscriptions();
+    
+    const {
+        pendingSubscriptions,
+        hasPendingPayments,
+        refresh: refreshPendingPayments
+    } = usePendingPayments();
 
     // Helper functions for subscription management
     const isSubscribed = (serviceId: string) => {
@@ -124,7 +131,13 @@ export default function ServicesPage() {
     };
 
     // Handle toggle cart item
-    const handleToggleCartItem = (service: Service) => {
+    const handleToggleCartItem = (service: Service & { status: string }) => {
+        // Check if any service has pending payment
+        if (hasPendingPayments) {
+            alert('Ai o plată în așteptare. Te rugăm să finalizezi sau să anulezi plata existentă înainte de a adăuga alte servicii în coș.');
+            return;
+        }
+        
         if (isInCart(service.id)) {
             handleRemoveFromCart(service.id);
         } else {
@@ -241,10 +254,67 @@ export default function ServicesPage() {
                 title="Servicii"
                 subtitle="Gestionează serviciile tale și explorează ofertele disponibile"
             >
+                {/* Pending Payments Alert */}
+                {hasPendingPayments && (
+                    <Alert type="warning" className="mb-6">
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-start flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div className="flex-1">
+                                    <p className="font-medium">Ai {pendingSubscriptions.length} {pendingSubscriptions.length === 1 ? 'plată' : 'plăți'} în așteptare</p>
+                                    <p className="text-sm mt-1">
+                                        Te rugăm să finalizezi plățile în așteptare pentru a activa serviciile.
+                                    </p>
+                                    <div className="mt-2 space-y-2">
+                                        {pendingSubscriptions.map((subscription) => {
+                                            const service = serviceData.find(s => s.id.toString() === subscription.serviceId);
+                                            
+                                            return (
+                                                <div key={subscription.id} className="flex items-center justify-between bg-amber-900/20 rounded p-2">
+                                                    <div>
+                                                        <span className="text-sm font-medium">
+                                                            {service?.name || 'Serviciu necunoscut'}
+                                                        </span>
+                                                        <span className="text-xs text-amber-200 ml-2">
+                                                            {new Intl.NumberFormat('ro-RO', {
+                                                                style: 'currency',
+                                                                currency: 'RON'
+                                                            }).format(subscription.price / 100)}
+                                                        </span>
+                                                    </div>
+                                                    <ActionButton
+                                                        size="sm"
+                                                        variant="warning"
+                                                        onClick={() => {
+                                                            window.location.href = `/dashboard/services/${subscription.serviceId}`;
+                                                        }}
+                                                    >
+                                                        Finalizează
+                                                    </ActionButton>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Alert>
+                )}
                 <Grid cols={2} gap="md" className="mb-6">
                     {filteredServices.map(service => {
                         const subscription = getSubscription(service.id.toString());
 
+                        // Debug log for pending payment detection
+                        if (subscription?.status === 'pending_payment') {
+                            console.log(`Service ${service.name} has pending_payment subscription`, {
+                                serviceStatus: service.status,
+                                subscriptionStatus: subscription.status,
+                                subscriptionId: subscription.id
+                            });
+                        }
+                        
                         return (
                             <ServiceCard
                                 key={service.id}
