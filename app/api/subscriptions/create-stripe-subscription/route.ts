@@ -104,19 +104,48 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if user already has an active or trial subscription for this service
-        const [existingActiveSubscription] = await db
+        const existingSubscriptions = await db
             .select()
             .from(subscriptions)
             .where(and(
                 eq(subscriptions.userId, user.id),
                 eq(subscriptions.serviceId, serviceId.toString())
-            ))
-            .limit(1);
-
-        // Only prevent if there's an active or trial subscription
-        if (existingActiveSubscription && (existingActiveSubscription.status === 'active' || existingActiveSubscription.status === 'trial')) {
+            ));
+        
+        // Check for recent subscription attempts (within last 30 seconds) to prevent rapid duplicates
+        const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+        const recentSubscription = existingSubscriptions.find(sub => 
+            sub.createdAt && sub.createdAt > thirtySecondsAgo
+        );
+        
+        if (recentSubscription) {
+            logger.warn('Duplicate subscription attempt detected', {
+                userId: user.id,
+                serviceId,
+                recentSubscriptionId: recentSubscription.id,
+                createdAt: recentSubscription.createdAt
+            });
             return NextResponse.json({ 
-                error: 'You already have an active subscription for this service' 
+                error: 'O cerere de abonare pentru acest serviciu este deja în procesare. Te rugăm să aștepți.' 
+            }, { status: 429 }); // 429 Too Many Requests
+        }
+        
+        const existingActiveSubscription = existingSubscriptions.find(sub => 
+            sub.status === 'active' || sub.status === 'trial' || sub.status === 'pending_payment'
+        );
+
+        // Prevent if there's an active, trial, or pending payment subscription
+        if (existingActiveSubscription && 
+            (existingActiveSubscription.status === 'active' || 
+             existingActiveSubscription.status === 'trial' ||
+             existingActiveSubscription.status === 'pending_payment')) {
+            
+            const statusMessage = existingActiveSubscription.status === 'pending_payment' 
+                ? 'Ai deja o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata existentă.'
+                : 'Ai deja un abonament activ pentru acest serviciu.';
+            
+            return NextResponse.json({ 
+                error: statusMessage 
             }, { status: 400 });
         }
 
@@ -160,8 +189,9 @@ export async function POST(request: NextRequest) {
                 userId: user.id,
                 serviceId: serviceId.toString(),
                 stripeSubscriptionId: stripeSubscription.id,
-                status: stripeSubscription.status === 'active' ? 'active' : 
-                       stripeSubscription.status === 'trialing' ? 'trial' : 'inactive',
+                status: stripeSubscription.status === 'active' && paymentStatus === 'succeeded' ? 'active' : 
+                       stripeSubscription.status === 'trialing' ? 'trial' : 
+                       requiresAction ? 'pending_payment' : 'inactive',
                 price: stripeSubscription.items.data[0].price.unit_amount || 0,
                 startDate: currentPeriodStart,
                 endDate: currentPeriodEnd,
@@ -179,19 +209,30 @@ export async function POST(request: NextRequest) {
         const invoice = stripeSubscription.latest_invoice as any;
         let requiresAction = false;
         let clientSecret = null;
+        let paymentStatus = 'succeeded';
         
         if (invoice && invoice.payment_intent) {
             // If payment_intent is just an ID string, retrieve it
+            let paymentIntent: any;
             if (typeof invoice.payment_intent === 'string') {
-                const paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
-                if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
-                    requiresAction = true;
-                    clientSecret = paymentIntent.client_secret;
-                }
-            } else if (invoice.payment_intent.status === 'requires_action' || invoice.payment_intent.status === 'requires_confirmation') {
-                requiresAction = true;
-                clientSecret = invoice.payment_intent.client_secret;
+                paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
+            } else {
+                paymentIntent = invoice.payment_intent;
             }
+            
+            paymentStatus = paymentIntent.status;
+            if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
+                requiresAction = true;
+                clientSecret = paymentIntent.client_secret;
+            }
+            
+            // Log payment intent status for debugging
+            logger.info('Payment intent status for subscription', {
+                subscriptionId: stripeSubscription.id,
+                paymentIntentId: paymentIntent.id,
+                status: paymentIntent.status,
+                requiresAction
+            });
         }
 
         return NextResponse.json({

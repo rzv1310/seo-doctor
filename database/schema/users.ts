@@ -19,6 +19,7 @@ export const users = sqliteTable(
         billingName: text('billing_name'),
         billingCompany: text('billing_company'),
         billingVat: text('billing_vat'),
+        billingRegistrationNumber: text('billing_registration_number'),
         billingAddress: text('billing_address'),
         billingPhone: text('billing_phone'),
         stripeCustomerId: text('stripe_customer_id'),

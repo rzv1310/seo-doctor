@@ -84,6 +84,14 @@ export function validateBillingDetails(details: BillingDetails): { isValid: bool
         }
     }
 
+    // Validate registration number format if provided (Romanian J format)
+    if (details.billingRegistrationNumber) {
+        const regNumber = details.billingRegistrationNumber.trim();
+        if (!regNumber.startsWith('J')) {
+            errors.push('Numărul de înregistrare trebuie să înceapă cu litera J');
+        }
+    }
+
     // Validate phone number if provided
     if (details.billingPhone) {
         const phoneNumber = details.billingPhone.replace(/[\s\-\(\)]/g, '');
@@ -104,6 +112,7 @@ export function sanitizeBillingDetails(details: BillingDetails): BillingDetails 
         billingName: details.billingName?.trim() || null,
         billingCompany: details.billingCompany?.trim() || null,
         billingVat: details.billingVat?.trim().toUpperCase() || null,
+        billingRegistrationNumber: details.billingRegistrationNumber?.trim().toUpperCase() || null,
         billingAddress: details.billingAddress?.trim() || null,
         billingPhone: details.billingPhone?.trim() || null,
     };

@@ -7,6 +7,7 @@ export interface User {
     billingName?: string | null;
     billingCompany?: string | null;
     billingVat?: string | null;
+    billingRegistrationNumber?: string | null;
     billingAddress?: string | null;
     billingPhone?: string | null;
     stripeCustomerId?: string | null;

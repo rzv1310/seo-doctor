@@ -15,7 +15,7 @@ export const subscriptions = sqliteTable(
         id: text('id').notNull().primaryKey(),
         userId: text('user_id').notNull().references(() => users.id),
         serviceId: text('service_id').notNull().references(() => services.id),
-        status: text('status').notNull(), // 'active', 'trial', 'inactive', 'cancelled'
+        status: text('status').notNull(), // 'active', 'trial', 'inactive', 'cancelled', 'pending_payment'
         startDate: text('start_date').notNull(),
         endDate: text('end_date'), // null for ongoing subscriptions
         trialEndDate: text('trial_end_date'), // null if no trial

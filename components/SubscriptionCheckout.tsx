@@ -33,6 +33,7 @@ export default function SubscriptionCheckout({
     const [couponValid, setCouponValid] = useState(false);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Calculate discounted price
     const discountedPrice = price - (price * discount / 100);
@@ -108,10 +109,16 @@ export default function SubscriptionCheckout({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Prevent multiple submissions
+        if (isSubmitting || loading) {
+            return;
+        }
+
         if (!stripe || !elements || !clientSecret) {
             return;
         }
 
+        setIsSubmitting(true);
         setLoading(true);
         setError(null);
 
@@ -137,6 +144,7 @@ export default function SubscriptionCheckout({
             setError(err.message || 'Payment failed');
         } finally {
             setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -232,9 +240,9 @@ export default function SubscriptionCheckout({
             <div className="flex gap-4">
                 <ActionButton
                     onClick={handleSubmit}
-                    disabled={!stripe || loading}
+                    disabled={!stripe || loading || isSubmitting}
                 >
-                    {loading ? (
+                    {loading || isSubmitting ? (
                         <>
                             <Spinner size="sm" />
                             <span className="ml-2">Se procesează...</span>
@@ -246,7 +254,7 @@ export default function SubscriptionCheckout({
                 {onCancel && (
                     <ActionButton
                         onClick={onCancel}
-                        disabled={loading}
+                        disabled={loading || isSubmitting}
                     >
                         Anulează
                     </ActionButton>

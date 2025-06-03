@@ -57,6 +57,26 @@ export const POST = withLogging(async (req: NextRequest) => {
                         paymentIntentId: paymentIntent.id
                     });
                 }
+
+                // Check if this payment is for a subscription (through invoice)
+                if (paymentIntent.invoice) {
+                    // Retrieve the invoice to get the subscription ID
+                    const invoice = await stripe.invoices.retrieve(paymentIntent.invoice as string);
+                    if (invoice.subscription) {
+                        // Update subscription status from pending_payment to active
+                        await db.update(subscriptions)
+                            .set({
+                                status: 'active',
+                                updatedAt: new Date().toISOString()
+                            })
+                            .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+
+                        logger.info('Subscription activated after successful payment', {
+                            subscriptionId: invoice.subscription,
+                            paymentIntentId: paymentIntent.id
+                        });
+                    }
+                }
                 break;
             }
 

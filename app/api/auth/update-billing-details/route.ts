@@ -53,6 +53,7 @@ async function updateBillingDetailsHandler(request: NextRequest) {
                 billingName: sanitizedBilling.billingName,
                 billingCompany: sanitizedBilling.billingCompany,
                 billingVat: sanitizedBilling.billingVat,
+                billingRegistrationNumber: sanitizedBilling.billingRegistrationNumber,
                 billingAddress: sanitizedBilling.billingAddress,
                 billingPhone: sanitizedBilling.billingPhone
             })
@@ -87,6 +88,7 @@ async function updateBillingDetailsHandler(request: NextRequest) {
                 billingName: sanitizedBilling.billingName,
                 billingCompany: sanitizedBilling.billingCompany,
                 billingVat: sanitizedBilling.billingVat,
+                billingRegistrationNumber: sanitizedBilling.billingRegistrationNumber,
                 billingAddress: sanitizedBilling.billingAddress,
                 billingPhone: sanitizedBilling.billingPhone
             }

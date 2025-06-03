@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `billing_registration_number` text;

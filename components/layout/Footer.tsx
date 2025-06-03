@@ -130,7 +130,7 @@ export default function Footer({
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Contact</h3>
                         <ul className="space-y-2 text-sm text-text-secondary -ml-6 sm:ml-0">
-                            {contactInfo.email && (
+                            {/* {contactInfo.email && (
                                 <li className="flex items-start gap-2 pl-6 sm:pl-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -139,7 +139,7 @@ export default function Footer({
                                         {contactInfo.email}
                                     </Link>
                                 </li>
-                            )}
+                            )} */}
                             {contactInfo.phone && (
                                 <li className="flex items-start gap-2 pl-6 sm:pl-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +150,7 @@ export default function Footer({
                                     </Link>
                                 </li>
                             )}
-                            <li className="mt-4 pl-6 sm:pl-0">
+                            {/* <li className="mt-4 pl-6 sm:pl-0">
                                 <ActionButton
                                     href="/contact"
                                     size="sm"
@@ -159,7 +159,7 @@ export default function Footer({
                                 >
                                     Contactează-ne
                                 </ActionButton>
-                            </li>
+                            </li> */}
                         </ul>
                     </div>
                 </div>

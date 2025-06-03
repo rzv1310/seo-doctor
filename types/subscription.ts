@@ -1,7 +1,7 @@
 import { DiscountInfo } from './discount';
 
 
-export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired';
+export type SubscriptionStatus = 'active' | 'trial' | 'inactive' | 'cancelled' | 'paused' | 'expired' | 'pending_payment';
 export type PlanType = 'monthly' | 'yearly' | 'custom';
 
 

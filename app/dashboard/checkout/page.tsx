@@ -11,6 +11,7 @@ import { DashboardPageLayout } from '@/components/layout';
 import BillingDetailsSection from '@/components/dashboard/checkout/BillingDetailsSection';
 import { getPriceIdByServiceId } from '@/data/payment';
 import { stripeIds } from '@/data/payment';
+import { useBillingDetails } from '@/hooks/useBillingDetails';
 
 
 
@@ -31,6 +32,7 @@ const MultiSubscriptionCheckout = dynamic(
 export default function CheckoutPage() {
     const router = useRouter();
     const logger = useLogger('CheckoutPage');
+    const { hasCompleteDetails } = useBillingDetails();
     const {
         items,
         removeItem,
@@ -187,6 +189,7 @@ export default function CheckoutPage() {
                                     couponCode={couponCode}
                                     onSuccess={handleSubscriptionSuccess}
                                     onError={handleSubscriptionError}
+                                    hasCompleteDetails={hasCompleteDetails}
                                 />
                             )}
                         </div>

@@ -19,6 +19,7 @@ export function useBillingDetails() {
         billingName: user?.billingName ?? null,
         billingCompany: user?.billingCompany ?? null,
         billingVat: user?.billingVat ?? null,
+        billingRegistrationNumber: user?.billingRegistrationNumber ?? null,
         billingAddress: user?.billingAddress ?? null,
         billingPhone: user?.billingPhone ?? null,
     };

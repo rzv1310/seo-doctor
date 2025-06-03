@@ -2,6 +2,7 @@ export interface BillingDetails {
     billingName?: string | null;
     billingCompany?: string | null;
     billingVat?: string | null;
+    billingRegistrationNumber?: string | null;
     billingAddress?: string | null;
     billingPhone?: string | null;
 }
