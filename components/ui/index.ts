@@ -2,6 +2,7 @@ export { Link } from './Link';
 export { PhoneLink } from './PhoneLink';
 export { LinkButton } from './LinkButton';
 export { ActionButton } from './ActionButton';
+export { BuyNowButton } from './BuyNowButton';
 export { AcceptButton } from './AcceptButton';
 export { Card, DashboardCard } from './Card';
 export { Spinner } from './Spinner';

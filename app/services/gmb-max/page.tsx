@@ -1,13 +1,11 @@
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
-import { ActionButton, Link, PhoneLink } from '@/components/ui';
+import { ActionButton, Link, PhoneLink, BuyNowButton } from '@/components/ui';
 
 
 
 export default function GmbMaxServicePage() {
-    const { isAuthenticated } = useAuth();
     const service = services.find(s => s.name === 'GMB MAX');
 
     if (!service) {
@@ -63,15 +61,7 @@ export default function GmbMaxServicePage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        {isAuthenticated ? (
-                            <ActionButton href="/dashboard" size="lg">
-                                Cumpără acum!
-                            </ActionButton>
-                        ) : (
-                            <ActionButton href="/login" size="lg">
-                                Cumpără acum!
-                            </ActionButton>
-                        )}
+                        <BuyNowButton serviceName="GMB MAX" />
                     </div>
                 </div>
             </div>
@@ -299,15 +289,7 @@ export default function GmbMaxServicePage() {
 
             {/* Final CTA Button */}
             <div className="text-center">
-                {isAuthenticated ? (
-                    <ActionButton href="/dashboard" size="lg">
-                        Cumpără acum!
-                    </ActionButton>
-                ) : (
-                    <ActionButton href="/login" size="lg">
-                        Cumpără acum!
-                    </ActionButton>
-                )}
+                <BuyNowButton serviceName="GMB MAX" />
             </div>
         </>
     );
