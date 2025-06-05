@@ -108,52 +108,65 @@ export async function GET(request: NextRequest) {
                 count: openInvoices.data.length 
             });
 
-        for (const invoice of openInvoices.data) {
-            const paymentIntent = invoice.payment_intent as any;
-            
-            if (paymentIntent && (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_payment_method')) {
-                // Check if we already added this from subscriptions
-                const alreadyAdded = incompletePayments.some(p => p.paymentIntentId === paymentIntent.id);
+            for (const invoice of openInvoices.data) {
+                const paymentIntent = invoice.payment_intent as any;
                 
-                if (!alreadyAdded) {
-                    incompletePayments.push({
-                        type: 'invoice',
-                        invoiceId: invoice.id,
-                        paymentIntentId: paymentIntent.id,
-                        paymentIntentStatus: paymentIntent.status,
-                        clientSecret: paymentIntent.client_secret,
-                        amount: invoice.amount_due,
-                        currency: invoice.currency,
-                        created: new Date(invoice.created * 1000).toISOString(),
-                        subscriptionId: invoice.subscription
-                    });
+                if (paymentIntent && (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_payment_method')) {
+                    // Check if we already added this from subscriptions
+                    const alreadyAdded = incompletePayments.some(p => p.paymentIntentId === paymentIntent.id);
+                    
+                    if (!alreadyAdded) {
+                        incompletePayments.push({
+                            type: 'invoice',
+                            invoiceId: invoice.id,
+                            paymentIntentId: paymentIntent.id,
+                            paymentIntentStatus: paymentIntent.status,
+                            clientSecret: paymentIntent.client_secret,
+                            amount: invoice.amount_due,
+                            currency: invoice.currency,
+                            created: new Date(invoice.created * 1000).toISOString(),
+                            subscriptionId: invoice.subscription
+                        });
+                    }
                 }
             }
+        } catch (stripeError: any) {
+            logger.error('Error checking open invoices', {
+                error: stripeError.message,
+                type: stripeError.type
+            });
         }
 
-        // 3️⃣ Check for payment intents that need action
-        const pendingIntents = await stripe.paymentIntents.list({
-            customer: userRecord.stripeCustomerId,
-        });
+        try {
+            // 3️⃣ Check for payment intents that need action
+            const pendingIntents = await stripe.paymentIntents.list({
+                customer: userRecord.stripeCustomerId,
+            });
 
-        for (const intent of pendingIntents.data) {
-            if (intent.status === 'requires_action' || intent.status === 'requires_payment_method') {
-                // Check if we already added this
-                const alreadyAdded = incompletePayments.some(p => p.paymentIntentId === intent.id);
-                
-                if (!alreadyAdded) {
-                    incompletePayments.push({
-                        type: 'payment_intent',
-                        paymentIntentId: intent.id,
-                        paymentIntentStatus: intent.status,
-                        clientSecret: intent.client_secret,
-                        amount: intent.amount,
-                        currency: intent.currency,
-                        created: new Date(intent.created * 1000).toISOString(),
-                        metadata: intent.metadata
-                    });
+            for (const intent of pendingIntents.data) {
+                if (intent.status === 'requires_action' || intent.status === 'requires_payment_method') {
+                    // Check if we already added this
+                    const alreadyAdded = incompletePayments.some(p => p.paymentIntentId === intent.id);
+                    
+                    if (!alreadyAdded) {
+                        incompletePayments.push({
+                            type: 'payment_intent',
+                            paymentIntentId: intent.id,
+                            paymentIntentStatus: intent.status,
+                            clientSecret: intent.client_secret,
+                            amount: intent.amount,
+                            currency: intent.currency,
+                            created: new Date(intent.created * 1000).toISOString(),
+                            metadata: intent.metadata
+                        });
+                    }
                 }
             }
+        } catch (stripeError: any) {
+            logger.error('Error checking payment intents', {
+                error: stripeError.message,
+                type: stripeError.type
+            });
         }
 
         logger.info('Checked for incomplete payments', {

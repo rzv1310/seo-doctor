@@ -162,7 +162,7 @@ export function Grid({
     };
 
     return (
-        <div className={`grid ${colsClasses[cols]} ${gapClasses[gap]} ${className}`}>
+        <div className={`grid ${colsClasses[cols]} ${gapClasses[gap]} items-stretch ${className}`}>
             {children}
         </div>
     );

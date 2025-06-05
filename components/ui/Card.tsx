@@ -43,7 +43,7 @@ export function Card({
                     {subtitle && <p className="text-text-secondary">{subtitle}</p>}
                 </div>
             )}
-            <div className={title || subtitle ? 'p-6' : 'p-6'}>
+            <div className={`${title || subtitle ? 'p-6' : 'p-6'} ${className.includes('flex') ? 'flex-1 flex flex-col' : ''}`}>
                 {children}
             </div>
         </div>

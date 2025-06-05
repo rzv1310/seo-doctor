@@ -286,7 +286,7 @@ export default function ServicesPage() {
                                                     </div>
                                                     <ActionButton
                                                         size="sm"
-                                                        variant="warning"
+                                                        variant="default"
                                                         onClick={() => {
                                                             window.location.href = `/dashboard/services/${subscription.serviceId}`;
                                                         }}
