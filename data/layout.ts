@@ -8,7 +8,7 @@ export const navLinks = [
 // Footer data for the entire site
 export const footerData = {
     companyName: 'SEO Doctor',
-    companyDescription: 'Soluții unice de optimizare Google pentru afaceri care vor să crească online.',
+    companyDescription: 'Soluții unice de optimizare SEO pentru afaceri care vor să crească online.',
     services: [
         { name: 'Google Organic', href: '/services/google-organic' },
         { name: 'GMB Max', href: '/services/gmb-max' },

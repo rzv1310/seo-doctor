@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
-import { ActionButton, Link } from '@/components/ui';
+import { ActionButton, Link, PhoneLink } from '@/components/ui';
 
 
 
@@ -53,7 +53,7 @@ export default function GoogleOrganicServicePage() {
                                 Rezultatul organic #1 primește ~ de 13 ori mai multe clickuri decât primul rezultat plătit!
                             </p>
                             <p className="text-lg text-center font-bold mb-6">
-                                Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                                Sună la <PhoneLink /> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ export default function GoogleOrganicServicePage() {
                     <p className="text-sm text-text-secondary mb-4">Se poate achiziționa individual sau împreună cu "GMB MAX", pentru rezultate complete.</p>
 
                     <p className="text-center font-bold mb-6">
-                        Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                        Sună la <PhoneLink /> pentru un call gratuit de 15 min, înainte de a cumpăra!
                     </p>
                 </div>
             </div>
@@ -370,13 +370,13 @@ export default function GoogleOrganicServicePage() {
                     {/* Removed duplicate CTA section */}
 
                     <p className="text-text-secondary">
-                        Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min!
+                        Sună la <PhoneLink /> pentru un call gratuit de 15 min!
                     </p>
                 </div>
             </div>
 
             {/* Related Services Section */}
-            <div className="bg-dark-blue-lighter/40 backdrop-blur-sm border border-border-color rounded-xl overflow-hidden">
+            <div className="bg-dark-blue-lighter/40 backdrop-blur-sm border border-border-color rounded-xl overflow-hidden mb-12">
                 <div className="p-6 border-b border-border-color">
                     <h2 className="text-2xl font-bold">Servicii Complementare</h2>
                 </div>
@@ -410,6 +410,19 @@ export default function GoogleOrganicServicePage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Final CTA Button */}
+            <div className="text-center">
+                {isAuthenticated ? (
+                    <ActionButton href="/dashboard" size="lg">
+                        Cumpără acum!
+                    </ActionButton>
+                ) : (
+                    <ActionButton href="/login" size="lg">
+                        Cumpără acum!
+                    </ActionButton>
+                )}
             </div>
         </>
     );

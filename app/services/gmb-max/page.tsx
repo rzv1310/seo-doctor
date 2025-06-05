@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { services } from '@/data/services';
-import { ActionButton, Link } from '@/components/ui';
+import { ActionButton, Link, PhoneLink } from '@/components/ui';
 
 
 
@@ -48,7 +48,7 @@ export default function GmbMaxServicePage() {
                                 și pentru a aduce mai mulți pacienți către clinica ta! 🚀
                             </p>
                             <p className="text-lg text-center font-bold mb-6">
-                                Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                                Sună la <PhoneLink /> pentru un call gratuit de 15 min, înainte de a cumpăra!
                             </p>
                         </div>
                     </div>
@@ -124,9 +124,11 @@ export default function GmbMaxServicePage() {
                     <div className="text-2xl font-bold text-white mb-2">1000 EUR<span className="text-sm text-text-secondary">/lună</span></div>
                     <p className="mb-3 text-green-300 font-semibold">Reducere până la 75% în primele 3 luni!</p>
                     <p className="font-medium mb-3">DURATA: 1-3 luni (în funcție de competiția din oraș)</p>
-                    <p className="text-sm text-text-secondary mb-4">*Se poate cumpara numai împreună cu Pachetul "Google Organic"</p>
+                    <p className="text-sm text-text-secondary mb-4">Se poate achiziționa individual sau împreună cu "Google Organic", pentru rezultate complete.</p>
 
-                    {/* Removed duplicate button */}
+                    <p className="text-center font-bold mb-6">
+                        Sună la <PhoneLink /> pentru un call gratuit de 15 min, înainte de a cumpăra!
+                    </p>
                 </div>
             </div>
 
@@ -230,7 +232,7 @@ export default function GmbMaxServicePage() {
 
                     <div className="flex items-center border-t border-border-color pt-6 mt-6">
                         <span className="text-2xl text-white mr-4">✨</span>
-                        <p className="text-lg font-bold">La toate aceste adăugăm sosul secret Seo Doctor și rezultatele apar in 100% din cazuri!</p>
+                        <p className="text-lg font-bold">La toate aceste adăugăm sosul secret SEO Doctor și rezultatele apar in 100% din cazuri!</p>
                     </div>
                 </div>
             </div>
@@ -251,13 +253,13 @@ export default function GmbMaxServicePage() {
                     {/* Removed duplicate CTA section */}
 
                     <p className="text-text-secondary">
-                        Sună la <Link href="tel:+40742702982" variant="primary" inline>+40 742 702 982</Link> pentru un call gratuit de 15 min!
+                        Sună la <PhoneLink /> pentru un call gratuit de 15 min!
                     </p>
                 </div>
             </div>
 
             {/* Related Services Section */}
-            <div className="bg-dark-blue-lighter/40 backdrop-blur-sm border border-border-color rounded-xl overflow-hidden">
+            <div className="bg-dark-blue-lighter/40 backdrop-blur-sm border border-border-color rounded-xl overflow-hidden mb-12">
                 <div className="p-6 border-b border-border-color">
                     <h2 className="text-2xl font-bold">Servicii Complementare</h2>
                 </div>
@@ -293,6 +295,19 @@ export default function GmbMaxServicePage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Final CTA Button */}
+            <div className="text-center">
+                {isAuthenticated ? (
+                    <ActionButton href="/dashboard" size="lg">
+                        Cumpără acum!
+                    </ActionButton>
+                ) : (
+                    <ActionButton href="/login" size="lg">
+                        Cumpără acum!
+                    </ActionButton>
+                )}
             </div>
         </>
     );

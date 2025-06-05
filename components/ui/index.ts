@@ -1,4 +1,5 @@
 export { Link } from './Link';
+export { PhoneLink } from './PhoneLink';
 export { LinkButton } from './LinkButton';
 export { ActionButton } from './ActionButton';
 export { AcceptButton } from './AcceptButton';

@@ -2,7 +2,7 @@
 
 import { Header, Footer } from '@/components/layout';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from '@/components/ui';
+import { Link, PhoneLink } from '@/components/ui';
 import ContactForm from './ContactForm';
 
 
@@ -51,7 +51,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium">Telefon</p>
-                                        <Link href="tel:+40742702982" variant="muted" underline inline>+40 742 702 982</Link>
+                                        <PhoneLink variant="muted" underline />
                                     </div>
                                 </div>
                             </div>
