@@ -37,8 +37,10 @@ export function BuyNowButton({ serviceName, size = 'lg', fullRounded = false, sh
         addItem({
             id: service.id,
             name: service.name,
+            description: service.description,
             price: service.price,
             priceValue: service.priceValue,
+            features: service.features,
             period: service.period
         });
         

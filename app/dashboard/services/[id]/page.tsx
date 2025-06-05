@@ -151,7 +151,7 @@ export default function ServiceDetailPage() {
                     {isPendingPayment || pendingSubscription ? (
                         <ActionButton
                             onClick={() => setShowCheckout(true)}
-                            variant="warning"
+                            variant="danger"
                         >
                             Finalizează Plata
                         </ActionButton>

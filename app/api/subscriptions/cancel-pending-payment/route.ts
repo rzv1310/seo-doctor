@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         logger.error('Error cancelling pending payment', {
             error: error.message || 'Unknown error',
-            userId: request.headers.get('authorization')
+            userId: request.headers.get('authorization') || undefined
         });
         
         return NextResponse.json(

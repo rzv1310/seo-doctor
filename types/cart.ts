@@ -5,6 +5,7 @@ export type CartService = {
     price: string; // Price in display format "$XX.XX"
     priceValue: number; // Price in cents for calculations
     features: string[];
+    period?: string;
 };
 
 

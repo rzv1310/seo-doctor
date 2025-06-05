@@ -9,10 +9,12 @@ import { logger } from '@/lib/logger';
 
 
 export async function GET(request: NextRequest) {
+    let user: any = null;
+    
     try {
         logger.info('Checking incomplete payments - start');
         
-        const user = await getUserFromToken(request);
+        user = await getUserFromToken(request);
         if (!user) {
             logger.warn('Unauthorized request to check incomplete payments');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -8,8 +8,10 @@ import { logger } from '@/lib/logger';
 
 
 export async function GET(request: NextRequest) {
+    let user: any = null;
+    
     try {
-        const user = await getUserFromToken(request);
+        user = await getUserFromToken(request);
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
