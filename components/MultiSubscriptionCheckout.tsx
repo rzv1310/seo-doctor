@@ -32,7 +32,7 @@ export default function MultiSubscriptionCheckout({
     onError,
     hasCompleteDetails = false,
 }: MultiSubscriptionCheckoutProps) {
-    const { setCouponCode, setCouponData } = useCart();
+    const { setCouponCode, setCouponData, couponData } = useCart();
     const logger = useLogger('MultiSubscriptionCheckout');
     const [loading, setLoading] = useState(false);
     const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);
@@ -230,7 +230,8 @@ export default function MultiSubscriptionCheckout({
                     body: JSON.stringify({
                         serviceId: item.id,
                         paymentMethodId: selectedPaymentMethod,
-                        coupon: couponValid ? localCouponCode.toUpperCase() : undefined,
+                        coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
+                        promotionCodeId: couponData?.promotionCodeId,
                     }),
                 });
 

@@ -19,19 +19,19 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { serviceId, paymentMethodId, coupon } = body;
+        const { serviceId, paymentMethodId, coupon, promotionCodeId } = body;
 
         // Validate input
         if (!serviceId || typeof serviceId !== 'number') {
             return NextResponse.json({ error: 'Valid service ID is required' }, { status: 400 });
         }
 
-        // Validate coupon code if provided
-        if (coupon) {
+        // Validate coupon code format if provided (but not the existence)
+        if (coupon && !promotionCodeId) {
             const couponValidation = validateCouponCode(coupon);
             if (!couponValidation.isValid) {
                 return NextResponse.json({ 
-                    error: `Invalid coupon code: ${couponValidation.error}` 
+                    error: `Invalid coupon code format: ${couponValidation.error}` 
                 }, { status: 400 });
             }
         }
@@ -171,9 +171,23 @@ export async function POST(request: NextRequest) {
             },
         };
 
-        // Apply coupon if provided
-        if (coupon) {
+        // Apply promotion code or coupon if provided
+        if (promotionCodeId) {
+            // Use promotion code ID if provided (from validation)
+            subscriptionParams.discounts = [{ promotion_code: promotionCodeId }];
+            logger.info('Applying promotion code to subscription', {
+                promotionCodeId,
+                userId: user.id,
+                serviceId
+            });
+        } else if (coupon) {
+            // Fallback to direct coupon for backward compatibility
             subscriptionParams.discounts = [{ coupon }];
+            logger.info('Applying direct coupon to subscription', {
+                coupon,
+                userId: user.id,
+                serviceId
+            });
         }
 
         // Create the subscription - Stripe will automatically:

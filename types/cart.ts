@@ -10,6 +10,8 @@ export type CartService = {
 
 export type CouponData = {
     valid: boolean;
+    promotionCodeId?: string;
+    couponId?: string;
     percentOff?: number | null;
     amountOff?: number | null;
     currency?: string | null;

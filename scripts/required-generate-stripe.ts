@@ -69,20 +69,41 @@ async function generateStripeProducts() {
             console.log(`✓ ${service.name} price created: ${price.id}\n`);
         }
 
-        // Create SEO70 coupon
-        console.log('Creating SEO70 coupon...');
-        const seo70Coupon = await stripe.coupons.create({
-            id: 'SEO70',
+        // Create a single 70% off coupon with a random ID
+        console.log('Creating 70% off coupon...');
+        const coupon = await stripe.coupons.create({
             percent_off: 70,
             duration: 'repeating',
             duration_in_months: 3,
-            name: 'SEO 70% Off - First 3 Months',
+            name: '70% Off - First 3 Months',
             metadata: {
                 description: '70% reduction for the first 3 months',
             },
         });
-        stripeIds.coupons.SEO70 = seo70Coupon.id;
-        console.log(`✓ SEO70 coupon created: ${seo70Coupon.id}\n`);
+        stripeIds.coupons.SEO70 = coupon.id;
+        console.log(`✓ 70% off coupon created: ${coupon.id}`);
+
+        // Create multiple promotional codes for the same coupon
+        const promotionalCodes = ['SAVE70'];
+        console.log('\nCreating promotional codes...');
+
+        for (const code of promotionalCodes) {
+            try {
+                const promoCode = await stripe.promotionCodes.create({
+                    coupon: coupon.id,
+                    code: code,
+                    active: true,
+                });
+                console.log(`✓ Promotional code '${code}' created: ${promoCode.id}`);
+            } catch (error: any) {
+                if (error.code === 'resource_already_exists') {
+                    console.log(`⚠️  Promotional code '${code}' already exists`);
+                } else {
+                    throw error;
+                }
+            }
+        }
+        console.log();
 
         // Read current .env file
         const envPath = path.join(process.cwd(), '.env');

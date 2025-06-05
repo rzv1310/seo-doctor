@@ -31,6 +31,7 @@ export default function SubscriptionCheckout({
     const [discount, setDiscount] = useState(0);
     const [validatingCoupon, setValidatingCoupon] = useState(false);
     const [couponValid, setCouponValid] = useState(false);
+    const [couponData, setCouponData] = useState<any>(null);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,17 +44,20 @@ export default function SubscriptionCheckout({
         createSubscription();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const createSubscription = async (applyCoupon?: string) => {
+    const createSubscription = async (applyCouponOrPromoCode?: string) => {
         setLoading(true);
         setError(null);
 
         try {
+            const isPromotionCode = couponData?.promotionCodeId === applyCouponOrPromoCode;
+            
             const response = await fetch('/api/subscriptions/create-stripe-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     serviceId,
-                    coupon: applyCoupon,
+                    coupon: isPromotionCode ? undefined : applyCouponOrPromoCode,
+                    promotionCodeId: isPromotionCode ? applyCouponOrPromoCode : undefined,
                 }),
             });
 
@@ -95,9 +99,10 @@ export default function SubscriptionCheckout({
             // Apply coupon discount
             setDiscount(data.percentOff || 0);
             setCouponValid(true);
+            setCouponData(data);
 
-            // Recreate subscription with coupon
-            await createSubscription(couponCode.toUpperCase());
+            // Recreate subscription with coupon or promotion code
+            await createSubscription(data.promotionCodeId || couponCode.toUpperCase());
         } catch (err: any) {
             setError(err.message);
             setCouponValid(false);
