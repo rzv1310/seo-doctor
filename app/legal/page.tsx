@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Header, Footer } from '@/components/layout';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from '@/components/ui';
+import { Link, PhoneLink } from '@/components/ui';
 
 
 
@@ -41,7 +41,7 @@ function LegalPage() {
                             <button
                                 key={t.id}
                                 onClick={() => handleTabChange(t.id)}
-                                className={`inline-block py-4 px-6 text-sm font-medium ${tab === t.id
+                                className={`inline-block py-4 px-6 text-sm font-medium cursor-pointer ${tab === t.id
                                     ? 'text-white border-b-2 border-white bg-dark-blue-lighter rounded-t-lg'
                                     : 'text-text-secondary hover:text-text-primary hover:border-border-color border-b-2 border-transparent'
                                     } transition-colors`}
@@ -57,8 +57,6 @@ function LegalPage() {
                     {tab === 'privacy' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-4">Politici de confidențialitate</h2>
-
-                            <p className="text-text-secondary">Ultima actualizare: 20 Mai 2023</p>
 
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Introducere</h3>
@@ -134,10 +132,9 @@ function LegalPage() {
                                 <p>
                                     Dacă aveți întrebări despre această Politică de Confidențialitate, vă rugăm să ne contactați:
                                 </p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: contact@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 742 702 982</li>
-                                </ul>
+                                <div className="pl-6">
+                                    <p>Telefon: <PhoneLink /></p>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -145,8 +142,6 @@ function LegalPage() {
                     {tab === 'terms' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-4">Termeni și condiții</h2>
-
-                            <p className="text-text-secondary">Ultima actualizare: 20 Mai 2023</p>
 
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Introducere</h3>
@@ -229,10 +224,9 @@ function LegalPage() {
                                 <p>
                                     Dacă aveți întrebări despre acești Termeni, vă rugăm să ne contactați:
                                 </p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: contact@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 742 702 982</li>
-                                </ul>
+                                <div className="pl-6">
+                                    <p>Telefon: <PhoneLink /></p>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -240,8 +234,6 @@ function LegalPage() {
                     {tab === 'gdpr' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-4">GDPR - Protecția Datelor</h2>
-
-                            <p className="text-text-secondary">Ultima actualizare: 20 Mai 2023</p>
 
                             <div className="space-y-4">
                                 <h3 className="text-xl font-semibold">1. Conformitate GDPR</h3>
@@ -260,8 +252,7 @@ function LegalPage() {
                                     <li>Nume: SEO Doctor SRL</li>
                                     <li>Cod Unic de Înregistrare: 49345207</li>
                                     <li>Adresă: Str. Campia Libertății 33, sector 3, București</li>
-                                    <li>Email: contact@seodoctor.ro</li>
-                                    <li>Telefon: +40 742 702 982</li>
+                                    <li>Telefon: <PhoneLink /></li>
                                 </ul>
 
                                 <h3 className="text-xl font-semibold">3. Temeiurile juridice pentru prelucrare</h3>
@@ -332,10 +323,9 @@ function LegalPage() {
                                 <p>
                                     Dacă aveți întrebări sau preocupări despre modul în care prelucrăm datele dumneavoastră personale sau doriți să vă exercitați drepturile GDPR, vă rugăm să ne contactați:
                                 </p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Prin email: contact@seodoctor.ro</li>
-                                    <li>Prin telefon: +40 742 702 982</li>
-                                </ul>
+                                <div className="pl-6">
+                                    <p>Telefon: <PhoneLink /></p>
+                                </div>
                             </div>
                         </div>
                     )}
