@@ -19,6 +19,7 @@ function LegalPage() {
         { id: 'privacy', label: 'Politici de confidențialitate' },
         { id: 'terms', label: 'Termeni și condiții' },
         { id: 'gdpr', label: 'GDPR' },
+        { id: 'cookies', label: 'Cookies' },
     ];
 
     const handleTabChange = (tabId: string) => {
@@ -322,6 +323,75 @@ function LegalPage() {
                                 <h3 className="text-xl font-semibold">9. Contactați-ne</h3>
                                 <p>
                                     Dacă aveți întrebări sau preocupări despre modul în care prelucrăm datele dumneavoastră personale sau doriți să vă exercitați drepturile GDPR, vă rugăm să ne contactați:
+                                </p>
+                                <div className="pl-6">
+                                    <p>Telefon: <PhoneLink /></p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {tab === 'cookies' && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold mb-4">Politica de Cookies</h2>
+
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-semibold">1. Ce sunt cookie-urile?</h3>
+                                <p>
+                                    Cookie-urile sunt fișiere text mici care sunt plasate pe computerul sau dispozitivul dumneavoastră mobil atunci când vizitați un site web. Cookie-urile sunt utilizate pe scară largă pentru a face site-urile web să funcționeze mai eficient și pentru a furniza informații proprietarilor site-ului.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">2. Cookie-urile pe care le utilizăm</h3>
+                                <p>
+                                    Site-ul nostru utilizează următoarele tipuri de cookie-uri:
+                                </p>
+
+                                <h4 className="text-lg font-semibold mt-4">Cookie-uri esențiale</h4>
+                                <p>
+                                    Aceste cookie-uri sunt necesare pentru funcționarea site-ului nostru. Includ, de exemplu, cookie-uri care vă permit să vă conectați în zonele securizate ale site-ului nostru sau să utilizați coșul de cumpărături.
+                                </p>
+
+                                <h4 className="text-lg font-semibold mt-4">Cookie-uri de la terți</h4>
+                                <p>
+                                    Utilizăm doar două servicii terțe care pot seta cookie-uri:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>
+                                        <strong>Stripe</strong> - pentru procesarea securizată a plăților. Stripe utilizează cookie-uri pentru a preveni fraudele și pentru a asigura securitatea tranzacțiilor dumneavoastră. Aceste cookie-uri sunt esențiale pentru procesarea plăților și nu pot fi dezactivate dacă doriți să efectuați o plată pe site-ul nostru.
+                                    </li>
+                                    <li>
+                                        <strong>Google Analytics</strong> - pentru a înțelege cum utilizatorii interacționează cu site-ul nostru. Aceste cookie-uri colectează informații în mod anonim, inclusiv numărul de vizitatori ai site-ului, de unde au venit vizitatorii și paginile pe care le-au vizitat.
+                                    </li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">3. Nu utilizăm alte cookie-uri de la terți</h3>
+                                <p>
+                                    <strong>Important:</strong> În afara cookie-urilor Stripe și Google Analytics menționate mai sus, nu utilizăm niciun alt cookie de la terți. Nu folosim cookie-uri pentru publicitate, remarketing sau tracking în scopuri de marketing. Nu vindem și nu partajăm datele dumneavoastră cu alte companii.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">4. Gestionarea cookie-urilor</h3>
+                                <p>
+                                    Majoritatea browser-elor web vă permit să controlați cookie-urile prin setările lor. Puteți seta browser-ul să vă avertizeze atunci când primiți cookie-uri sau să le refuze complet. Totuși, rețineți că:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>Dacă dezactivați cookie-urile esențiale, este posibil să nu puteți utiliza anumite funcții ale site-ului nostru, cum ar fi conectarea la contul dumneavoastră.</li>
+                                    <li>Dacă dezactivați cookie-urile Stripe, nu veți putea efectua plăți pe site-ul nostru.</li>
+                                    <li>Dacă dezactivați cookie-urile Google Analytics, nu vom putea înțelege cum să îmbunătățim experiența dumneavoastră pe site.</li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">5. Mai multe informații</h3>
+                                <p>
+                                    Pentru mai multe informații despre cookie-uri și cum să le gestionați, puteți vizita:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li><Link href="https://www.allaboutcookies.org" variant="primary" underline inline>www.allaboutcookies.org</Link></li>
+                                    <li><Link href="https://stripe.com/privacy" variant="primary" underline inline>Politica de confidențialitate Stripe</Link></li>
+                                    <li><Link href="https://policies.google.com/privacy" variant="primary" underline inline>Politica de confidențialitate Google</Link></li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">6. Contactați-ne</h3>
+                                <p>
+                                    Dacă aveți întrebări despre utilizarea cookie-urilor pe site-ul nostru, vă rugăm să ne contactați:
                                 </p>
                                 <div className="pl-6">
                                     <p>Telefon: <PhoneLink /></p>

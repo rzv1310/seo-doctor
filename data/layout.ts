@@ -16,7 +16,7 @@ export const footerData = {
     infoLinks: [
         { name: 'Politici de confidențialitate', href: '/legal?tab=privacy' },
         { name: 'Termeni și condiții', href: '/legal?tab=terms' },
-        { name: 'Politica cookies', href: '/legal?tab=gdpr' },
+        { name: 'Politica cookies', href: '/legal?tab=cookies' },
         { name: 'ANPC - SAL', href: 'https://reclamatiisal.anpc.ro' },
         { name: 'ANPC - SOL', href: 'https://anpc.ro' },
     ],
