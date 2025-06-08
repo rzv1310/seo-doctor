@@ -37,7 +37,7 @@ export const POST = withLogging(async (req: NextRequest) => {
                     subscriptionId: paymentIntent.metadata?.subscriptionId,
                     serviceId: paymentIntent.metadata?.serviceId,
                     confirmationMethod: paymentIntent.confirmation_method,
-                    charges: paymentIntent.charges?.data?.map(charge => ({
+                    charges: paymentIntent.charges?.data?.map((charge: any) => ({
                         id: charge.id,
                         status: charge.status,
                         threeDSecure: charge.payment_method_details?.card?.three_d_secure,

@@ -20,7 +20,7 @@ export default function Dashboard() {
                 // Use discounted price if available (already in EUR), otherwise use service's EUR display price
                 const priceInEur = sub.discountInfo?.discountedPrice ? 
                     sub.discountInfo.discountedPrice : 
-                    (sub.service?.priceValue ? sub.service.priceValue / 100 : 1000); // Convert cents to EUR
+                    ((sub.service as any)?.priceValue ? (sub.service as any).priceValue / 100 : 1000); // Convert cents to EUR
                 return total + priceInEur;
             }, 0);
     };

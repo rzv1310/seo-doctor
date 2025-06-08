@@ -9,8 +9,9 @@ import { logger } from '@/lib/logger';
 
 
 export async function POST(request: NextRequest) {
+    let user: any = null;
     try {
-        const user = await getUserFromToken(request);
+        user = await getUserFromToken(request);
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -46,8 +47,8 @@ export async function POST(request: NextRequest) {
         logger.info('Stripe subscription status retrieved', {
             subscriptionId: stripeSubscription.id,
             status: stripeSubscription.status,
-            invoiceStatus: stripeSubscription.latest_invoice?.status,
-            invoicePaid: stripeSubscription.latest_invoice?.paid,
+            invoiceStatus: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.status : 'string_id',
+            invoicePaid: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.paid : false,
             hasPaymentIntent: !!(stripeSubscription.latest_invoice as any)?.payment_intent
         });
 
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
                 paymentIntentId: paymentIntent.id,
                 status: paymentIntent.status,
                 amount: paymentIntent.amount,
-                charges: paymentIntent.charges?.data?.map(charge => ({
+                charges: paymentIntent.charges?.data?.map((charge: any) => ({
                     id: charge.id,
                     status: charge.status,
                     paid: charge.paid,
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
             paymentStatus,
             paymentIntentStatus,
             updated: shouldUpdate,
-            invoicePaid: stripeSubscription.latest_invoice?.paid || false
+            invoicePaid: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.paid || false : false
         });
 
     } catch (error: any) {

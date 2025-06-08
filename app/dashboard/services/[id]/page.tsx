@@ -175,7 +175,7 @@ export default function ServiceDetailPage() {
                                         style: 'currency',
                                         currency: 'EUR'
                                     }).format(
-                                        incompletePayment ? incompletePayment.amount / 100 : pendingSubscription.price / 100
+                                        incompletePayment ? incompletePayment.amount / 100 : (pendingSubscription?.price || 0) / 100
                                     )}
                                 </p>
                             )}

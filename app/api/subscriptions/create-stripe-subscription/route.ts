@@ -253,9 +253,9 @@ export async function POST(request: NextRequest) {
             subscriptionId: stripeSubscription.id,
             status: stripeSubscription.status,
             hasLatestInvoice: !!stripeSubscription.latest_invoice,
-            invoiceStatus: stripeSubscription.latest_invoice?.status,
-            invoicePaymentIntentId: stripeSubscription.latest_invoice?.payment_intent?.id || stripeSubscription.latest_invoice?.payment_intent,
-            invoicePaymentIntentType: typeof stripeSubscription.latest_invoice?.payment_intent,
+            invoiceStatus: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.status : 'string_id',
+            invoicePaymentIntentId: typeof stripeSubscription.latest_invoice === 'object' ? (typeof stripeSubscription.latest_invoice?.payment_intent === 'object' ? stripeSubscription.latest_invoice?.payment_intent?.id : stripeSubscription.latest_invoice?.payment_intent) : null,
+            invoicePaymentIntentType: typeof stripeSubscription.latest_invoice === 'object' ? typeof stripeSubscription.latest_invoice?.payment_intent : 'string',
             hasPendingSetupIntent: !!stripeSubscription.pending_setup_intent,
             currentPeriodStart: stripeSubscription.current_period_start,
             currentPeriodEnd: stripeSubscription.current_period_end,
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
                 confirmationMethod: paymentIntent.confirmation_method,
                 captureMethod: paymentIntent.capture_method,
                 lastPaymentError: paymentIntent.last_payment_error,
-                charges: paymentIntent.charges?.data?.map(charge => ({
+                charges: (paymentIntent as any).charges?.data?.map((charge: any) => ({
                     id: charge.id,
                     status: charge.status,
                     outcome: charge.outcome,
@@ -360,7 +360,7 @@ export async function POST(request: NextRequest) {
                     status: paidInvoice.status,
                     paid: paidInvoice.paid,
                     hasPaymentIntent: !!paidInvoice.payment_intent,
-                    paymentIntentId: paidInvoice.payment_intent?.id || paidInvoice.payment_intent
+                    paymentIntentId: typeof paidInvoice.payment_intent === 'object' ? paidInvoice.payment_intent?.id : paidInvoice.payment_intent
                 });
                 
                 if (paidInvoice.payment_intent) {
@@ -383,7 +383,7 @@ export async function POST(request: NextRequest) {
                         amount: paymentIntent.amount,
                         currency: paymentIntent.currency,
                         confirmationMethod: paymentIntent.confirmation_method,
-                        charges: paymentIntent.charges?.data?.map(charge => ({
+                        charges: (paymentIntent as any).charges?.data?.map((charge: any) => ({
                             id: charge.id,
                             status: charge.status,
                             outcome: charge.outcome,
@@ -438,7 +438,7 @@ export async function POST(request: NextRequest) {
                             invoiceId: updatedInvoice.id,
                             status: updatedInvoice.status,
                             hasPaymentIntent: !!updatedInvoice.payment_intent,
-                            paymentIntentId: updatedInvoice.payment_intent?.id || updatedInvoice.payment_intent
+                            paymentIntentId: typeof updatedInvoice.payment_intent === 'object' ? updatedInvoice.payment_intent?.id : updatedInvoice.payment_intent
                         });
                         
                         // If the invoice still doesn't have a payment intent, try to retrieve the subscription
@@ -453,7 +453,7 @@ export async function POST(request: NextRequest) {
                             logger.info('Updated subscription retrieved', {
                                 subscriptionId: updatedSubscription.id,
                                 status: updatedSubscription.status,
-                                latestInvoiceId: updatedSubscription.latest_invoice?.id,
+                                latestInvoiceId: typeof updatedSubscription.latest_invoice === 'object' ? updatedSubscription.latest_invoice?.id : updatedSubscription.latest_invoice,
                                 hasPaymentIntent: !!(updatedSubscription.latest_invoice as any)?.payment_intent
                             });
                             

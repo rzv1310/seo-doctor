@@ -197,7 +197,7 @@ export default function MultiSubscriptionCheckout({
                     subscriptionId: subscription.subscriptionId,
                     paymentIntentId: confirmResult.paymentIntent?.id,
                     paymentIntentStatus: confirmResult.paymentIntent?.status,
-                    charges: confirmResult.paymentIntent?.charges?.data?.map(charge => ({
+                    charges: confirmResult.paymentIntent?.charges?.data?.map((charge: any) => ({
                         id: charge.id,
                         status: charge.status,
                         threeDSecure: charge.payment_method_details?.card?.three_d_secure
