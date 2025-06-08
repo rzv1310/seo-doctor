@@ -18,7 +18,7 @@ export default function CTA({ isAuthenticated = false }: CTAProps) {
                 <p className="mt-14 text-text-secondary mb-5 sm:mb-8 text-base sm:text-lg md:text-xl">
                     {ctaData.subtitle1}
                 </p>
-                <p className="mt-8 text-text-secondary sm:mb-8 text-base sm:text-lg md:text-xl">
+                <p className="mt-8 mb-8 text-text-secondary text-base sm:text-lg md:text-xl">
                     {ctaData.subtitle2}
                 </p>
                 <ActionButton

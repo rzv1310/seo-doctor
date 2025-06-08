@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { footerData as defaultFooterData } from '@/data/layout';
-import { ActionButton, Link, PhoneLink } from '@/components/ui';
+import { Link, PhoneLink } from '@/components/ui';
 
 
 
@@ -85,9 +85,11 @@ export default function Footer({
         <footer className="bg-dark-blue-lighter border-t border-border-color py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
-                    <div>
+                    <div className="text-center flex flex-col md:block items-center md:text-left">
                         <Link href="/" variant="default">
-                            <h3 className="text-lg font-semibold mb-4">{companyName}</h3>
+                            <h3 className="text-lg font-semibold mb-4">
+                                {companyName}
+                            </h3>
                         </Link>
                         <p className="text-text-secondary text-sm">
                             {companyDescription}
@@ -163,7 +165,7 @@ export default function Footer({
                         </ul>
                     </div>
                 </div>
-                <div className="mt-8 pt-6 border-t border-border-color text-center text-sm text-text-secondary">
+                <div className="mt-8 pt-6 mb-8 border-t border-border-color text-center text-sm text-text-secondary">
                     <p>&copy; {new Date().getFullYear()} {companyName}. Toate drepturile rezervate.</p>
                 </div>
             </div>
