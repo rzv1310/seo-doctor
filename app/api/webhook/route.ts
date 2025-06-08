@@ -29,7 +29,21 @@ export const POST = withLogging(async (req: NextRequest) => {
         switch (event.type) {
             case 'payment_intent.succeeded': {
                 const paymentIntent = event.data.object as any;
-                logger.info('Payment succeeded', { amount: paymentIntent.amount, currency: paymentIntent.currency, userId: paymentIntent.metadata?.userId });
+                logger.info('Payment succeeded', { 
+                    paymentIntentId: paymentIntent.id,
+                    amount: paymentIntent.amount, 
+                    currency: paymentIntent.currency, 
+                    userId: paymentIntent.metadata?.userId,
+                    subscriptionId: paymentIntent.metadata?.subscriptionId,
+                    serviceId: paymentIntent.metadata?.serviceId,
+                    confirmationMethod: paymentIntent.confirmation_method,
+                    charges: paymentIntent.charges?.data?.map(charge => ({
+                        id: charge.id,
+                        status: charge.status,
+                        threeDSecure: charge.payment_method_details?.card?.three_d_secure,
+                        outcome: charge.outcome
+                    }))
+                });
 
                 if (paymentIntent.metadata?.orderId) {
                     await db.update(orders)
@@ -60,20 +74,38 @@ export const POST = withLogging(async (req: NextRequest) => {
 
                 // Check if this payment is for a subscription (through invoice)
                 if (paymentIntent.invoice) {
+                    logger.info('Payment intent has associated invoice', {
+                        paymentIntentId: paymentIntent.id,
+                        invoiceId: paymentIntent.invoice
+                    });
+                    
                     // Retrieve the invoice to get the subscription ID
                     const invoice = await stripe.invoices.retrieve(paymentIntent.invoice as string);
+                    
+                    logger.info('Invoice details retrieved', {
+                        invoiceId: invoice.id,
+                        subscriptionId: invoice.subscription,
+                        status: invoice.status,
+                        paid: invoice.paid,
+                        amountPaid: invoice.amount_paid,
+                        total: invoice.total
+                    });
+                    
                     if (invoice.subscription) {
                         // Update subscription status from pending_payment to active
-                        await db.update(subscriptions)
+                        const updateResult = await db.update(subscriptions)
                             .set({
                                 status: 'active',
                                 updatedAt: new Date().toISOString()
                             })
-                            .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+                            .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string))
+                            .returning();
 
                         logger.info('Subscription activated after successful payment', {
                             subscriptionId: invoice.subscription,
-                            paymentIntentId: paymentIntent.id
+                            paymentIntentId: paymentIntent.id,
+                            updatedRecords: updateResult.length,
+                            localSubscriptionId: updateResult[0]?.id
                         });
                     }
                 }

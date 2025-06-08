@@ -97,14 +97,64 @@ export default function MultiSubscriptionCheckout({
         fetchPaymentMethods(); // Refresh the list
     };
 
+    const verifyPaymentCompletion = async (subscriptionsToVerify: any[]) => {
+        for (const subscription of subscriptionsToVerify) {
+            try {
+                logger.info('Verifying payment completion for subscription', {
+                    subscriptionId: subscription.subscriptionId,
+                    serviceName: subscription.serviceName
+                });
+
+                const response = await fetch('/api/subscriptions/check-payment-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscriptionId: subscription.subscriptionId
+                    }),
+                });
+
+                const result = await response.json();
+
+                logger.info('Payment verification result', {
+                    subscriptionId: subscription.subscriptionId,
+                    result
+                });
+
+                if (!response.ok) {
+                    logger.error('Payment verification failed', {
+                        subscriptionId: subscription.subscriptionId,
+                        error: result.error
+                    });
+                }
+            } catch (verifyError: any) {
+                logger.error('Error verifying payment completion', {
+                    subscriptionId: subscription.subscriptionId,
+                    error: verifyError.message
+                });
+            }
+        }
+    };
+
     const handle3DSecureAuthentication = async (subscriptionsRequiring3DS: any[]) => {
         if (!stripe) {
+            logger.error('Stripe not initialized for 3D Secure authentication', {});
             setError('Stripe nu este încă inițializat. Te rugăm să reîncerci.');
             return;
         }
 
         setProcessing3DS(true);
         setError(null);
+        
+        logger.info('Starting 3D Secure authentication process', {
+            subscriptionCount: subscriptionsRequiring3DS.length,
+            subscriptions: subscriptionsRequiring3DS.map(s => ({
+                subscriptionId: s.subscriptionId,
+                serviceName: s.serviceName,
+                hasClientSecret: !!s.clientSecret,
+                status: s.status,
+                paymentStatus: s.paymentStatus
+            }))
+        });
 
         try {
             // Process each subscription that requires 3D Secure
@@ -112,30 +162,64 @@ export default function MultiSubscriptionCheckout({
                 logger.info('Processing payment confirmation for subscription', {
                     subscriptionId: subscription.subscriptionId,
                     serviceName: subscription.serviceName,
-                    clientSecret: subscription.clientSecret
+                    clientSecret: subscription.clientSecret?.substring(0, 20) + '...',
+                    hasClientSecret: !!subscription.clientSecret,
+                    paymentStatus: subscription.paymentStatus
                 });
 
-                // For subscriptions with default_incomplete, we need to confirm with the payment method
-                const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-                    subscription.clientSecret,
-                    {
-                        payment_method: selectedPaymentMethod,
-                        return_url: `${window.location.origin}/dashboard/services`
-                    }
+                // For subscriptions with default_incomplete, the payment method is already attached
+                // We just need to confirm the payment intent
+                const confirmResult = await stripe.confirmCardPayment(
+                    subscription.clientSecret
                 );
+                
+                logger.info('Stripe confirmCardPayment result', {
+                    subscriptionId: subscription.subscriptionId,
+                    hasError: !!confirmResult.error,
+                    errorType: confirmResult.error?.type,
+                    errorCode: confirmResult.error?.code,
+                    errorMessage: confirmResult.error?.message,
+                    paymentIntentId: confirmResult.paymentIntent?.id,
+                    paymentIntentStatus: confirmResult.paymentIntent?.status,
+                    paymentIntentNextAction: confirmResult.paymentIntent?.next_action?.type,
+                    paymentIntentLastPaymentError: confirmResult.paymentIntent?.last_payment_error
+                });
 
-                if (confirmError) {
-                    throw new Error(confirmError.message || 'Autentificarea 3D Secure a eșuat');
+                if (confirmResult.error) {
+                    logger.error('Payment confirmation failed', {
+                        subscriptionId: subscription.subscriptionId,
+                        error: confirmResult.error
+                    });
+                    throw new Error(confirmResult.error.message || 'Autentificarea 3D Secure a eșuat');
                 }
 
                 logger.info('Payment confirmation successful', {
                     subscriptionId: subscription.subscriptionId,
-                    paymentIntentStatus: paymentIntent?.status
+                    paymentIntentId: confirmResult.paymentIntent?.id,
+                    paymentIntentStatus: confirmResult.paymentIntent?.status,
+                    charges: confirmResult.paymentIntent?.charges?.data?.map(charge => ({
+                        id: charge.id,
+                        status: charge.status,
+                        threeDSecure: charge.payment_method_details?.card?.three_d_secure
+                    }))
                 });
             }
 
             // All payment confirmations successful
             logger.info('All payment confirmations completed successfully');
+            
+            // Check payment status to ensure subscription is activated
+            logger.info('Verifying payment completion with Stripe');
+            await verifyPaymentCompletion(subscriptionsRequiring3DS);
+            
+            // Update local subscription state to reflect successful payments
+            const updatedSubscriptions = subscriptions.map(sub => {
+                if (subscriptionsRequiring3DS.find(s => s.subscriptionId === sub.subscriptionId)) {
+                    return { ...sub, status: 'active', requiresAction: false };
+                }
+                return sub;
+            });
+            setSubscriptions(updatedSubscriptions);
             
             // Now all payments are complete, call success
             if (onSuccess) {
@@ -224,27 +308,61 @@ export default function MultiSubscriptionCheckout({
                     serviceName: item.name 
                 });
                 
+                const requestBody = {
+                    serviceId: item.id,
+                    paymentMethodId: selectedPaymentMethod,
+                    coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
+                    promotionCodeId: couponData?.promotionCodeId,
+                };
+                
+                logger.info('Making subscription creation request', {
+                    serviceId: item.id,
+                    serviceName: item.name,
+                    requestBody
+                });
+                
                 const response = await fetch('/api/subscriptions/create-stripe-subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        serviceId: item.id,
-                        paymentMethodId: selectedPaymentMethod,
-                        coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
-                        promotionCodeId: couponData?.promotionCodeId,
-                    }),
+                    body: JSON.stringify(requestBody),
                 });
 
                 const data = await response.json();
+                
+                logger.info('Subscription creation response received', {
+                    serviceId: item.id,
+                    serviceName: item.name,
+                    responseOk: response.ok,
+                    responseStatus: response.status,
+                    responseData: data
+                });
 
                 if (!response.ok) {
+                    logger.error('Subscription creation failed', {
+                        serviceId: item.id,
+                        serviceName: item.name,
+                        error: data.error,
+                        status: response.status
+                    });
                     throw new Error(data.error || `Failed to create subscription for ${item.name}`);
                 }
 
-                createdSubscriptions.push({
+                const subscriptionResult = {
                     ...data,
                     serviceName: item.name,
+                };
+                
+                logger.info('Subscription created successfully', {
+                    serviceId: item.id,
+                    serviceName: item.name,
+                    subscriptionId: subscriptionResult.subscriptionId,
+                    status: subscriptionResult.status,
+                    requiresAction: subscriptionResult.requiresAction,
+                    hasClientSecret: !!subscriptionResult.clientSecret,
+                    paymentStatus: subscriptionResult.paymentStatus
                 });
+                
+                createdSubscriptions.push(subscriptionResult);
             }
 
             setSubscriptions(createdSubscriptions);
@@ -252,16 +370,19 @@ export default function MultiSubscriptionCheckout({
             // Check subscription statuses
             const allActive = createdSubscriptions.every(sub => sub.status === 'active');
             const requiresAction = createdSubscriptions.some(sub => sub.requiresAction);
+            const hasIncomplete = createdSubscriptions.some(sub => sub.status === 'incomplete');
             
             logger.info('Subscriptions created', {
                 count: createdSubscriptions.length,
                 allActive,
                 requiresAction,
+                hasIncomplete,
                 statuses: createdSubscriptions.map(s => ({ 
                     id: s.subscriptionId, 
                     status: s.status,
                     requiresAction: s.requiresAction,
-                    hasClientSecret: !!s.clientSecret
+                    hasClientSecret: !!s.clientSecret,
+                    paymentStatus: s.paymentStatus
                 }))
             });
 
@@ -287,6 +408,17 @@ export default function MultiSubscriptionCheckout({
                     logger.error('Subscriptions require action but no client secret provided');
                     setError('Plata necesită autentificare suplimentară, dar nu s-a putut iniția. Te rugăm să încerci din nou.');
                 }
+            } else if (hasIncomplete && !requiresAction) {
+                // Subscription is incomplete but payment doesn't require action
+                // This might happen when the payment is still processing
+                logger.warn('Subscription incomplete without requiring action', {
+                    subscriptions: createdSubscriptions.map(s => ({
+                        id: s.subscriptionId,
+                        status: s.status,
+                        paymentStatus: s.paymentStatus
+                    }))
+                });
+                setError('Plata este în curs de procesare. Te rugăm să aștepți sau să încerci din nou cu un alt card.');
             }
 
             // Only call success if all subscriptions are active

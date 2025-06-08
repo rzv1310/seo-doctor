@@ -20,6 +20,10 @@ const SubscriptionCheckout = dynamic(() => import('@/components/SubscriptionChec
     ssr: false,
 });
 
+const PendingPaymentCheckout = dynamic(() => import('@/components/PendingPaymentCheckout'), {
+    ssr: false,
+});
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function ServiceDetailPage() {
@@ -31,6 +35,8 @@ export default function ServiceDetailPage() {
     const [showCheckout, setShowCheckout] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [processing3DS, setProcessing3DS] = useState(false);
+    const [incompletePayment, setIncompletePayment] = useState<any>(null);
+    const [checkingPayments, setCheckingPayments] = useState(false);
     const { subscriptions, fetchSubscriptions, isSubscribed } = useSubscriptions();
     const { user } = useAuth();
     const { pendingSubscriptions, refresh: refreshPendingPayments } = usePendingPayments();
@@ -48,6 +54,7 @@ export default function ServiceDetailPage() {
 
     useEffect(() => {
         fetchSubscriptions();
+        checkForIncompletePayments();
 
         // Check for success redirect
         if (searchParams.get('subscription_success') === 'true') {
@@ -57,11 +64,49 @@ export default function ServiceDetailPage() {
         }
     }, [serviceId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleSubscriptionSuccess = (subscriptionId: string) => {
+    const checkForIncompletePayments = async () => {
+        if (!user) return;
+        
+        setCheckingPayments(true);
+        try {
+            const response = await fetch('/api/subscriptions/check-incomplete-payments');
+            if (response.ok) {
+                const data = await response.json();
+                // Find incomplete payment for this service
+                const servicePayment = data.incompletePayments?.find((payment: any) => 
+                    payment.metadata?.serviceId === serviceId.toString()
+                );
+                if (servicePayment) {
+                    logger.info('Found incomplete payment for service', { 
+                        serviceId, 
+                        paymentIntentId: servicePayment.paymentIntentId 
+                    });
+                    setIncompletePayment(servicePayment);
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to check incomplete payments', error);
+        } finally {
+            setCheckingPayments(false);
+        }
+    };
+
+    const handleSubscriptionSuccess = (subscriptionId?: string) => {
         setShowCheckout(false);
         setShowSuccessModal(true);
         fetchSubscriptions();
         refreshPendingPayments();
+        checkForIncompletePayments();
+    };
+
+    const handlePendingPaymentSuccess = () => {
+        setShowCheckout(false);
+        setShowSuccessModal(true);
+        setIncompletePayment(null);
+        fetchSubscriptions();
+        refreshPendingPayments();
+        // Reload to ensure all data is fresh
+        window.location.reload();
     };
     
 
@@ -113,26 +158,36 @@ export default function ServiceDetailPage() {
             </Modal>
 
             {/* Pending Payment Notice */}
-            {(isPendingPayment || pendingSubscription) && (
+            {(isPendingPayment || pendingSubscription || incompletePayment) && (
                 <Alert type="warning" className="mb-6">
                     <div className="flex items-start">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <div>
+                        <div className="flex-1">
                             <p className="font-medium">Plată în așteptare</p>
                             <p className="text-sm mt-1">
                                 Ai o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata pentru a activa abonamentul.
                             </p>
-                            {pendingSubscription && (
+                            {(pendingSubscription || incompletePayment) && (
                                 <p className="text-xs mt-2 text-amber-200">
                                     Suma: {new Intl.NumberFormat('ro-RO', {
                                         style: 'currency',
-                                        currency: 'RON'
-                                    }).format(pendingSubscription.price / 100)}
+                                        currency: 'EUR'
+                                    }).format(
+                                        incompletePayment ? incompletePayment.amount / 100 : pendingSubscription.price / 100
+                                    )}
+                                </p>
+                            )}
+                            {incompletePayment && incompletePayment.paymentIntentStatus === 'requires_action' && (
+                                <p className="text-xs mt-1 text-amber-200">
+                                    Plata necesită autentificare 3D Secure pentru a fi finalizată.
                                 </p>
                             )}
                         </div>
+                        {checkingPayments && (
+                            <Spinner size="sm" />
+                        )}
                     </div>
                 </Alert>
             )}
@@ -148,12 +203,20 @@ export default function ServiceDetailPage() {
                     )}
                 </div>
                 <div className="flex gap-3 mt-4 md:mt-0">
-                    {isPendingPayment || pendingSubscription ? (
+                    {(isPendingPayment || pendingSubscription || incompletePayment) ? (
                         <ActionButton
                             onClick={() => setShowCheckout(true)}
                             variant="danger"
+                            disabled={checkingPayments}
                         >
-                            Finalizează Plata
+                            {checkingPayments ? (
+                                <>
+                                    <Spinner size="sm" />
+                                    <span className="ml-2">Se verifică...</span>
+                                </>
+                            ) : (
+                                'Finalizează Plata'
+                            )}
                         </ActionButton>
                     ) : !hasActive && priceId ? (
                         <ActionButton
@@ -224,16 +287,40 @@ export default function ServiceDetailPage() {
             {/* Checkout Section */}
             {showCheckout && (
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Abonează-te la {service.name}</h2>
-                    <Elements stripe={stripePromise}>
-                        <SubscriptionCheckout
-                            serviceId={serviceId}
-                            serviceName={service.name}
-                            price={service.priceValue}
-                            onSuccess={handleSubscriptionSuccess}
-                            onCancel={() => setShowCheckout(false)}
-                        />
-                    </Elements>
+                    {incompletePayment && !checkingPayments ? (
+                        <Elements 
+                            stripe={stripePromise} 
+                            options={{
+                                clientSecret: incompletePayment.clientSecret,
+                                appearance: {
+                                    theme: 'night',
+                                    variables: {
+                                        colorPrimary: '#3b82f6',
+                                    },
+                                },
+                            }}
+                        >
+                            <PendingPaymentCheckout
+                                incompletePayment={incompletePayment}
+                                serviceName={service.name}
+                                onSuccess={handlePendingPaymentSuccess}
+                                onCancel={() => setShowCheckout(false)}
+                            />
+                        </Elements>
+                    ) : (
+                        <>
+                            <h2 className="text-xl font-semibold mb-4">Abonează-te la {service.name}</h2>
+                            <Elements stripe={stripePromise}>
+                                <SubscriptionCheckout
+                                    serviceId={serviceId}
+                                    serviceName={service.name}
+                                    price={service.priceValue}
+                                    onSuccess={handleSubscriptionSuccess}
+                                    onCancel={() => setShowCheckout(false)}
+                                />
+                            </Elements>
+                        </>
+                    )}
                 </div>
             )}
 

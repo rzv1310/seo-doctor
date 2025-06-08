@@ -39,9 +39,11 @@ export default function SubscriptionCheckout({
     // Calculate discounted price
     const discountedPrice = price - (price * discount / 100);
 
-    // Create subscription on mount
+    // Create subscription on mount only if no client secret
     useEffect(() => {
-        createSubscription();
+        if (!clientSecret) {
+            createSubscription();
+        }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const createSubscription = async (applyCouponOrPromoCode?: string) => {
@@ -67,8 +69,24 @@ export default function SubscriptionCheckout({
                 throw new Error(data.error || 'Failed to create subscription');
             }
 
-            setClientSecret(data.clientSecret);
             setSubscriptionId(data.subscriptionId);
+            
+            // Only set client secret if payment requires action
+            if (data.requiresAction && data.clientSecret) {
+                setClientSecret(data.clientSecret);
+                console.log('Payment requires 3D Secure authentication', {
+                    subscriptionId: data.subscriptionId,
+                    hasClientSecret: !!data.clientSecret
+                });
+            } else if (data.status === 'active') {
+                // Subscription is already active, no payment needed
+                if (onSuccess) {
+                    onSuccess(data.subscriptionId);
+                }
+            } else {
+                // Subscription created but payment failed
+                setError('Plata nu a putut fi procesată. Te rugăm să verifici detaliile cardului.');
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -129,10 +147,10 @@ export default function SubscriptionCheckout({
 
         try {
             // Confirm the payment
-            const { error: confirmError } = await stripe.confirmPayment({
+            const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: `${window.location.origin}/dashboard/services?subscription_success=true`,
+                    return_url: `${window.location.origin}/dashboard/services/${serviceId}?subscription_success=true`,
                 },
                 redirect: 'if_required',
             });
@@ -153,10 +171,12 @@ export default function SubscriptionCheckout({
         }
     };
 
-    if (!clientSecret) {
+    // Show loading while creating subscription
+    if (loading && !clientSecret && !error) {
         return (
             <div className="flex justify-center items-center h-64">
                 <Spinner size="lg" />
+                <span className="ml-2 text-gray-400">Se creează abonamentul...</span>
             </div>
         );
     }
@@ -221,20 +241,26 @@ export default function SubscriptionCheckout({
                 )}
             </div>
 
-            {/* Payment Element */}
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-                <PaymentElement
-                    options={{
-                        layout: 'tabs',
-                        business: { name: 'SEO Doctor' },
-                        fields: {
-                            billingDetails: {
-                                address: 'auto',
+            {/* Payment Element - only show if payment requires confirmation */}
+            {clientSecret && (
+                <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4">Confirmare Plată</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                        Plata ta necesită confirmare suplimentară. Te rugăm să completezi procesul de autentificare.
+                    </p>
+                    <PaymentElement
+                        options={{
+                            layout: 'tabs',
+                            business: { name: 'SEO Doctor' },
+                            fields: {
+                                billingDetails: {
+                                    address: 'auto',
+                                },
                             },
-                        },
-                    }}
-                />
-            </div>
+                        }}
+                    />
+                </div>
+            )}
 
             {error && (
                 <Alert type="error">
@@ -245,13 +271,16 @@ export default function SubscriptionCheckout({
             <div className="flex gap-4">
                 <ActionButton
                     onClick={handleSubmit}
-                    disabled={!stripe || loading || isSubmitting}
+                    disabled={!stripe || loading || isSubmitting || (!clientSecret && !error)}
+                    variant={clientSecret ? "danger" : "default"}
                 >
                     {loading || isSubmitting ? (
                         <>
                             <Spinner size="sm" />
                             <span className="ml-2">Se procesează...</span>
                         </>
+                    ) : clientSecret ? (
+                        'Confirmă Plata'
                     ) : (
                         `Abonează-te pentru ${formatCurrency(discountedPrice)}/lună`
                     )}

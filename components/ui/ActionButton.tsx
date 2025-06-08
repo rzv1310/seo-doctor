@@ -49,16 +49,20 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
             success: 'from-green-700 to-emerald-700 border-green-700/30 hover:shadow-green-700/30 hover:border-emerald-700/50 before:from-emerald-700 before:to-green-700'
         };
 
-        const baseClasses = `select-none bg-gradient-to-r font-bold text-white ${fullRounded ? 'rounded-full' : 'rounded-lg'}
-      transition-all duration-300 hover:shadow-lg flex items-center gap-2 justify-center
-      border-2 relative group overflow-hidden cursor-pointer
-      before:absolute before:inset-0 before:bg-gradient-to-r
-      before:opacity-0 before:transition-opacity before:duration-[400ms]
-      hover:before:opacity-100
-      ${sizeClasses[size]} ${variantClasses[variant]}
-      ${fullWidth ? 'w-full' : 'inline-flex'}
-      ${animate ? 'animate-pulse-slow hover:animate-none' : ''}
-      ${(disabled || loading) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:transform hover:-translate-y-0.5'}`;
+        const baseClasses = [
+            'select-none bg-gradient-to-r font-bold text-white',
+            fullRounded ? 'rounded-full' : 'rounded-lg',
+            'transition-all duration-300 hover:shadow-lg flex items-center gap-2 justify-center',
+            'border-2 relative group overflow-hidden cursor-pointer',
+            'before:absolute before:inset-0 before:bg-gradient-to-r',
+            'before:opacity-0 before:transition-opacity before:duration-[400ms]',
+            'hover:before:opacity-100',
+            sizeClasses[size],
+            variantClasses[variant],
+            fullWidth ? 'w-full' : 'inline-flex',
+            animate ? 'animate-pulse-slow hover:animate-none' : '',
+            (disabled || loading) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:transform hover:-translate-y-0.5'
+        ].filter(Boolean).join(' ');
 
         const content = (
             <>
@@ -85,7 +89,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
                         ref={ref as React.ForwardedRef<HTMLAnchorElement>}
                         href={href}
                         target={target}
-                        className={baseClasses.trim()}
+                        className={baseClasses}
                         {...props}
                     >
                         {content}
@@ -98,7 +102,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
                     ref={ref as React.ForwardedRef<HTMLAnchorElement>}
                     href={href}
                     target={target}
-                    className={baseClasses.trim()}
+                    className={baseClasses}
                     {...props}
                 >
                     {content}
@@ -112,7 +116,7 @@ export const ActionButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Ac
                 type={type}
                 onClick={onClick}
                 disabled={disabled || loading}
-                className={baseClasses.trim()}
+                className={baseClasses}
                 {...props}
             >
                 {content}

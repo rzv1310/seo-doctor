@@ -17,9 +17,10 @@ export default function Dashboard() {
         return (subscriptions || [])
             .filter(sub => sub.status === 'active' || sub.status === 'trial')
             .reduce((total, sub) => {
-                // Use discounted price if available, otherwise use stored price
+                // Use discounted price if available (already in EUR), otherwise use service display price value (in cents)
                 const price = sub.discountInfo?.discountedPrice ? 
-                    sub.discountInfo.discountedPrice * 100 : sub.price;
+                    sub.discountInfo.discountedPrice * 100 : 
+                    (sub.service?.priceValue || sub.price);
                 return total + price;
             }, 0);
     };
@@ -111,7 +112,7 @@ export default function Dashboard() {
                                                     {new Intl.NumberFormat('ro-RO', {
                                                         style: 'currency',
                                                         currency: 'EUR'
-                                                    }).format(subscription.price / 100)}
+                                                    }).format(1000)}
                                                     <span className="text-xs text-text-primary">/lună</span>
                                                 </div>
                                             )}
@@ -134,7 +135,7 @@ export default function Dashboard() {
                                 {new Intl.NumberFormat('ro-RO', {
                                     style: 'currency',
                                     currency: 'EUR'
-                                }).format(calculateTotalMonthlySpend() / 100)}
+                                }).format(activeSubscriptions.length * 1000)}/lună
                             </p>
                         </div>
                     </Card>
