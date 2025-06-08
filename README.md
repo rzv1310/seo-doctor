@@ -47,8 +47,8 @@ Create `.env` file with:
 
 ```env
 # Database (Turso)
-DATABASE_URL=libsql://[database].turso.io
-DATABASE_AUTH_TOKEN=your-token
+TURSO_DATABASE_URL=libsql://[database].turso.io
+TURSO_AUTH_TOKEN=your-token
 
 # Authentication
 AUTH_SECRET=your-secret-key

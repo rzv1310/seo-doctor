@@ -4,11 +4,11 @@ import * as schema from './schema';
 
 
 
-const databaseUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
-const authToken = process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
+const databaseUrl = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
 if (!databaseUrl) {
-    throw new Error('DATABASE_URL or TURSO_DATABASE_URL environment variable is required');
+    throw new Error('TURSO_DATABASE_URL environment variable is required');
 }
 
 const client = createClient({

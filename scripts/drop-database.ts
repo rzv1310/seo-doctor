@@ -9,11 +9,11 @@ const rl = readline.createInterface({
 });
 
 async function dropDatabase() {
-    const databaseUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
-    const authToken = process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
+    const databaseUrl = process.env.TURSO_DATABASE_URL;
+    const authToken = process.env.TURSO_AUTH_TOKEN;
 
     if (!databaseUrl) {
-        console.error('❌ DATABASE_URL or TURSO_DATABASE_URL environment variables are not set');
+        console.error('❌ TURSO_DATABASE_URL environment variable is not set');
         process.exit(1);
     }
 
