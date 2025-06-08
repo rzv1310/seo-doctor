@@ -62,7 +62,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-white transition-colors"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-white transition-colors cursor-pointer"
                         disabled={disabled}
                         tabIndex={-1}
                     >
