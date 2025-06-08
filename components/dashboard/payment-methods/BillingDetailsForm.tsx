@@ -41,6 +41,13 @@ export default function BillingDetailsForm({
             newErrors.billingAddress = 'Te rugăm să completezi adresa completă (stradă, oraș, etc.)';
         }
 
+        // Require phone number
+        if (!billingPhone.trim()) {
+            newErrors.billingPhone = 'Numărul de telefon este obligatoriu';
+        } else if (billingPhone.trim().length < 10) {
+            newErrors.billingPhone = 'Te rugăm să introduci un număr de telefon valid';
+        }
+
         // If company is provided, VAT and registration number are required
         if (billingCompany.trim()) {
             if (!billingVat.trim()) {
@@ -145,6 +152,8 @@ export default function BillingDetailsForm({
                     value={billingPhone}
                     onChange={(e) => setBillingPhone(e.target.value)}
                     placeholder="Număr de telefon"
+                    error={errors.billingPhone}
+                    required
                 />
 
                 <div className="flex justify-end gap-3">
