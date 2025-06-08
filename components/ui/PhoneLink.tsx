@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { contactInfo } from '@/data/contact';
 
 
 
@@ -10,8 +11,8 @@ export interface PhoneLinkProps {
     underline?: boolean;
 }
 
-const DEFAULT_PHONE = '+40742702982';
-const DEFAULT_FORMATTED = '+40 742 702 982';
+const DEFAULT_PHONE = contactInfo.phone;
+const DEFAULT_FORMATTED = contactInfo.phoneFormatted;
 
 export const PhoneLink = forwardRef<HTMLAnchorElement, PhoneLinkProps>(
     ({

@@ -2,6 +2,7 @@
 
 import { services } from '@/data/services';
 import { ActionButton, Link, PhoneLink, BuyNowButton } from '@/components/ui';
+import { contactInfo } from '@/data/contact';
 
 
 
@@ -262,26 +263,30 @@ export default function GmbMaxServicePage() {
                                 cu focus pe vizibilitate în rezultatele de căutare.
                             </p>
                             <p className="text-white font-semibold mb-4">Plătești doar după ce ajungi în Top 3 Google!</p>
-                            <ActionButton
-                                href="/services/google-organic"
-                                size="sm"
-                                fullRounded
-                                showArrow={false}
-                                onClick={() => window.scrollTo(0, 0)}
-                            >
-                                Vezi Detalii
-                            </ActionButton>
+                            <div className="mt-auto text-center">
+                                <ActionButton
+                                    href="/services/google-organic"
+                                    size="sm"
+                                    fullRounded
+                                    showArrow={false}
+                                    onClick={() => window.scrollTo(0, 0)}
+                                >
+                                    Vezi Detalii
+                                </ActionButton>
+                            </div>
                         </div>
 
                         <div className="border border-border-color rounded-xl p-5 h-full flex flex-col">
                             <h3 className="text-xl font-bold mb-4">Ai întrebări despre GMB MAX?</h3>
-                            <p className="text-text-secondary mb-4">
+                            <p className="text-text-secondary mb-4 flex-grow">
                                 Echipa noastră este disponibilă să răspundă la toate întrebările tale și să te ajute să înțelegi cum
                                 GMB MAX îți poate transforma vizibilitatea online a clinicii.
                             </p>
-                            <ActionButton href="/contact" size="md" showArrow={false}>
-                                Contactează-ne
-                            </ActionButton>
+                            <div className="mt-auto text-center">
+                                <ActionButton href={`tel:${contactInfo.phone}`} size="md" showArrow={false}>
+                                    Contactează-ne
+                                </ActionButton>
+                            </div>
                         </div>
                     </div>
                 </div>

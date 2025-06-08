@@ -2,6 +2,7 @@
 
 import { services } from '@/data/services';
 import { ActionButton, Link, PhoneLink, BuyNowButton } from '@/components/ui';
+import { contactInfo } from '@/data/contact';
 
 
 
@@ -378,25 +379,29 @@ export default function GoogleOrganicServicePage() {
                                 Cumpără GOOGLE ORGANIC împreună cu GMB MAX pentru a domina atât rezultatele organice cât și harta Google.
                             </p>
                             <p className="text-white font-semibold mb-4">Garantat Top 3 în Google Maps!</p>
-                            <ActionButton
-                                href="/services/gmb-max"
-                                size="sm"
-                                fullRounded
-                                showArrow={false}
-                                onClick={() => window.scrollTo(0, 0)}
-                            >
-                                Vezi Detalii
-                            </ActionButton>
+                            <div className="mt-auto text-center">
+                                <ActionButton
+                                    href="/services/gmb-max"
+                                    size="sm"
+                                    fullRounded
+                                    showArrow={false}
+                                    onClick={() => window.scrollTo(0, 0)}
+                                >
+                                    Vezi Detalii
+                                </ActionButton>
+                            </div>
                         </div>
 
                         <div className="border border-border-color rounded-xl p-5 h-full flex flex-col">
                             <h3 className="text-xl font-bold mb-4">Ai întrebări?</h3>
-                            <p className="text-text-secondary mb-4">
+                            <p className="text-text-secondary mb-4 flex-grow">
                                 Echipa noastră te ajut să înțelegi cum acest serviciu îți poate transforma radical prezența online.
                             </p>
-                            <ActionButton href="/contact" size="md" showArrow={false} fullRounded={false}>
-                                Contactează-ne
-                            </ActionButton>
+                            <div className="mt-auto text-center">
+                                <ActionButton href={`tel:${contactInfo.phone}`} size="md" showArrow={false} fullRounded={false}>
+                                    Contactează-ne
+                                </ActionButton>
+                            </div>
                         </div>
                     </div>
                 </div>

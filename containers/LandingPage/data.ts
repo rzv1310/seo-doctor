@@ -1,3 +1,5 @@
+import { contactInfo } from '@/data/contact';
+
 export const testimonials = [
     {
         id: 1,
@@ -61,7 +63,7 @@ export const footerData = {
         {
             title: 'Companie',
             links: [
-                { name: 'Contact', href: '/contact' },
+                { name: 'Contact', href: `tel:${contactInfo.phone}` },
                 { name: 'Legal', href: '/legal' }
             ]
         }

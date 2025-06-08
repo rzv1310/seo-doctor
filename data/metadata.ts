@@ -57,29 +57,29 @@ export const pageMetadata: Record<string, Metadata> = {
         manifest: siteMetadata.manifest
     },
 
-    contact: {
-        title: 'Contactează-ne | SEO Doctor',
-        description: 'Întrebări despre optimizare SEO? Echipa noastră îți oferă consultanță personalizată pentru succesul afacerii tale online.',
-        keywords: 'contact SEO Doctor, întrebări SEO, consultanță SEO, optimizare Google, servicii SEO',
-        openGraph: {
-            type: 'website',
-            locale: siteMetadata.locale,
-            url: `${baseUrl}/contact`,
-            siteName,
-            title: 'Contactează Echipa SEO Doctor',
-            description: 'Discută cu experții noștri despre cum să crești afacerea ta online.',
-            images: [{ ...defaultImage, alt: 'Contactează SEO Doctor - Experți în optimizare Google' }]
-        },
-        twitter: {
-            card: siteMetadata.twitterCard,
-            title: 'Contactează Echipa SEO Doctor',
-            description: 'Discută cu experții noștri despre cum să crești afacerea ta online.',
-            images: [defaultImage.url]
-        },
-        alternates: {
-            canonical: `${baseUrl}/contact`
-        }
-    },
+    // contact: {
+    //     title: 'Contactează-ne | SEO Doctor',
+    //     description: 'Întrebări despre optimizare SEO? Echipa noastră îți oferă consultanță personalizată pentru succesul afacerii tale online.',
+    //     keywords: 'contact SEO Doctor, întrebări SEO, consultanță SEO, optimizare Google, servicii SEO',
+    //     openGraph: {
+    //         type: 'website',
+    //         locale: siteMetadata.locale,
+    //         url: `${baseUrl}/contact`,
+    //         siteName,
+    //         title: 'Contactează Echipa SEO Doctor',
+    //         description: 'Discută cu experții noștri despre cum să crești afacerea ta online.',
+    //         images: [{ ...defaultImage, alt: 'Contactează SEO Doctor - Experți în optimizare Google' }]
+    //     },
+    //     twitter: {
+    //         card: siteMetadata.twitterCard,
+    //         title: 'Contactează Echipa SEO Doctor',
+    //         description: 'Discută cu experții noștri despre cum să crești afacerea ta online.',
+    //         images: [defaultImage.url]
+    //     },
+    //     alternates: {
+    //         canonical: `${baseUrl}/contact`
+    //     }
+    // },
 
     legal: {
         title: 'Informații Legale | SEO Doctor',

@@ -1,6 +1,6 @@
 import { Header, Footer } from '@/components/layout';
 import { getServerSession } from '@/lib/auth';
-import { LinkButton } from '@/components/ui';
+import { ActionButton } from '@/components/ui';
 
 
 
@@ -17,9 +17,9 @@ export default async function NotFound() {
                     <p className="text-text-primary mb-8 max-w-md mx-auto">
                         Ne pare rău, dar pagina pe care o căutați nu există sau a fost mutată.
                     </p>
-                    <LinkButton href="/">
+                    <ActionButton href="/" size="md" fullRounded={false}>
                         Înapoi la pagina principală
-                    </LinkButton>
+                    </ActionButton>
                 </div>
             </main>
             <Footer />
