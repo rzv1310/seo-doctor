@@ -444,11 +444,7 @@ export default function MultiSubscriptionCheckout({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
-
-        // Only submit if we're not showing the add card form
-        if (!showAddCard) {
-            await createSubscriptions();
-        }
+        // Prevent form submission on Enter key - only allow through button click
     };
 
     return (
@@ -592,7 +588,8 @@ export default function MultiSubscriptionCheckout({
             )}
 
             <ActionButton
-                type="submit"
+                type="button"
+                onClick={createSubscriptions}
                 disabled={loading || !selectedPaymentMethod || processing3DS || isSubmitting || !hasCompleteDetails}
                 fullWidth
             >

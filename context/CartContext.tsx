@@ -48,12 +48,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        // Clear any stored coupon codes to prevent automatic application
-        try {
-            localStorage.removeItem('couponCode');
-            logger.info('Cleared stored coupon code from localStorage');
-        } catch (error) {
-            logger.error('Failed to clear coupon from localStorage', error as Error);
+        // Check for stored coupon code on checkout page only
+        if (window.location.pathname === '/dashboard/checkout') {
+            try {
+                const storedCouponCode = localStorage.getItem('couponCode');
+                if (storedCouponCode) {
+                    setCouponCode(storedCouponCode);
+                    logger.info('Restored coupon code for checkout', { couponCode: storedCouponCode });
+                }
+            } catch (error) {
+                logger.error('Failed to restore coupon from localStorage', error as Error);
+            }
         }
 
         setInitialized(true);
@@ -67,11 +72,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [items, initialized]);
 
     useEffect(() => {
-        // Don't persist coupon codes in localStorage
-        // Coupons should be explicitly entered by users each time
-        if (initialized && !couponCode) {
-            setCouponData(null);
-            logger.info('Coupon data cleared');
+        if (initialized) {
+            if (couponCode) {
+                // Store coupon code for checkout persistence
+                try {
+                    localStorage.setItem('couponCode', couponCode);
+                    logger.info('Coupon code stored in localStorage', { couponCode });
+                } catch (error) {
+                    logger.error('Failed to store coupon in localStorage', error as Error);
+                }
+            } else {
+                // Clear coupon data when no code is set
+                setCouponData(null);
+                try {
+                    localStorage.removeItem('couponCode');
+                    logger.info('Coupon code cleared from localStorage');
+                } catch (error) {
+                    logger.error('Failed to clear coupon from localStorage', error as Error);
+                }
+            }
         }
     }, [couponCode, initialized]);
 

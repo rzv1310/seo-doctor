@@ -186,19 +186,57 @@ export async function POST(request: NextRequest) {
             sub.status === 'active' || sub.status === 'trial' || sub.status === 'pending_payment'
         );
 
-        // Prevent if there's an active, trial, or pending payment subscription
+        // Prevent if there's an active or trial subscription
         if (existingActiveSubscription && 
             (existingActiveSubscription.status === 'active' || 
-             existingActiveSubscription.status === 'trial' ||
-             existingActiveSubscription.status === 'pending_payment')) {
-            
-            const statusMessage = existingActiveSubscription.status === 'pending_payment' 
-                ? 'Ai deja o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata existentă.'
-                : 'Ai deja un abonament activ pentru acest serviciu.';
+             existingActiveSubscription.status === 'trial')) {
             
             return NextResponse.json({ 
-                error: statusMessage 
+                error: 'Ai deja un abonament activ pentru acest serviciu.' 
             }, { status: 400 });
+        }
+
+        // If there's a pending payment subscription that's older than 10 minutes, cancel it automatically
+        if (existingActiveSubscription && existingActiveSubscription.status === 'pending_payment') {
+            const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+            
+            if (existingActiveSubscription.createdAt && existingActiveSubscription.createdAt < tenMinutesAgo) {
+                logger.info('Auto-cancelling stale pending payment subscription', {
+                    subscriptionId: existingActiveSubscription.id,
+                    stripeSubscriptionId: existingActiveSubscription.stripeSubscriptionId,
+                    createdAt: existingActiveSubscription.createdAt,
+                    userId: user.id,
+                    serviceId
+                });
+                
+                // Cancel the stale Stripe subscription
+                if (existingActiveSubscription.stripeSubscriptionId) {
+                    try {
+                        await stripe.subscriptions.cancel(existingActiveSubscription.stripeSubscriptionId);
+                    } catch (cancelError) {
+                        logger.error('Failed to cancel stale Stripe subscription', {
+                            error: cancelError instanceof Error ? cancelError.message : String(cancelError),
+                            stripeSubscriptionId: existingActiveSubscription.stripeSubscriptionId
+                        });
+                    }
+                }
+                
+                // Delete the stale subscription from database
+                await db
+                    .delete(subscriptions)
+                    .where(eq(subscriptions.id, existingActiveSubscription.id));
+                
+                logger.info('Stale pending payment subscription cancelled and removed', {
+                    subscriptionId: existingActiveSubscription.id,
+                    userId: user.id
+                });
+            } else {
+                // Recent pending payment - return error with more helpful message
+                return NextResponse.json({ 
+                    error: 'Ai deja o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata existentă sau să o anulezi și să încerci din nou.',
+                    pendingSubscriptionId: existingActiveSubscription.id
+                }, { status: 400 });
+            }
         }
 
         // Create subscription with immediate payment

@@ -9,8 +9,8 @@ import { logger, withLogging } from '@/lib/logger';
 
 
 const loginSchema = z.object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(1, 'Password is required'),
+    email: z.string().email('Adresa de email nu este validă'),
+    password: z.string().min(1, 'Parola este obligatorie'),
 });
 
 async function loginHandler(req: NextRequest) {
@@ -40,7 +40,7 @@ async function loginHandler(req: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Invalid email or password'
+                    error: 'Email sau parolă incorectă'
                 },
                 { status: 401 }
             );
@@ -55,7 +55,7 @@ async function loginHandler(req: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Invalid email or password'
+                    error: 'Email sau parolă incorectă'
                 },
                 { status: 401 }
             );
@@ -84,7 +84,7 @@ async function loginHandler(req: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Failed to authenticate session'
+                    error: 'Eroare la autentificarea sesiunii'
                 },
                 { status: 500 }
             );
@@ -95,7 +95,7 @@ async function loginHandler(req: NextRequest) {
         return NextResponse.json(
             {
                 success: false,
-                error: 'Something went wrong during login'
+                error: 'A apărut o eroare la conectare'
             },
             { status: 500 }
         );

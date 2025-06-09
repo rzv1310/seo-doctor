@@ -72,6 +72,14 @@ export default function CheckoutPage() {
         }
     }, [items, router, subscriptionSuccess, logger, totalPrice, couponCode]);
 
+    // Update input coupon when cart coupon changes (e.g., restored from localStorage)
+    useEffect(() => {
+        if (couponCode && couponCode !== inputCoupon) {
+            setInputCoupon(couponCode);
+            logger.info('Coupon code restored from cart context', { couponCode });
+        }
+    }, [couponCode, inputCoupon, logger]);
+
     const handleSubscriptionSuccess = (createdSubscriptionIds: string[]) => {
         logger.info('Subscriptions created successfully', {
             subscriptionIds: createdSubscriptionIds,

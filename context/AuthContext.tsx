@@ -46,7 +46,7 @@ export function AuthProvider({
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                const errorMessage = data.error || 'Login failed';
+                const errorMessage = data.error || 'Conectarea a eșuat';
                 setError(errorMessage);
                 logger.error('Login failed', new Error(errorMessage), { email, status: res.status });
                 throw new Error(errorMessage);
@@ -56,10 +56,10 @@ export function AuthProvider({
             logger.info('Login successful', { userId: data.user.id, email });
         } catch (err) {
             if (!error) {
-                setError(err instanceof Error ? err.message : 'Login failed');
+                setError(err instanceof Error ? err.message : 'Conectarea a eșuat');
             }
             logger.error('Login error', err, { email });
-            throw err;
+            // Don't re-throw the error - it's already handled by setting error state
         } finally {
             setIsLoading(false);
         }
@@ -81,7 +81,7 @@ export function AuthProvider({
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                const errorMessage = data.error || 'Registration failed';
+                const errorMessage = data.error || 'Înregistrarea a eșuat';
                 setError(errorMessage);
                 logger.error('Registration failed', new Error(errorMessage), { email, name, status: res.status });
                 throw new Error(errorMessage);
@@ -91,10 +91,10 @@ export function AuthProvider({
             logger.info('Registration successful', { userId: data.user.id, email });
         } catch (err) {
             if (!error) {
-                setError(err instanceof Error ? err.message : 'Registration failed');
+                setError(err instanceof Error ? err.message : 'Înregistrarea a eșuat');
             }
             logger.error('Registration error', err, { email, name });
-            throw err;
+            // Don't re-throw the error - it's already handled by setting error state
         } finally {
             setIsLoading(false);
         }

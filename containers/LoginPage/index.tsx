@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [resetEmail, setResetEmail] = useState('');
     const [resetEmailSent, setResetEmailSent] = useState(false);
     const [resetError, setResetError] = useState('');
+    const [localError, setLocalError] = useState('');
     const router = useRouter();
     const { login, signup, error, clearError } = useAuth();
     const logger = useLogger('LoginPage');
@@ -31,6 +32,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         clearError();
+        setLocalError('');
         setIsSubmitting(true);
 
         const formType = isLoggingIn ? 'login' : 'signup';
@@ -38,15 +40,13 @@ export default function LoginPage() {
 
         try {
             if (!email || !password) {
-                const validationError = new Error('Please enter both email and password');
-                logger.error('Form validation failed', validationError, { formType, field: 'email_password' });
-                throw validationError;
+                setLocalError('Te rugăm să introduci atât emailul cât și parola');
+                return;
             }
 
             if (!isLoggingIn && !name) {
-                const validationError = new Error('Please enter your name');
-                logger.error('Form validation failed', validationError, { formType, field: 'name' });
-                throw validationError;
+                setLocalError('Te rugăm să introduci numele');
+                return;
             }
 
             if (isLoggingIn) {
@@ -55,10 +55,15 @@ export default function LoginPage() {
                 await signup(email, password, name);
             }
 
-            logger.info(`${formType} successful`);
-            router.push('/dashboard');
+            // Only redirect if no error was set (login/signup was successful)
+            if (!error) {
+                logger.info(`${formType} successful`);
+                router.push('/dashboard');
+            }
         } catch (err) {
-            logger.error(`${formType} failed`, err);
+            // This should only catch unexpected errors, not auth failures
+            logger.error(`Unexpected ${formType} error`, err);
+            setLocalError('A apărut o eroare neașteptată');
         } finally {
             setIsSubmitting(false);
         }
@@ -78,9 +83,9 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                {error && (
+                {(error || localError) && (
                     <div className="bg-danger/20 border border-danger/30 text-danger px-4 py-3 rounded-md mb-6 font-medium">
-                        {error}
+                        {error || localError}
                     </div>
                 )}
 
@@ -176,6 +181,7 @@ export default function LoginPage() {
                                 logger.interaction('auth_mode_toggle', { from: isLoggingIn ? 'login' : 'signup', to: newMode });
                                 setIsLoggingIn(!isLoggingIn);
                                 clearError();
+                                setLocalError('');
                             }}
                             disabled={isSubmitting}
                             size="sm"

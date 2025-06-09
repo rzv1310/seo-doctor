@@ -123,7 +123,7 @@ export default function ServiceCard({
                             <div>
                                 <p className="text-amber-300 font-medium text-sm">Plată în așteptare</p>
                                 <p className="text-amber-200 text-xs mt-1">
-                                    Ai deja o plată în așteptare pentru acest serviciu. Te rugăm să finalizezi plata existentă.
+                                    Ai o plată în așteptare pentru acest serviciu. Poți să o finalizezi sau să o anulezi pentru a încerca din nou.
                                 </p>
                             </div>
                         </div>
