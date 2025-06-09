@@ -41,6 +41,7 @@ const PROTECTED_ROUTES = [
 const PROTECTED_API_ROUTES = [
     '/api/dashboard',
     '/api/create-payment-intent',
+    '/api/admin',
 ];
 
 // Public API routes that don't require authentication
@@ -145,13 +146,27 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
-    // Handle API routes with proper CORS
+    // Handle API routes with proper security headers
     if (pathname.startsWith('/api/')) {
-        // Add CORS headers for API routes
         const response = NextResponse.next();
-        response.headers.set('Access-Control-Allow-Origin', '*');
-        response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        
+        // Add security headers
+        response.headers.set('X-Content-Type-Options', 'nosniff');
+        response.headers.set('X-Frame-Options', 'DENY');
+        response.headers.set('X-XSS-Protection', '1; mode=block');
+        response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        // Only set CORS headers if needed (for specific origins in production)
+        const origin = request.headers.get('origin');
+        const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+        
+        if (process.env.NODE_ENV === 'development' || 
+            (origin && allowedOrigins.includes(origin))) {
+            response.headers.set('Access-Control-Allow-Origin', origin || '*');
+            response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            response.headers.set('Access-Control-Allow-Credentials', 'true');
+        }
 
         // Handle OPTIONS request for CORS preflight
         if (request.method === 'OPTIONS') {
@@ -198,8 +213,19 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // Continue for all other routes
-    return NextResponse.next();
+    // Add security headers for all other routes
+    const response = NextResponse.next();
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Add HSTS header in production
+    if (process.env.NODE_ENV === 'production') {
+        response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
+    
+    return response;
 }
 
 // Configure the middleware to run only for specific paths

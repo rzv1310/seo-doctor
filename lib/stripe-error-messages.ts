@@ -18,9 +18,7 @@ const stripeErrorTranslations: StripeErrorTranslations = {
     'Your card is not supported. Please use a different card.': 'Cardul tău nu este suportat. Te rugăm să folosești un alt card.',
     
     // 3D Secure errors
-    'We are unable to authenticate your payment method. Please choose a different payment method and try again.': 'Nu putem autentifica metoda ta de plată. Te rugăm să alegi o altă metodă de plată și să încerci din nou.',
     'Your card was declined due to insufficient funds.': 'Cardul tău a fost refuzat din cauza fondurilor insuficiente.',
-    'Your card was declined.': 'Cardul tău a fost refuzat.',
     'Authentication failed.': 'Autentificarea a eșuat.',
     
     // Processing errors

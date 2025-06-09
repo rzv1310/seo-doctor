@@ -72,7 +72,7 @@ export function Modal({
                             className="rounded-md p-2 text-text-secondary hover:text-text-primary hover:bg-dark-blue-lightest transition-colors"
                             onClick={onClose}
                         >
-                            <span className="sr-only">Close</span>
+                            <span className="sr-only">Închide</span>
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -107,8 +107,8 @@ export function ConfirmationModal({
     onConfirm,
     title,
     message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText = 'Confirmă',
+    cancelText = 'Anulează',
     variant = 'danger',
     loading = false
 }: ConfirmationModalProps) {

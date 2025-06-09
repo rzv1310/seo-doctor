@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/database';
 import { users, passwordResets } from '@/database/schema';
 import { eq, and, gt, isNull } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
 
 
@@ -19,10 +19,10 @@ async function resetPasswordHandler(request: NextRequest) {
             );
         }
 
-        if (password.length < 6) {
+        if (password.length < 8) {
             logger.auth('Password reset failed - password too short');
             return NextResponse.json(
-                { error: 'Parola trebuie să aibă cel puțin 6 caractere' },
+                { error: 'Parola trebuie să aibă cel puțin 8 caractere' },
                 { status: 400 }
             );
         }
@@ -48,7 +48,7 @@ async function resetPasswordHandler(request: NextRequest) {
 
         const { userId } = resetToken[0];
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await hashPassword(password);
 
         await db.update(users)
             .set({ password: hashedPassword })

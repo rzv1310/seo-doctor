@@ -22,7 +22,7 @@ export function usePendingPayments() {
                 });
                 logger.info('Cleanup completed before checking pending payments');
             } catch (cleanupError) {
-                logger.warn('Cleanup failed, but continuing with pending payments check', cleanupError);
+                logger.warn('Cleanup failed, but continuing with pending payments check', { error: cleanupError });
             }
 
             const response = await fetch('/api/subscriptions/pending-payments');

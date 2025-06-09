@@ -84,7 +84,7 @@ export function Alert({
                             className="inline-flex rounded-md p-1.5 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2"
                             onClick={onClose}
                         >
-                            <span className="sr-only">Dismiss</span>
+                            <span className="sr-only">Închide</span>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>

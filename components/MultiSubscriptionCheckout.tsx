@@ -352,7 +352,7 @@ export default function MultiSubscriptionCheckout({
                     });
                 }
 
-                data = await response.json();
+                const responseData = await response.json();
 
                 logger.info('Payment processing response received', {
                     serviceId: item.id,
@@ -360,7 +360,7 @@ export default function MultiSubscriptionCheckout({
                     isPendingRetry: !!item.isPendingPayment,
                     responseOk: response.ok,
                     responseStatus: response.status,
-                    responseData: data
+                    responseData: responseData
                 });
 
                 if (!response.ok) {
@@ -368,14 +368,14 @@ export default function MultiSubscriptionCheckout({
                         serviceId: item.id,
                         serviceName: item.name,
                         isPendingRetry: !!item.isPendingPayment,
-                        error: data.error,
+                        error: responseData.error,
                         status: response.status
                     });
-                    throw new Error(data.error || `Failed to process payment for ${item.name}`);
+                    throw new Error(responseData.error || `Failed to process payment for ${item.name}`);
                 }
 
                 const subscriptionResult = {
-                    ...data,
+                    ...responseData,
                     serviceName: item.name,
                 };
 

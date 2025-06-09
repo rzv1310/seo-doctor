@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Link, ActionButton, Modal } from '@/components/ui';
 import { Invoice } from '@/types/invoice';
+import { convertRONtoEUR, formatEUR } from '@/lib/currency-utils';
 
 
 
@@ -25,7 +26,7 @@ export default function InvoicesTable({
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString('ro-RO', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -33,10 +34,13 @@ export default function InvoicesTable({
     };
 
     const formatPrice = (price: number, currency?: string) => {
-        return new Intl.NumberFormat('ro-RO', {
-            style: 'currency',
-            currency: currency?.toUpperCase() || 'RON'
-        }).format(price / 100);
+        // Always display in EUR, converting from RON if needed
+        if (currency?.toLowerCase() === 'ron') {
+            const eurAmount = convertRONtoEUR(price);
+            return formatEUR(eurAmount);
+        }
+        // If already in EUR or other currency, format as EUR
+        return formatEUR(price);
     };
 
     const getStatusText = (status: string) => {

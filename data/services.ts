@@ -3,7 +3,7 @@ import type { Service } from '@/types/service';
 
 // Helper functions for service slugs
 export const getServiceSlug = (service: Service): string => {
-    return service.url.replace('/services/', '');
+    return service.url?.replace('/services/', '') || '';
 };
 
 export const getServiceBySlug = (slug: string): Service | undefined => {
