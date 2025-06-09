@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Spinner } from '@/components/ui';
+import { Spinner, ActionButton } from '@/components/ui';
 import { useParams } from 'next/navigation';
 import { useInvoice } from '@/hooks/useInvoices';
+import { DashboardPageLayout } from '@/components/layout';
 
 
 
@@ -89,13 +90,12 @@ export default function InvoiceDetailsPage() {
 
 
     return (
-        <>
-            <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold mb-2">Factura {invoice.number || invoice.id}</h1>
-                    <p className="text-text-secondary">Emisă pe {formatDate(invoice.createdAt)}</p>
-                </div>
-                <div className="flex gap-3 mt-4 md:mt-0">
+        <DashboardPageLayout
+            title={`Factura ${invoice.number || invoice.id}`}
+            subtitle={`Emisă pe ${formatDate(invoice.createdAt)}`}
+        >
+            <div className="mb-6 flex justify-end">
+                <div className="flex gap-3">
                     <Link
                         href="/dashboard/invoices"
                         className="bg-dark-blue-lighter hover:bg-primary/20 text-white px-4 py-2 rounded-md transition-colors text-sm"
@@ -135,12 +135,12 @@ export default function InvoiceDetailsPage() {
                     <div className="dashboard-card p-4 border-green-500/20 bg-green-900/10">
                         <h3 className="text-sm font-semibold mb-1 text-text-secondary">Discount</h3>
                         <div className="text-green-400 font-semibold">
-                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]?.percentOff 
-                                ? `${invoice.discounts[0].percentOff}%` 
+                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]?.percentOff
+                                ? `${invoice.discounts[0].percentOff}%`
                                 : formatPrice(invoice.discountTotal || 0, invoice.currency)}
                         </div>
                         <div className="text-xs text-green-300 mt-1">
-                            {(invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]) 
+                            {(invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0])
                                 ? (invoice.discounts[0].couponName || invoice.discounts[0].couponId)
                                 : 'Discount aplicat'}
                         </div>
@@ -182,7 +182,7 @@ export default function InvoiceDetailsPage() {
                                     <>
                                         <p className="font-medium">Discount:</p>
                                         <p className="text-green-400">
-                                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0] 
+                                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]
                                                 ? (
                                                     <>
                                                         {invoice.discounts[0].couponName || invoice.discounts[0].couponId}
@@ -190,7 +190,7 @@ export default function InvoiceDetailsPage() {
                                                         {invoice.discounts[0].amountOff && ` (${formatPrice(invoice.discounts[0].amountOff, invoice.discounts[0].currency)} reducere)`}
                                                     </>
                                                 )
-                                                : `${formatPrice(invoice.discountTotal, invoice.currency)} reducere`
+                                                : `${formatPrice(invoice.discountTotal, invoice.currency)}`
                                             }
                                         </p>
                                     </>
@@ -288,6 +288,19 @@ export default function InvoiceDetailsPage() {
                         </div>
                     )}
 
+                    <div className="mt-6">
+                        <h3 className="font-semibold mb-2">Ai nevoie de ajutor?</h3>
+                        <p className="text-text-secondary text-sm mb-3">
+                            Dacă ai întrebări despre această factură, te rugăm să contactezi echipa noastră de suport.
+                        </p>
+                        <ActionButton
+                            href="/dashboard/chat"
+                            size="sm"
+                        >
+                            Contactează Suportul
+                        </ActionButton>
+                    </div>
+
                     {invoice.status === 'pending' && (
                         <div className="flex flex-col space-y-3">
                             <p className="text-text-secondary mb-2">
@@ -344,17 +357,8 @@ export default function InvoiceDetailsPage() {
                         </div>
                     )}
 
-                    <div className="mt-6">
-                        <h3 className="font-semibold mb-2">Ai nevoie de ajutor?</h3>
-                        <p className="text-text-secondary text-sm mb-3">
-                            Dacă ai întrebări despre această factură, te rugăm să contactezi echipa noastră de suport.
-                        </p>
-                        <button className="bg-dark-blue-lighter hover:bg-primary/20 text-white py-2 px-4 rounded-md transition-colors text-sm w-full">
-                            Contactează Suportul
-                        </button>
-                    </div>
                 </div>
             </div>
-        </>
+        </DashboardPageLayout>
     );
 }
