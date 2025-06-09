@@ -102,7 +102,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
         eventSource.onerror = (error) => {
             logger.error('SSE error in DashboardContent', error);
-            eventSource.close();
+            // Don't close on error - let the browser handle reconnection
+            // The browser will automatically retry SSE connections
         };
 
         // Also keep a slower interval as backup

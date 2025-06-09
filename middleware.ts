@@ -52,6 +52,12 @@ const PUBLIC_API_ROUTES = [
     '/api/webhook',
 ];
 
+// API routes that should handle auth internally (not in middleware)
+const INTERNAL_AUTH_API_ROUTES = [
+    '/api/messages/sse',
+    '/api/messages/unread-count',
+];
+
 // Routes that should redirect to dashboard if already authenticated
 const AUTH_ROUTES = [
     '/login',
@@ -81,6 +87,11 @@ export async function middleware(request: NextRequest) {
         pathname === route || pathname.startsWith(`${route}/`)
     );
 
+    // Check if it's an internal auth API route
+    const isInternalAuthApiRoute = INTERNAL_AUTH_API_ROUTES.some(route =>
+        pathname === route || pathname.startsWith(`${route}/`)
+    );
+
     // Check if it's an auth route (login, etc.)
     const isAuthRoute = AUTH_ROUTES.some(route =>
         pathname === route || pathname.startsWith(`${route}/`)
@@ -91,9 +102,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // If there's an auth cookie but no valid userId (user not found in DB),
-    // clear the cookie regardless of the route
-    if (authCookie && !userId) {
+    // If there's an auth cookie but no valid userId (user not found in DB or token expired),
+    // only clear the cookie and redirect for protected routes
+    if (authCookie && !userId && (isProtectedRoute || isProtectedApiRoute)) {
         const response = NextResponse.next();
         response.cookies.set({
             name: AUTH_COOKIE_NAME,
@@ -105,11 +116,6 @@ export async function middleware(request: NextRequest) {
             path: '/',
         });
         
-        // If it's an auth route, let them proceed to login
-        if (isAuthRoute) {
-            return response;
-        }
-        
         // If it's a protected route, redirect to login
         if (isProtectedRoute) {
             const url = new URL('/login', request.url);
@@ -117,6 +123,23 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(url, {
                 headers: response.headers,
             });
+        }
+        
+        // For protected API routes, return 401
+        if (isProtectedApiRoute) {
+            return new NextResponse(
+                JSON.stringify({
+                    success: false,
+                    error: 'Authentication required'
+                }),
+                {
+                    status: 401,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...Object.fromEntries(response.headers)
+                    }
+                }
+            );
         }
         
         return response;
@@ -139,7 +162,7 @@ export async function middleware(request: NextRequest) {
         }
 
         // Check if it's a public API route first (allow these regardless of auth)
-        if (isPublicApiRoute) {
+        if (isPublicApiRoute || isInternalAuthApiRoute) {
             return response;
         }
 
