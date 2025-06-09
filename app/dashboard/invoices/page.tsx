@@ -20,7 +20,7 @@ export default function InvoicesPage() {
     const PAGE_SIZE = 20;
 
     // Get invoices from context
-    const { invoices, isLoading: loading, error } = useDashboardInvoices();
+    const { invoices, isLoading: loading, error, refresh: refreshInvoices } = useDashboardInvoices();
 
     // Calculate pagination
     const totalItems = (invoices || []).length;
@@ -205,6 +205,7 @@ export default function InvoicesPage() {
                             sortBy={sortBy}
                             sortDirection={sortDirection}
                             onSort={handleSortClick}
+                            onInvoiceUpdate={refreshInvoices}
                         />
                     )}
 

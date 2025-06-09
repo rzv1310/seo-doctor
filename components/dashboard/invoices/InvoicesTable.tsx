@@ -1,6 +1,7 @@
 'use client';
 
-import { Link } from '@/components/ui';
+import { useState } from 'react';
+import { Link, ActionButton, Modal } from '@/components/ui';
 import { Invoice } from '@/types/invoice';
 
 
@@ -10,14 +11,19 @@ interface InvoicesTableProps {
     sortBy: string;
     sortDirection: string;
     onSort: (field: string) => void;
+    onInvoiceUpdate?: () => void;
 }
 
 export default function InvoicesTable({
     invoices,
     sortBy,
     sortDirection,
-    onSort
+    onSort,
+    onInvoiceUpdate
 }: InvoicesTableProps) {
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -47,6 +53,50 @@ export default function InvoicesTable({
                 return 'Anulată';
             default:
                 return status.charAt(0).toUpperCase() + status.slice(1);
+        }
+    };
+
+    const handleCancelPayment = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
+        setCancelModalOpen(true);
+    };
+
+    const cancelPayment = async (): Promise<boolean> => {
+        if (!selectedInvoice?.id) return false;
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch('/api/invoices/cancel-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoiceId: selectedInvoice.id
+                }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to cancel payment');
+            }
+
+            // Refresh the invoices list
+            if (onInvoiceUpdate) {
+                onInvoiceUpdate();
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error cancelling payment:', error);
+            throw error;
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleModalClose = () => {
+        if (!isSubmitting) {
+            setCancelModalOpen(false);
+            setSelectedInvoice(null);
         }
     };
 
@@ -120,7 +170,7 @@ export default function InvoicesTable({
                                         Vizualizare
                                     </Link>
                                     {invoice.invoicePdf && (
-                                        <a 
+                                        <a
                                             href={invoice.invoicePdf}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -129,12 +179,71 @@ export default function InvoicesTable({
                                             Descărcare
                                         </a>
                                     )}
+                                    {invoice.status === 'pending' && (
+                                        <>
+                                            <Link
+                                                href="/dashboard/checkout"
+                                            >
+                                                Finalizează
+                                            </Link>
+                                            <button
+                                                onClick={() => handleCancelPayment(invoice)}
+                                                disabled={isSubmitting}
+                                            >
+                                                Anulează
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {/* Cancel Payment Modal */}
+            {selectedInvoice && (
+                <Modal
+                    isOpen={cancelModalOpen}
+                    onClose={handleModalClose}
+                    title="Anulează Plata în Așteptare"
+                >
+                    <div className="space-y-4">
+                        <div className="bg-amber-900/20 border border-amber-900/30 rounded-md p-4">
+                            <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className="text-amber-300 font-medium">Confirmare Anulare</span>
+                            </div>
+                            <p className="text-amber-200 text-sm mt-2">
+                                Sigur vrei să anulezi plata în așteptare pentru serviciul <strong>{selectedInvoice.serviceName}</strong>?
+                            </p>
+                            <p className="text-amber-200 text-xs mt-2">
+                                Această acțiune va șterge plata în așteptare și vei putea încerca din nou mai târziu.
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                            <ActionButton
+                                onClick={handleModalClose}
+                                disabled={isSubmitting}
+                                variant="default"
+                            >
+                                Înapoi
+                            </ActionButton>
+                            <ActionButton
+                                onClick={cancelPayment}
+                                variant="danger"
+                                disabled={isSubmitting}
+                                loading={isSubmitting}
+                            >
+                                {isSubmitting ? 'Se anulează...' : 'Anulează Plata'}
+                            </ActionButton>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 }
