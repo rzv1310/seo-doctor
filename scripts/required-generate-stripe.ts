@@ -17,9 +17,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 interface StripeIds {
     products: Record<string, string>;
     prices: Record<string, string>;
-    coupons: {
-        SEO70: string;
-    };
 }
 
 async function generateStripeProducts() {
@@ -28,9 +25,6 @@ async function generateStripeProducts() {
     const stripeIds: StripeIds = {
         products: {},
         prices: {},
-        coupons: {
-            SEO70: '',
-        },
     };
 
     try {
@@ -69,38 +63,62 @@ async function generateStripeProducts() {
             console.log(`✓ ${service.name} price created: ${price.id}\n`);
         }
 
-        // Create a single 70% off coupon with a random ID
+        // Create coupons with promotion codes
+        console.log('Creating coupons and promotion codes...\n');
+
+        // 1. Create 70% off coupon with SEO70 promo code
         console.log('Creating 70% off coupon...');
-        const coupon = await stripe.coupons.create({
+        const coupon70 = await stripe.coupons.create({
             percent_off: 70,
             duration: 'repeating',
             duration_in_months: 3,
-            name: '70% Off - First 3 Months',
+            name: '70% Reducere - Prime 3 Luni',
             metadata: {
-                description: '70% reduction for the first 3 months',
+                description: '70% reducere pentru primele 3 luni',
             },
         });
-        stripeIds.coupons.SEO70 = coupon.id;
-        console.log(`✓ 70% off coupon created: ${coupon.id}`);
+        console.log(`✓ 70% off coupon created: ${coupon70.id}`);
 
-        // Create multiple promotional codes for the same coupon
-        const promotionalCodes = ['SAVE70'];
-        console.log('\nCreating promotional codes...');
+        try {
+            const promoCode70 = await stripe.promotionCodes.create({
+                coupon: coupon70.id,
+                code: 'SEO70',
+                active: true,
+            });
+            console.log(`✓ Promotional code 'SEO70' created: ${promoCode70.id}`);
+        } catch (error: any) {
+            if (error.code === 'resource_already_exists') {
+                console.log(`⚠️  Promotional code 'SEO70' already exists`);
+            } else {
+                throw error;
+            }
+        }
 
-        for (const code of promotionalCodes) {
-            try {
-                const promoCode = await stripe.promotionCodes.create({
-                    coupon: coupon.id,
-                    code: code,
-                    active: true,
-                });
-                console.log(`✓ Promotional code '${code}' created: ${promoCode.id}`);
-            } catch (error: any) {
-                if (error.code === 'resource_already_exists') {
-                    console.log(`⚠️  Promotional code '${code}' already exists`);
-                } else {
-                    throw error;
-                }
+        // 2. Create fixed amount off coupon with SEOFULL promo code
+        console.log('\nCreating 4990 RON off coupon...');
+        const couponFull = await stripe.coupons.create({
+            amount_off: 499000, // 4990 RON in bani
+            currency: 'ron',
+            duration: 'once',
+            name: 'Reducere Completă Test',
+            metadata: {
+                description: 'Reducere completă pentru teste - 4990 RON',
+            },
+        });
+        console.log(`✓ 4990 RON off coupon created: ${couponFull.id}`);
+
+        try {
+            const promoCodeFull = await stripe.promotionCodes.create({
+                coupon: couponFull.id,
+                code: 'SEOFULL',
+                active: true,
+            });
+            console.log(`✓ Promotional code 'SEOFULL' created: ${promoCodeFull.id}`);
+        } catch (error: any) {
+            if (error.code === 'resource_already_exists') {
+                console.log(`⚠️  Promotional code 'SEOFULL' already exists`);
+            } else {
+                throw error;
             }
         }
         console.log();
@@ -131,8 +149,7 @@ async function generateStripeProducts() {
             envVars[envKey] = stripeIds.prices[`${productKey}Monthly`];
         });
 
-        // Add coupon
-        envVars['STRIPE_COUPON_SEO70'] = stripeIds.coupons.SEO70;
+        // Note: Coupons are now created dynamically in Stripe and validated via API
 
         // Update or add environment variables
         let updatedEnvContent = envContent;
@@ -198,9 +215,6 @@ ${productEnvVars}
     prices: {
 ${priceEnvVars}
     },
-    coupons: {
-        SEO70: process.env.STRIPE_COUPON_SEO70!,
-    },
 } as const;
 
 
@@ -234,8 +248,12 @@ ${productSwitchCases}
         Object.entries(envVars).forEach(([key, value]) => {
             console.log(`${key}=${value}`);
         });
-        console.log('\n⚠️  Remember to add these variables to your production environment!');
+        console.log('\n📢 Promotion codes created:');
+        console.log('- SEO70: 70% reducere pentru primele 3 luni');
+        console.log('- SEOFULL: 4990 RON reducere (pentru teste)');
+        console.log('\n⚠️  Remember to add these environment variables to your production environment!');
         console.log('💡 The payment.ts file now safely reads from environment variables.');
+        console.log('💡 Coupons are validated dynamically via the Stripe API.');
 
     } catch (error) {
         console.error('❌ Error generating Stripe products:', error);

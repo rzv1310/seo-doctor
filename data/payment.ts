@@ -11,9 +11,6 @@ export const stripeIds = {
         gmbmaxMonthly: process.env.STRIPE_PRICE_GMB_MAX_MONTHLY!,
         googleorganicMonthly: process.env.STRIPE_PRICE_GOOGLE_ORGANIC_MONTHLY!,
     },
-    coupons: {
-        SEO70: process.env.STRIPE_COUPON_SEO70!,
-    },
 } as const;
 
 
