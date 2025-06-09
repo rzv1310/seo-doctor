@@ -5,6 +5,7 @@ import { useStripe, useElements } from '@stripe/react-stripe-js';
 import { PaymentElement } from '@stripe/react-stripe-js';
 import { stripeIds } from '@/data/payment';
 import { services, getServiceSlug } from '@/data/services';
+import { translateStripeError } from '@/lib/stripe-error-messages';
 import { ActionButton, Alert, Input, Spinner } from './ui';
 import { formatCurrency } from '@/lib/utils';
 
@@ -93,7 +94,7 @@ export default function SubscriptionCheckout({
                 setError('Plata nu a putut fi procesată. Te rugăm să verifici detaliile cardului.');
             }
         } catch (err: any) {
-            setError(err.message);
+            setError(translateStripeError(err) || err.message);
         } finally {
             setLoading(false);
         }
@@ -169,7 +170,7 @@ export default function SubscriptionCheckout({
                 onSuccess(subscriptionId);
             }
         } catch (err: any) {
-            setError(err.message || 'Payment failed');
+            setError(translateStripeError(err) || 'Plata a eșuat');
         } finally {
             setLoading(false);
             setIsSubmitting(false);

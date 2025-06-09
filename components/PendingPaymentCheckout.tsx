@@ -6,6 +6,7 @@ import { PaymentElement } from '@stripe/react-stripe-js';
 import { ActionButton, Alert, Spinner } from './ui';
 import { formatCurrency } from '@/lib/utils';
 import { useLogger } from '@/lib/client-logger';
+import { translateStripeError } from '@/lib/stripe-error-messages';
 
 
 
@@ -58,12 +59,7 @@ export default function PendingPaymentCheckout({
             });
 
             if (confirmError) {
-                // Handle different error types
-                if (confirmError.type === 'card_error' || confirmError.type === 'validation_error') {
-                    setError(confirmError.message || 'Eroare la procesarea plății');
-                } else {
-                    setError('A apărut o eroare neașteptată. Te rugăm să încerci din nou.');
-                }
+                setError(translateStripeError(confirmError) || 'A apărut o eroare neașteptată. Te rugăm să încerci din nou.');
                 logger.error('Payment confirmation failed', confirmError);
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 logger.info('Payment succeeded', {
@@ -86,7 +82,7 @@ export default function PendingPaymentCheckout({
             }
         } catch (err: any) {
             logger.error('Error confirming payment', err);
-            setError(err.message || 'Eroare la procesarea plății');
+            setError(translateStripeError(err) || 'Eroare la procesarea plății');
         } finally {
             setLoading(false);
         }

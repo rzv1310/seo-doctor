@@ -9,6 +9,7 @@ import { formatCurrency } from '@/lib/utils';
 import { stripeIds } from '@/data/payment';
 import { useCart } from '@/context/CartContext';
 import { useLogger } from '@/lib/client-logger';
+import { translateStripeError } from '@/lib/stripe-error-messages';
 import type { CartService } from '@/types/cart';
 
 import SimplePaymentMethodSelector from './SimplePaymentMethodSelector';
@@ -190,7 +191,7 @@ export default function MultiSubscriptionCheckout({
                         subscriptionId: subscription.subscriptionId,
                         error: confirmResult.error
                     });
-                    throw new Error(confirmResult.error.message || 'Autentificarea 3D Secure a eșuat');
+                    throw new Error(translateStripeError(confirmResult.error) || 'Autentificarea 3D Secure a eșuat');
                 }
 
                 logger.info('Payment confirmation successful', {
@@ -227,7 +228,7 @@ export default function MultiSubscriptionCheckout({
             }
         } catch (err: any) {
             logger.error('Payment confirmation failed', err);
-            setError(err.message || 'Autentificarea 3D Secure a eșuat. Te rugăm să încerci din nou.');
+            setError(translateStripeError(err) || 'Autentificarea 3D Secure a eșuat. Te rugăm să încerci din nou.');
         } finally {
             setProcessing3DS(false);
         }
@@ -264,7 +265,7 @@ export default function MultiSubscriptionCheckout({
             setCouponCode(localCouponCode.toUpperCase());
             setCouponData(data);
         } catch (err: any) {
-            setError(err.message);
+            setError(translateStripeError(err) || err.message);
             setCouponValid(false);
             // Clear cart coupon on error
             setCouponCode('');
@@ -456,7 +457,7 @@ export default function MultiSubscriptionCheckout({
             }
         } catch (err: any) {
             logger.error('Subscription creation error', err);
-            const errorMessage = err.message || 'A apărut o eroare la crearea abonamentelor';
+            const errorMessage = translateStripeError(err) || 'A apărut o eroare la crearea abonamentelor';
             setError(errorMessage);
             if (onError) {
                 onError(errorMessage);
