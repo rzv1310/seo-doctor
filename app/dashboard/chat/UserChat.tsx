@@ -7,7 +7,7 @@ import { PhoneLink } from '@/components/ui';
 
 
 export default function ChatInterface() {
-    const { messages, loading, error, sendMessage, markAsRead } = useChat();
+    const { messages, loading, error, sendMessage, markAsRead, refreshMessages, isRefreshing } = useChat();
 
     // Mark messages as read when viewing
     useEffect(() => {
@@ -30,7 +30,8 @@ export default function ChatInterface() {
             <div className="dashboard-card flex flex-col flex-1 overflow-hidden">
                 <ChatHeader
                     title="Asistență SEO Doctor"
-                    subtitle="Online acum"
+                    onRefresh={refreshMessages}
+                    isRefreshing={isRefreshing}
                 />
 
                 <div className="flex-1 overflow-hidden">

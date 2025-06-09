@@ -10,7 +10,7 @@ import { ChatWindow, ChatSelector, ChatHeader } from '@/components/dashboard/cha
 
 export default function AdminChat() {
     const { user } = useAuth();
-    const { userChats, messages, loading, sendMessage, fetchMessages, markAsRead, fetchUserChats, deleteConversation } = useChat();
+    const { userChats, messages, loading, sendMessage, fetchMessages, markAsRead, fetchUserChats, deleteConversation, refreshMessages, isRefreshing } = useChat();
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [showUserList, setShowUserList] = useState(true);
 
@@ -109,6 +109,13 @@ export default function AdminChat() {
         }
     };
 
+    // Handle refresh
+    const handleRefresh = () => {
+        if (selectedUserId) {
+            refreshMessages(selectedUserId);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -193,6 +200,9 @@ export default function AdminChat() {
                                         subtitle={selectedUserChat.userEmail}
                                         showDeleteButton={true}
                                         onDelete={handleDeleteConversation}
+                                        onRefresh={handleRefresh}
+                                        isRefreshing={isRefreshing}
+                                        isAdmin={true}
                                     />
                                 </div>
 

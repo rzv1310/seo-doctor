@@ -67,6 +67,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     // Fetch unread message count with real-time updates
     useEffect(() => {
         let debounceTimer: NodeJS.Timeout;
+        let pollingInterval: NodeJS.Timeout;
+        let sseConnected = false;
 
         const fetchUnreadCount = async () => {
             try {
@@ -89,32 +91,61 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         // Initial fetch
         fetchUnreadCount();
 
-        // Set up SSE for real-time updates
-        const eventSource = new EventSource('/api/messages/sse');
+        // Try to set up SSE for real-time updates
+        let eventSource: EventSource | null = null;
+        
+        try {
+            eventSource = new EventSource('/api/messages/sse');
+            
+            eventSource.onopen = () => {
+                sseConnected = true;
+                logger.info('SSE connected, using real-time updates');
+                // Clear polling interval if SSE connects successfully
+                clearInterval(pollingInterval);
+            };
 
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'new_message' || data.type === 'message_read') {
-                // Refresh count on any message event with debounce
-                debouncedFetch();
-            }
-        };
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_message' || data.type === 'message_read') {
+                    // Refresh count on any message event with debounce
+                    debouncedFetch();
+                }
+            };
 
-        eventSource.onerror = (error) => {
-            logger.error('SSE error in DashboardContent', error);
-            // Don't close on error - let the browser handle reconnection
-            // The browser will automatically retry SSE connections
-        };
+            eventSource.onerror = (error) => {
+                logger.error('SSE error in DashboardContent', error);
+                sseConnected = false;
+                // Don't close on error - let the browser handle reconnection
+                // Start polling as fallback when SSE fails
+                if (!pollingInterval) {
+                    const pollInterval = pathname === '/dashboard/chat' ? 8000 : 30000;
+                    pollingInterval = setInterval(fetchUnreadCount, pollInterval);
+                    logger.info(`SSE failed, falling back to polling every ${pollInterval/1000}s`);
+                }
+            };
+        } catch (error) {
+            logger.error('Failed to create SSE connection', error);
+            sseConnected = false;
+        }
 
-        // Also keep a slower interval as backup
-        const interval = setInterval(fetchUnreadCount, 60000); // 1 minute
+        // Set up polling based on current page
+        // For chat page: 8 seconds, for other dashboard pages: 30 seconds
+        const pollInterval = pathname === '/dashboard/chat' ? 8000 : 30000;
+        
+        // Start polling if SSE is not connected
+        if (!sseConnected) {
+            pollingInterval = setInterval(fetchUnreadCount, pollInterval);
+            logger.info(`Using polling fallback every ${pollInterval/1000}s`);
+        }
 
         return () => {
             clearTimeout(debounceTimer);
-            eventSource.close();
-            clearInterval(interval);
+            clearInterval(pollingInterval);
+            if (eventSource) {
+                eventSource.close();
+            }
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Filter sidebar items based on user role
     // Use a stable filter to prevent hydration mismatches
