@@ -1,6 +1,20 @@
 // Services data for both landing page and dashboard
 import type { Service } from '@/types/service';
 
+// Helper functions for service slugs
+export const getServiceSlug = (service: Service): string => {
+    return service.url.replace('/services/', '');
+};
+
+export const getServiceBySlug = (slug: string): Service | undefined => {
+    return services.find(service => getServiceSlug(service) === slug);
+};
+
+export const getServiceIdBySlug = (slug: string): number | undefined => {
+    const service = getServiceBySlug(slug);
+    return service?.id;
+};
+
 
 
 export const services: Service[] = [

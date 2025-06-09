@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import type { CartService } from '@/types/cart';
-import { services as serviceData } from '@/data/services';
+import { services as serviceData, getServiceSlug } from '@/data/services';
 import type { Service } from '@/types/service';
 import { useDashboardSubscriptions } from '@/context/DashboardContext';
 import { useLogger } from '@/lib/client-logger';
@@ -13,6 +13,7 @@ import type { Subscription } from '@/types/subscription';
 import { usePendingPayments } from '@/hooks/usePendingPayments';
 
 import SubscriptionCancelModal from '@/components/SubscriptionCancelModal';
+import PendingPaymentCancelModal from '@/components/PendingPaymentCancelModal';
 import { Card, Grid, ActionButton, Spinner, Alert } from '@/components/ui';
 import { DashboardPageLayout } from '@/components/layout';
 import ServiceCard from '@/components/dashboard/services/ServiceCard';
@@ -52,8 +53,12 @@ export default function ServicesPage() {
     };
 
     const subscribeToService = async (serviceId: string) => {
-        // Redirect to service detail page for subscription
-        window.location.href = `/dashboard/services/${serviceId}`;
+        // Find service and redirect to slug-based detail page
+        const service = serviceData.find(s => s.id.toString() === serviceId);
+        if (service) {
+            const serviceSlug = getServiceSlug(service);
+            window.location.href = `/dashboard/services/${serviceSlug}`;
+        }
     };
 
     const cancelSubscription = async (subscriptionId: string, reason?: string) => {
@@ -80,6 +85,7 @@ export default function ServicesPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSubscribing, setIsSubscribing] = useState<number | null>(null);
     const [subscriptionToCancel, setSubscriptionToCancel] = useState<Subscription | null>(null);
+    const [pendingPaymentToCancel, setPendingPaymentToCancel] = useState<Subscription | null>(null);
 
     // Get services with subscription data
     const servicesWithStatus = serviceData.map(service => {
@@ -133,12 +139,6 @@ export default function ServicesPage() {
 
     // Handle toggle cart item
     const handleToggleCartItem = (service: Service & { status: string }) => {
-        // Check if any service has pending payment
-        if (hasPendingPayments) {
-            alert('Ai o plată în așteptare. Te rugăm să finalizezi sau să anulezi plata existentă înainte de a adăuga alte servicii în coș.');
-            return;
-        }
-        
         if (isInCart(service.id)) {
             handleRemoveFromCart(service.id);
         } else {
@@ -168,6 +168,43 @@ export default function ServicesPage() {
     // Handle cancelling subscription modal
     const handleCancelSubscriptionClick = (subscription: Subscription) => {
         setSubscriptionToCancel(subscription);
+    };
+
+    // Handle cancelling pending payment modal
+    const handleCancelPendingPaymentClick = (subscription: Subscription) => {
+        setPendingPaymentToCancel(subscription);
+    };
+
+    // Handle pending payment cancellation
+    const cancelPendingPayment = async (subscriptionId: string, reason?: string) => {
+        try {
+            const response = await fetch('/api/subscriptions/cancel-pending-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscriptionId, reason }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to cancel pending payment');
+            }
+
+            logger.info('Pending payment cancelled successfully', { subscriptionId });
+            
+            // Refresh subscriptions to show updated status
+            await refreshSubscriptions();
+            await refreshPendingPayments();
+            
+            return true;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            logger.error('Failed to cancel pending payment', { 
+                error: errorMessage, 
+                subscriptionId,
+                fullError: error 
+            });
+            throw error;
+        }
     };
 
     // Handle renewing/reactivating subscription
@@ -249,6 +286,11 @@ export default function ServicesPage() {
         setSubscriptionToCancel(null);
     };
 
+    // Close cancel pending payment modal
+    const handleClosePendingPaymentModal = () => {
+        setPendingPaymentToCancel(null);
+    };
+
     return (
         <>
             <DashboardPageLayout
@@ -289,7 +331,7 @@ export default function ServicesPage() {
                                                         size="sm"
                                                         variant="default"
                                                         onClick={() => {
-                                                            window.location.href = `/dashboard/services/${subscription.serviceId}`;
+                                                            window.location.href = `/dashboard/checkout`;
                                                         }}
                                                     >
                                                         Finalizează
@@ -326,6 +368,7 @@ export default function ServicesPage() {
                                 onToggleCart={() => handleToggleCartItem(service)}
                                 onSubscribe={() => handleSubscribe(service.id)}
                                 onCancelSubscription={handleCancelSubscriptionClick}
+                                onCancelPendingPayment={handleCancelPendingPaymentClick}
                                 onRenewSubscription={handleRenewSubscription}
                             />
                         );
@@ -386,6 +429,22 @@ export default function ServicesPage() {
                                 handleCloseModal();
                                 // Refresh subscriptions to show updated status
                                 await refreshSubscriptions();
+                            }
+                            return success;
+                        }}
+                    />
+                )}
+
+                {/* Pending Payment Cancellation Modal */}
+                {pendingPaymentToCancel && (
+                    <PendingPaymentCancelModal
+                        subscription={pendingPaymentToCancel}
+                        isOpen={!!pendingPaymentToCancel}
+                        onClose={handleClosePendingPaymentModal}
+                        onCancel={async (subscriptionId, reason) => {
+                            const success = await cancelPendingPayment(subscriptionId, reason);
+                            if (success) {
+                                handleClosePendingPaymentModal();
                             }
                             return success;
                         }}

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useLogger } from '@/lib/client-logger';
 import { convertRONBaniToEURCents } from '@/lib/currency-utils';
+import { services } from '@/data/services';
 import type { CartService, CouponData, CartContextType } from '@/types/cart';
 
 // Create the context with default values
@@ -35,12 +36,66 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [couponData, setCouponData] = useState<CouponData | null>(null);
     const [initialized, setInitialized] = useState(false);
 
-    useEffect(() => {
-        const storedCart = localStorage.getItem('cart');
+    const loadPendingPaymentItems = async (currentItems: CartService[]) => {
+        try {
+            logger.info('Loading pending payment items for checkout');
+            
+            const response = await fetch('/api/subscriptions/pending-payments');
+            if (!response.ok) {
+                logger.error('Failed to fetch pending payments', new Error(`HTTP ${response.status}`));
+                return;
+            }
+            
+            const data = await response.json();
+            const pendingPayments = data.pendingPayments || [];
+            
+            logger.info('Found pending payments', { count: pendingPayments.length });
+            
+            // Add each pending payment service to cart if not already present
+            const newItems: CartService[] = [];
+            for (const payment of pendingPayments) {
+                const serviceId = parseInt(payment.serviceId);
+                const service = services.find(s => s.id === serviceId);
+                
+                if (service && !currentItems.some(item => item.id === serviceId)) {
+                    const cartService: CartService = {
+                        id: service.id,
+                        name: service.name,
+                        description: service.description,
+                        price: service.price,
+                        priceValue: service.priceValue,
+                        priceValueEUR: service.priceValueEUR,
+                        features: service.features,
+                        isPendingPayment: true, // Mark as pending payment item
+                        pendingSubscriptionId: payment.id
+                    };
+                    
+                    newItems.push(cartService);
+                    logger.info('Adding pending payment item to cart', { 
+                        serviceId, 
+                        serviceName: service.name,
+                        pendingSubscriptionId: payment.id 
+                    });
+                }
+            }
 
+            if (newItems.length > 0) {
+                setItems(prev => [...prev, ...newItems]);
+                logger.info('Added pending payment items to cart', { count: newItems.length });
+            }
+        } catch (error) {
+            logger.error('Failed to load pending payment items', error as Error);
+        }
+    };
+
+    useEffect(() => {
+        let initialItems: CartService[] = [];
+
+        const storedCart = localStorage.getItem('cart');
         if (storedCart) {
             try {
                 const parsedCart = JSON.parse(storedCart);
+                initialItems = parsedCart;
                 setItems(parsedCart);
                 logger.info('Cart loaded from localStorage', { itemCount: parsedCart.length });
             } catch (error) {
@@ -48,7 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
         }
 
-        // Check for stored coupon code on checkout page only
+        // Check for stored coupon code and pending payments on checkout page only
         if (window.location.pathname === '/dashboard/checkout') {
             try {
                 const storedCouponCode = localStorage.getItem('couponCode');
@@ -59,6 +114,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             } catch (error) {
                 logger.error('Failed to restore coupon from localStorage', error as Error);
             }
+
+            // Add pending payment items to cart
+            loadPendingPaymentItems(initialItems);
         }
 
         setInitialized(true);

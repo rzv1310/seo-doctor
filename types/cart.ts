@@ -7,6 +7,8 @@ export type CartService = {
     priceValueEUR: number; // Price in EUR cents for calculations
     features: string[];
     period?: string;
+    isPendingPayment?: boolean; // True if this item represents a pending payment
+    pendingSubscriptionId?: string; // ID of the pending subscription
 };
 
 

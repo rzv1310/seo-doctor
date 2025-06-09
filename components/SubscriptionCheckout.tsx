@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStripe, useElements } from '@stripe/react-stripe-js';
 import { PaymentElement } from '@stripe/react-stripe-js';
 import { stripeIds } from '@/data/payment';
+import { services, getServiceSlug } from '@/data/services';
 import { ActionButton, Alert, Input, Spinner } from './ui';
 import { formatCurrency } from '@/lib/utils';
 
@@ -35,6 +36,10 @@ export default function SubscriptionCheckout({
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Get service slug for return URL
+    const service = services.find(s => s.id === serviceId);
+    const serviceSlug = service ? getServiceSlug(service) : serviceId.toString();
 
     // Calculate discounted price
     const discountedPrice = price - (price * discount / 100);
@@ -150,7 +155,7 @@ export default function SubscriptionCheckout({
             const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: `${window.location.origin}/dashboard/services/${serviceId}?subscription_success=true`,
+                    return_url: `${window.location.origin}/dashboard/services/${serviceSlug}?subscription_success=true`,
                 },
                 redirect: 'if_required',
             });

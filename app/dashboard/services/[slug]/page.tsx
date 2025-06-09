@@ -7,7 +7,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { DashboardPageLayout } from '@/components/layout';
 import { ActionButton, Alert, Spinner, StatusBadge, Modal } from '@/components/ui';
-import { services } from '@/data/services';
+import { services, getServiceBySlug, getServiceSlug } from '@/data/services';
 import { formatCurrency } from '@/lib/utils';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useAuth } from '@/context/AuthContext';
@@ -31,7 +31,10 @@ export default function ServiceDetailPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const logger = useLogger('ServiceDetailPage');
-    const serviceId = parseInt(params.id as string);
+    const slug = params.slug as string;
+    const service = getServiceBySlug(slug);
+    const serviceId = service?.id;
+    
     const [showCheckout, setShowCheckout] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [processing3DS, setProcessing3DS] = useState(false);
@@ -41,16 +44,15 @@ export default function ServiceDetailPage() {
     const { user } = useAuth();
     const { pendingSubscriptions, refresh: refreshPendingPayments } = usePendingPayments();
 
-    // Get service from static data
-    const service = services.find(s => s.id === serviceId);
-    const subscription = subscriptions.find(s => s.serviceId === serviceId.toString());
-    const hasActive = isSubscribed(serviceId.toString());
+    // Get subscription data for this service
+    const subscription = serviceId ? subscriptions.find(s => s.serviceId === serviceId.toString()) : undefined;
+    const hasActive = serviceId ? isSubscribed(serviceId.toString()) : false;
     const isPendingPayment = subscription?.status === 'pending_payment';
     
     // Find pending payment subscription for this service
-    const pendingSubscription = pendingSubscriptions.find(s => 
+    const pendingSubscription = serviceId ? pendingSubscriptions.find(s => 
         s.serviceId === serviceId.toString()
-    );
+    ) : undefined;
 
     useEffect(() => {
         fetchSubscriptions();
@@ -60,9 +62,9 @@ export default function ServiceDetailPage() {
         if (searchParams.get('subscription_success') === 'true') {
             setShowSuccessModal(true);
             // Clean up URL
-            router.replace(`/dashboard/services/${serviceId}`);
+            router.replace(`/dashboard/services/${slug}`);
         }
-    }, [serviceId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [slug, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const checkForIncompletePayments = async () => {
         if (!user) return;
@@ -73,9 +75,9 @@ export default function ServiceDetailPage() {
             if (response.ok) {
                 const data = await response.json();
                 // Find incomplete payment for this service
-                const servicePayment = data.incompletePayments?.find((payment: any) => 
+                const servicePayment = serviceId ? data.incompletePayments?.find((payment: any) => 
                     payment.metadata?.serviceId === serviceId.toString()
-                );
+                ) : null;
                 if (servicePayment) {
                     logger.info('Found incomplete payment for service', { 
                         serviceId, 
@@ -110,7 +112,7 @@ export default function ServiceDetailPage() {
     };
     
 
-    if (!service) {
+    if (!service || !serviceId) {
         return (
             <DashboardPageLayout title="Service Not Found">
                 <div className="text-center py-16">
@@ -205,7 +207,7 @@ export default function ServiceDetailPage() {
                 <div className="flex gap-3 mt-4 md:mt-0">
                     {(isPendingPayment || pendingSubscription || incompletePayment) ? (
                         <ActionButton
-                            onClick={() => setShowCheckout(true)}
+                            onClick={() => window.location.href = '/dashboard/checkout'}
                             variant="danger"
                             disabled={checkingPayments}
                         >

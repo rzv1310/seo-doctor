@@ -81,16 +81,25 @@ export default function CheckoutPage() {
     }, [couponCode, inputCoupon, logger]);
 
     const handleSubscriptionSuccess = (createdSubscriptionIds: string[]) => {
-        logger.info('Subscriptions created successfully', {
+        logger.info('Payments processed successfully', {
             subscriptionIds: createdSubscriptionIds,
-            serviceCount: items.length
+            serviceCount: items.length,
+            pendingPaymentItems: items.filter(item => item.isPendingPayment).length,
+            newSubscriptionItems: items.filter(item => !item.isPendingPayment).length
         });
+        
         // Store the items info before clearing cart
         setSubscribedServicesCount(items.length);
         setSubscribedServicesNames(items.map(item => item.name));
         setSubscriptionIds(createdSubscriptionIds);
         setSubscriptionSuccess(true);
+        
+        // Clear the cart completely (including pending payment items)
         clearCart();
+        
+        // Also clear any stored coupon codes
+        setCouponCode('');
+        setCouponData(null);
     };
 
     const handleSubscriptionError = (error: string) => {
@@ -128,31 +137,44 @@ export default function CheckoutPage() {
                                 <div className="mb-6 space-y-3">
                                     <h3 className="text-sm font-medium text-gray-400 mb-3">Servicii selectate:</h3>
                                     {items.map((item) => (
-                                        <div key={item.id} className="flex justify-between items-center p-3 bg-dark-blue-lighter rounded-lg border border-border-color">
+                                        <div key={item.id} className={`flex justify-between items-center p-3 rounded-lg border ${
+                                            item.isPendingPayment 
+                                                ? 'bg-amber-900/20 border-amber-900/30' 
+                                                : 'bg-dark-blue-lighter border-border-color'
+                                        }`}>
                                             <div className="flex-1">
-                                                <h4 className="font-medium">{item.name}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-medium">{item.name}</h4>
+                                                    {item.isPendingPayment && (
+                                                        <span className="text-xs bg-amber-600 text-amber-100 px-2 py-1 rounded">
+                                                            Plată în așteptare
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-sm text-text-secondary">{item.description}</p>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className="font-semibold">{item.price}/lună</span>
-                                                <ActionButton
-                                                    onClick={() => {
-                                                        removeItem(item.id);
-                                                        logger.interaction('item_removed_from_checkout', {
-                                                            itemId: item.id,
-                                                            itemName: item.name
-                                                        });
-                                                    }}
-                                                    variant="danger"
-                                                    size="sm"
-                                                    showArrow={false}
-                                                    fullRounded={false}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                    Elimină
-                                                </ActionButton>
+                                                {!item.isPendingPayment && (
+                                                    <ActionButton
+                                                        onClick={() => {
+                                                            removeItem(item.id);
+                                                            logger.interaction('item_removed_from_checkout', {
+                                                                itemId: item.id,
+                                                                itemName: item.name
+                                                            });
+                                                        }}
+                                                        variant="danger"
+                                                        size="sm"
+                                                        showArrow={false}
+                                                        fullRounded={false}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        Elimină
+                                                    </ActionButton>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -180,9 +202,9 @@ export default function CheckoutPage() {
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <h3 className="text-xl font-semibold text-green-300 mb-2">Abonare Reușită!</h3>
+                                    <h3 className="text-xl font-semibold text-green-300 mb-2">Plată Reușită!</h3>
                                     <p className="text-gray-300 mb-6">
-                                        Abonarea pentru {subscribedServicesCount === 1 ? `serviciul ${subscribedServicesNames[0]}` : `${subscribedServicesCount} servicii`} a fost creată cu succes.
+                                        Plata pentru {subscribedServicesCount === 1 ? `serviciul ${subscribedServicesNames[0]}` : `${subscribedServicesCount} servicii`} a fost procesată cu succes.
                                     </p>
                                     <p className="text-sm text-gray-400 mb-6">
                                         {subscriptionIds.length} abonament{subscriptionIds.length > 1 ? 'e' : ''} creat{subscriptionIds.length > 1 ? 'e' : ''}

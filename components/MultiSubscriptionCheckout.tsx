@@ -303,48 +303,74 @@ export default function MultiSubscriptionCheckout({
             });
 
             for (const item of items) {
-                logger.info('Creating subscription for service', {
-                    serviceId: item.id,
-                    serviceName: item.name
-                });
-
-                const requestBody = {
-                    serviceId: item.id,
-                    paymentMethodId: selectedPaymentMethod,
-                    coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
-                    promotionCodeId: couponData?.promotionCodeId,
-                };
-
-                logger.info('Making subscription creation request', {
+                logger.info('Processing payment for service', {
                     serviceId: item.id,
                     serviceName: item.name,
-                    requestBody
+                    isPendingPayment: !!item.isPendingPayment,
+                    pendingSubscriptionId: item.pendingSubscriptionId
                 });
 
-                const response = await fetch('/api/subscriptions/create-stripe-subscription', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody),
-                });
+                let response, data;
 
-                const data = await response.json();
+                if (item.isPendingPayment && item.pendingSubscriptionId) {
+                    // Retry existing pending payment
+                    logger.info('Retrying pending payment for existing subscription', {
+                        subscriptionId: item.pendingSubscriptionId,
+                        serviceId: item.id,
+                        serviceName: item.name
+                    });
 
-                logger.info('Subscription creation response received', {
+                    const retryBody = {
+                        subscriptionId: item.pendingSubscriptionId,
+                        paymentMethodId: selectedPaymentMethod,
+                    };
+
+                    response = await fetch('/api/subscriptions/retry-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(retryBody),
+                    });
+                } else {
+                    // Create new subscription
+                    logger.info('Creating new subscription', {
+                        serviceId: item.id,
+                        serviceName: item.name
+                    });
+
+                    const requestBody = {
+                        serviceId: item.id,
+                        paymentMethodId: selectedPaymentMethod,
+                        coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
+                        promotionCodeId: couponData?.promotionCodeId,
+                    };
+
+                    response = await fetch('/api/subscriptions/create-stripe-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody),
+                    });
+                }
+
+                data = await response.json();
+
+                logger.info('Payment processing response received', {
                     serviceId: item.id,
                     serviceName: item.name,
+                    isPendingRetry: !!item.isPendingPayment,
                     responseOk: response.ok,
                     responseStatus: response.status,
                     responseData: data
                 });
 
                 if (!response.ok) {
-                    logger.error('Subscription creation failed', {
+                    logger.error('Payment processing failed', {
                         serviceId: item.id,
                         serviceName: item.name,
+                        isPendingRetry: !!item.isPendingPayment,
                         error: data.error,
                         status: response.status
                     });
-                    throw new Error(data.error || `Failed to create subscription for ${item.name}`);
+                    throw new Error(data.error || `Failed to process payment for ${item.name}`);
                 }
 
                 const subscriptionResult = {

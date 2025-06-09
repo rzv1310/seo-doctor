@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, Link, LinkButton, ActionButton, StatusBadge } from '@/components/ui';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
+import { getServiceSlug } from '@/data/services';
 import type { Service } from '@/types/service';
 import type { Subscription } from '@/types/subscription';
 
@@ -24,6 +24,7 @@ interface ServiceCardProps {
     onToggleCart: () => void;
     onSubscribe: () => void;
     onCancelSubscription: (subscription: Subscription) => void;
+    onCancelPendingPayment?: (subscription: Subscription) => void;
     onRenewSubscription?: (serviceId: string) => void;
 }
 
@@ -35,15 +36,18 @@ export default function ServiceCard({
     onToggleCart,
     onSubscribe,
     onCancelSubscription,
+    onCancelPendingPayment,
     onRenewSubscription
 }: ServiceCardProps) {
-    const [isCancellingPending, setIsCancellingPending] = useState(false);
     const { hasValidPaymentMethod } = usePaymentMethods();
     const isActive = service.status === 'active' || service.status === 'trial';
     const isSubscribed = isActive && !service.isPendingCancellation;
     const isCancelled = service.status === 'cancelled' || (service.status === 'inactive' && !subscription);
     const isPendingCancellation = service.isPendingCancellation;
     const isPendingPayment = service.status === 'pending_payment' || (service.status === 'inactive' && subscription?.status === 'pending_payment');
+
+    // Get service slug for URL
+    const serviceSlug = getServiceSlug(service);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -53,30 +57,9 @@ export default function ServiceCard({
         return `${day}.${month}.${year}`;
     };
 
-    const handleCancelPendingPayment = async () => {
-        if (!subscription?.id || !confirm('Sigur vrei să anulezi această plată în așteptare?')) {
-            return;
-        }
-
-        setIsCancellingPending(true);
-        try {
-            const response = await fetch('/api/subscriptions/cancel-pending-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subscriptionId: subscription.id }),
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Failed to cancel pending payment');
-            }
-
-            // Refresh the page to update the subscription list
-            window.location.reload();
-        } catch (error) {
-            alert(error instanceof Error ? error.message : 'Eroare la anularea plății');
-        } finally {
-            setIsCancellingPending(false);
+    const handleCancelPendingPayment = () => {
+        if (subscription && onCancelPendingPayment) {
+            onCancelPendingPayment(subscription);
         }
     };
 
@@ -133,7 +116,7 @@ export default function ServiceCard({
                 <div className="flex justify-between items-center mt-auto pt-4 border-t border-border-color">
                     <div className="flex items-center">
                         <Link
-                            href={isSubscribed ? `/dashboard/services/${service.id}` : service.url || '/'}
+                            href={isSubscribed ? `/dashboard/services/${serviceSlug}` : service.url || '/'}
                             variant="primary"
                         >
                             {isSubscribed ? 'Gestionează' : 'Detalii'}
@@ -147,7 +130,7 @@ export default function ServiceCard({
                                 <ActionButton
                                     variant="default"
                                     size="sm"
-                                    onClick={() => window.location.href = `/dashboard/services/${service.id}`}
+                                    onClick={() => window.location.href = `/dashboard/checkout`}
                                     showArrow={false}
                                     fullRounded={false}
                                 >
@@ -157,9 +140,8 @@ export default function ServiceCard({
                                     variant="danger"
                                     size="sm"
                                     onClick={handleCancelPendingPayment}
-                                    disabled={isCancellingPending}
                                 >
-                                    {isCancellingPending ? 'Se anulează...' : 'Anulează Plata'}
+                                    Anulează Plata
                                 </LinkButton>
                             </>
                         ) : isSubscribed ? (

@@ -306,16 +306,12 @@ export default function InvoiceDetailsPage() {
                             <p className="text-text-secondary mb-2">
                                 Această factură este scadentă pe {formatDate(invoice.dueDate)}. Te rugăm să efectuezi plata pentru a evita taxele de întârziere.
                             </p>
-                            {invoice.hostedInvoiceUrl && (
-                                <a
-                                    href={invoice.hostedInvoiceUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-md transition-colors inline-block text-center"
-                                >
-                                    Plătește Acum
-                                </a>
-                            )}
+                            <ActionButton
+                                onClick={() => window.location.href = '/dashboard/checkout'}
+                                size="sm"
+                            >
+                                Finalizează Plata
+                            </ActionButton>
                         </div>
                     )}
 
@@ -330,16 +326,15 @@ export default function InvoiceDetailsPage() {
                             <p className="text-text-secondary text-sm mt-2">
                                 Această factură este restantă. Te rugăm să efectuezi plata cât mai curând posibil.
                             </p>
-                            {invoice.hostedInvoiceUrl && (
-                                <a
-                                    href={invoice.hostedInvoiceUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-4 block w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors text-center"
-                                >
-                                    Plătește Acum
-                                </a>
-                            )}
+                            <ActionButton
+                                onClick={() => window.location.href = '/dashboard/checkout'}
+                                variant="danger"
+                                size="sm"
+                                className="mt-4"
+                                fullWidth
+                            >
+                                Finalizează Plata
+                            </ActionButton>
                         </div>
                     )}
 
