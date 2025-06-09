@@ -15,6 +15,16 @@ export function usePendingPayments() {
             setIsLoading(true);
             setError(null);
 
+            // First run cleanup to ensure database consistency
+            try {
+                await fetch('/api/subscriptions/cleanup-pending', {
+                    method: 'POST'
+                });
+                logger.info('Cleanup completed before checking pending payments');
+            } catch (cleanupError) {
+                logger.warn('Cleanup failed, but continuing with pending payments check', cleanupError);
+            }
+
             const response = await fetch('/api/subscriptions/pending-payments');
             
             if (!response.ok) {
