@@ -40,6 +40,7 @@ export default function InvoiceDetailsPage() {
             case 'paid':
                 return 'bg-green-900/30 text-green-300';
             case 'pending':
+            case 'open':
                 return 'bg-amber-900/30 text-amber-300';
             case 'overdue':
                 return 'bg-red-900/30 text-red-300';
@@ -47,6 +48,10 @@ export default function InvoiceDetailsPage() {
                 return 'bg-gray-900/30 text-gray-300';
             case 'void':
                 return 'bg-gray-900/30 text-gray-300';
+            case 'draft':
+                return 'bg-gray-900/30 text-gray-300';
+            case 'uncollectible':
+                return 'bg-red-900/30 text-red-300';
             default:
                 return 'bg-gray-900/30 text-gray-300';
         }
@@ -57,6 +62,7 @@ export default function InvoiceDetailsPage() {
             case 'paid':
                 return 'Plătită';
             case 'pending':
+            case 'open':
                 return 'În așteptare';
             case 'overdue':
                 return 'Restantă';
@@ -64,6 +70,10 @@ export default function InvoiceDetailsPage() {
                 return 'Anulată';
             case 'void':
                 return 'Anulată';
+            case 'draft':
+                return 'Ciornă';
+            case 'uncollectible':
+                return 'Neîncasabilă';
             default:
                 return 'Necunoscut';
         }

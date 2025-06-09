@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq, isNotNull } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
-import database, { users } from '@/database';
+import database, { users, invoices } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
 import stripe from '@/lib/stripe-server';
+import { syncInvoiceFromStripe } from '@/lib/invoice-sync';
 
 
 
@@ -27,7 +28,7 @@ export const GET = withLogging(async (request: NextRequest) => {
         const userId = url.searchParams.get('userId'); // Optional filter by user
         const status = url.searchParams.get('status'); // Optional filter by status
 
-        logger.info('Admin fetching invoices from Stripe', { 
+        logger.info('Admin fetching invoices', { 
             adminId: session.user.id, 
             page, 
             limit, 
@@ -35,152 +36,131 @@ export const GET = withLogging(async (request: NextRequest) => {
             status: status || undefined 
         });
 
-        // If userId is provided, fetch that user's invoices
+        const offset = (page - 1) * limit;
+
+        // Build query conditions
+        const conditions = [];
+        if (userId) {
+            conditions.push(eq(invoices.userId, userId));
+        }
+        if (status) {
+            conditions.push(eq(invoices.status, status));
+        }
+
+        // Fetch invoices from local database
+        const query = database
+            .select({
+                invoice: invoices,
+                user: {
+                    id: users.id,
+                    name: users.name,
+                    email: users.email
+                }
+            })
+            .from(invoices)
+            .leftJoin(users, eq(invoices.userId, users.id))
+            .orderBy(desc(invoices.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        if (conditions.length > 0) {
+            query.where(and(...conditions));
+        }
+
+        const invoiceResults = await query;
+
+        // Get total count for pagination
+        const countQuery = database
+            .select({ count: sql<number>`count(*)` })
+            .from(invoices);
+
+        if (conditions.length > 0) {
+            countQuery.where(and(...conditions));
+        }
+
+        const [countResult] = await countQuery;
+        const totalItems = countResult?.count || 0;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // If requested, sync recent invoices from Stripe for the filtered user
         if (userId) {
             const [user] = await database
-                .select({ stripeCustomerId: users.stripeCustomerId, email: users.email, name: users.name })
+                .select({ stripeCustomerId: users.stripeCustomerId })
                 .from(users)
                 .where(eq(users.id, userId))
                 .limit(1);
 
-            if (!user?.stripeCustomerId) {
-                logger.info('No Stripe customer ID found for specified user', { userId });
-                return NextResponse.json({
-                    invoices: [],
-                    pagination: {
-                        page,
-                        limit,
-                        totalItems: 0,
-                        totalPages: 0
+            if (user?.stripeCustomerId) {
+                try {
+                    const recentStripeInvoices = await stripe.invoices.list({
+                        customer: user.stripeCustomerId,
+                        limit: 10
+                    });
+
+                    for (const stripeInvoice of recentStripeInvoices.data) {
+                        await syncInvoiceFromStripe(stripeInvoice);
                     }
-                });
-            }
 
-            // Fetch invoices from Stripe for specific user
-            const stripeInvoices = await stripe.invoices.list({
-                customer: user.stripeCustomerId,
-                limit: limit,
-                status: status as any // Filter by status if provided
-            });
-
-            // Transform Stripe invoices
-            const invoices = stripeInvoices.data.map(invoice => {
-                const serviceName = invoice.lines.data[0]?.description || 'Unknown Service';
-                
-                return {
-                    id: invoice.id,
-                    userId: userId,
-                    userName: user.name,
-                    userEmail: user.email,
-                    orderId: null,
-                    createdAt: new Date(invoice.created * 1000).toISOString(),
-                    dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
-                    amount: invoice.total,
-                    status: invoice.status === 'paid' ? 'paid' : 
-                            invoice.status === 'open' ? 'pending' : 
-                            invoice.status === 'uncollectible' ? 'cancelled' : 
-                            invoice.status === 'void' ? 'void' : 'pending',
-                    stripeInvoiceId: invoice.id,
-                    orderServiceId: null,
-                    serviceName: serviceName,
-                    number: invoice.number,
-                    currency: invoice.currency,
-                    hostedInvoiceUrl: invoice.hosted_invoice_url,
-                    invoicePdf: invoice.invoice_pdf,
-                    subscriptionId: typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id
-                };
-            });
-
-            return NextResponse.json({
-                invoices: invoices,
-                pagination: {
-                    page,
-                    limit,
-                    totalItems: invoices.length,
-                    totalPages: stripeInvoices.has_more ? page + 1 : page
-                },
-                hasMore: stripeInvoices.has_more
-            });
-        } else {
-            // Fetch all users with Stripe customer IDs
-            const allUsers = await database
-                .select({ 
-                    id: users.id, 
-                    stripeCustomerId: users.stripeCustomerId,
-                    email: users.email,
-                    name: users.name
-                })
-                .from(users)
-                .where(isNotNull(users.stripeCustomerId));
-
-            logger.info('Found users with Stripe customer IDs', { count: allUsers.length });
-
-            // Fetch invoices for all customers
-            const allInvoices = [];
-            const starting_after = url.searchParams.get('starting_after');
-
-            const stripeInvoices = await stripe.invoices.list({
-                limit: limit,
-                status: status as any,
-                starting_after: starting_after || undefined
-            });
-
-            // Map user data for quick lookup
-            const userMap = new Map(allUsers.map(u => [u.stripeCustomerId, u]));
-
-            // Transform and filter invoices to only include our users
-            for (const invoice of stripeInvoices.data) {
-                const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-                const user = customerId ? userMap.get(customerId) : null;
-                
-                if (user) {
-                    const serviceName = invoice.lines.data[0]?.description || 'Unknown Service';
-                    
-                    allInvoices.push({
-                        id: invoice.id,
-                        userId: user.id,
-                        userName: user.name,
-                        userEmail: user.email,
-                        orderId: null,
-                        createdAt: new Date(invoice.created * 1000).toISOString(),
-                        dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
-                        amount: invoice.total,
-                        status: invoice.status === 'paid' ? 'paid' : 
-                                invoice.status === 'open' ? 'pending' : 
-                                invoice.status === 'uncollectible' ? 'cancelled' : 
-                                invoice.status === 'void' ? 'void' : 'pending',
-                        stripeInvoiceId: invoice.id,
-                        orderServiceId: null,
-                        serviceName: serviceName,
-                        number: invoice.number,
-                        currency: invoice.currency,
-                        hostedInvoiceUrl: invoice.hosted_invoice_url,
-                        invoicePdf: invoice.invoice_pdf,
-                        subscriptionId: typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id
+                    logger.info('Synced recent invoices from Stripe for user', {
+                        userId,
+                        count: recentStripeInvoices.data.length
+                    });
+                } catch (syncError) {
+                    logger.error('Failed to sync invoices from Stripe', {
+                        error: syncError instanceof Error ? syncError.message : String(syncError),
+                        userId
                     });
                 }
             }
-
-            logger.info('Admin invoices fetched successfully', {
-                adminId: session.user.id,
-                count: allInvoices.length,
-                hasMore: stripeInvoices.has_more
-            });
-
-            return NextResponse.json({
-                invoices: allInvoices,
-                pagination: {
-                    page,
-                    limit,
-                    totalItems: allInvoices.length,
-                    totalPages: stripeInvoices.has_more ? page + 1 : page
-                },
-                hasMore: stripeInvoices.has_more,
-                lastInvoiceId: allInvoices.length > 0 ? allInvoices[allInvoices.length - 1].id : null
-            });
         }
+
+        // Format invoices
+        const formattedInvoices = invoiceResults.map(result => ({
+            id: result.invoice.id,
+            userId: result.invoice.userId,
+            userName: result.user?.name || 'Unknown User',
+            userEmail: result.user?.email || 'Unknown Email',
+            subscriptionId: result.invoice.subscriptionId,
+            stripeInvoiceId: result.invoice.stripeInvoiceId,
+            stripeCustomerId: result.invoice.stripeCustomerId,
+            createdAt: result.invoice.createdAt,
+            dueDate: result.invoice.dueDate,
+            paidAt: result.invoice.paidAt,
+            amount: result.invoice.amountTotal, // For backward compatibility
+            amountTotal: result.invoice.amountTotal,
+            amountPaid: result.invoice.amountPaid,
+            amountRemaining: result.invoice.amountRemaining,
+            status: result.invoice.status,
+            number: result.invoice.number,
+            currency: result.invoice.currency,
+            serviceName: result.invoice.serviceName,
+            serviceId: result.invoice.serviceId,
+            hostedInvoiceUrl: result.invoice.hostedInvoiceUrl,
+            invoicePdf: result.invoice.invoicePdf,
+            billingName: result.invoice.billingName,
+            billingCompany: result.invoice.billingCompany
+        }));
+
+        logger.info('Admin invoices fetched successfully', {
+            adminId: session.user.id,
+            count: formattedInvoices.length,
+            totalItems
+        });
+
+        return NextResponse.json({
+            invoices: formattedInvoices,
+            pagination: {
+                page,
+                limit,
+                totalItems,
+                totalPages
+            },
+            hasMore: page < totalPages
+        });
     } catch (error) {
-        logger.error('Error fetching admin invoices from Stripe', { error: error instanceof Error ? error.message : String(error) });
+        logger.error('Error fetching admin invoices', { 
+            error: error instanceof Error ? error.message : String(error) 
+        });
         return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
     }
 });

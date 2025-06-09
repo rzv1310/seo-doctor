@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
-import database, { subscriptions, services, orders, invoices } from '@/database';
+import database, { subscriptions, services, invoices } from '@/database';
 import { verifyApiAuth } from '@/lib/auth';
 import { logger, withLogging } from '@/lib/logger';
 
@@ -118,20 +118,7 @@ export const POST = withLogging(async (
             updatedAt: startDate,
         }).returning();
 
-        // Create an order record for this subscription
-        const orderId = uuidv4();
-        const orderNotes = `${planType === 'yearly' ? 'Yearly' : 'Monthly'} subscription for ${service.name}${quantity > 1 ? ` (${quantity} licenses)` : ''}. Subscription ID: ${newSubscription[0].id}`;
-        const orderStatus = initialStatus === 'trial' ? 'pending' : 'completed';
-
-        await database.insert(orders).values({
-            id: orderId,
-            userId: session.user.id,
-            serviceId,
-            createdAt: startDate,
-            price: subscriptionPrice,
-            status: orderStatus, // Order is pending for trials, completed for active
-            notes: orderNotes
-        });
+        // Orders table removed - payment tracking now handled through invoices
 
         // Invoice handling: For trials, set due date to trial end date
         // For active subscriptions, set due date to 14 days

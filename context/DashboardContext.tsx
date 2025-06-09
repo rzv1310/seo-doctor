@@ -5,7 +5,7 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { DashboardData, DashboardContextType } from '@/types/dashboard';
 import { Invoice } from '@/types/invoice';
 import { PaymentMethod } from '@/types/payment-method';
-import { Order } from '@/types/order';
+// Orders table removed - using invoices instead
 import { Subscription } from '@/types/subscription';
 import { useLogger } from '@/lib/client-logger';
 
@@ -14,24 +14,20 @@ import { useLogger } from '@/lib/client-logger';
 const initialState: DashboardData = {
     paymentMethods: [],
     invoices: [],
-    orders: [],
     subscriptions: [],
     isLoading: {
         paymentMethods: false,
         invoices: false,
-        orders: false,
         subscriptions: false,
     },
     error: {
         paymentMethods: null,
         invoices: null,
-        orders: null,
         subscriptions: null,
     },
     lastFetched: {
         paymentMethods: null,
         invoices: null,
-        orders: null,
         subscriptions: null,
     },
 };
@@ -128,48 +124,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         }
     }, [data.invoices.length, data.lastFetched.invoices, data.isLoading.invoices]);
 
-    const fetchOrders = useCallback(async (forceRefresh = false, silent = false) => {
-        // If data exists and not forcing refresh, return cached data
-        if (!forceRefresh && data.orders.length > 0 && data.lastFetched.orders) {
-            return;
-        }
-
-        // If already loading, skip
-        if (data.isLoading.orders) return;
-
-        // Only show loading spinner if not a silent background refresh
-        if (!silent) {
-            setData(prev => ({
-                ...prev,
-                isLoading: { ...prev.isLoading, orders: true },
-                error: { ...prev.error, orders: null },
-            }));
-        }
-
-        try {
-            const response = await fetch('/api/orders', { credentials: 'include' });
-            if (!response.ok) throw new Error('Failed to fetch orders');
-
-            const result = await response.json();
-            const orders = result.orders || [];
-
-            setData(prev => ({
-                ...prev,
-                orders,
-                isLoading: { ...prev.isLoading, orders: false },
-                lastFetched: { ...prev.lastFetched, orders: Date.now() },
-            }));
-        } catch (error) {
-            // Only update loading state if we were showing a spinner
-            if (!silent) {
-                setData(prev => ({
-                    ...prev,
-                    isLoading: { ...prev.isLoading, orders: false },
-                    error: { ...prev.error, orders: error instanceof Error ? error.message : 'Failed to fetch orders' },
-                }));
-            }
-        }
-    }, [data.orders.length, data.lastFetched.orders, data.isLoading.orders]);
+    // Orders table removed - fetchOrders functionality is no longer needed
 
     const fetchSubscriptions = useCallback(async (forceRefresh = false, silent = false) => {
         // If data exists and not forcing refresh, return cached data
@@ -242,10 +197,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         await Promise.all([
             fetchPaymentMethods(true),
             fetchInvoices(true),
-            fetchOrders(true),
             fetchSubscriptions(true),
         ]);
-    }, [fetchPaymentMethods, fetchInvoices, fetchOrders, fetchSubscriptions]);
+    }, [fetchPaymentMethods, fetchInvoices, fetchSubscriptions]);
 
     return (
         <DashboardContext.Provider
@@ -253,7 +207,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                 ...data,
                 fetchPaymentMethods,
                 fetchInvoices,
-                fetchOrders,
                 fetchSubscriptions,
                 refreshAll,
             }}
@@ -322,30 +275,7 @@ export function useDashboardInvoices() {
     };
 }
 
-export function useDashboardOrders() {
-    const { orders, isLoading, error, fetchOrders, lastFetched } = useDashboard();
-
-    useEffect(() => {
-        // Initial fetch if no data
-        if (!lastFetched.orders) {
-            fetchOrders();
-        }
-    }, [fetchOrders, lastFetched.orders]);
-
-    // Background refresh after mount if data exists - silent refresh
-    useEffect(() => {
-        if (lastFetched.orders) {
-            fetchOrders(true, true); // forceRefresh=true, silent=true
-        }
-    }, []);
-
-    return {
-        orders,
-        isLoading: isLoading.orders,
-        error: error.orders,
-        refresh: () => fetchOrders(true, false), // Manual refresh shows spinner
-    };
-}
+// Orders table removed - useDashboardOrders is no longer needed
 
 export function useDashboardSubscriptions() {
     const { subscriptions, isLoading, error, fetchSubscriptions, lastFetched } = useDashboard();

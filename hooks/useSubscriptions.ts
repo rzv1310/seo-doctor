@@ -112,7 +112,6 @@ export function useSubscriptions(isAuthenticated: boolean = true) {
 
             return {
                 subscription: parseSubscriptionMetadata(data.subscription),
-                orderId: data.orderId,
                 invoiceId: data.invoiceId,
                 message: data.message,
                 planDetails: data.planDetails,

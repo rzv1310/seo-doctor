@@ -1,20 +1,36 @@
 export interface Invoice {
     id: string;
     userId: string;
-    orderId: string | null;
-    createdAt: string;
-    dueDate: string | null;
-    amount: number;
-    status: 'paid' | 'pending' | 'overdue' | 'cancelled' | 'void';
-    stripeInvoiceId: string | null;
-    orderServiceId: string | null;
+    subscriptionId: string | null;
+    stripeInvoiceId: string;
+    stripeCustomerId: string;
+    
+    // Invoice details
+    number: string | null;
+    status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
+    currency: string;
+    amount: number; // For backward compatibility
+    amountTotal: number;
+    amountPaid: number;
+    amountRemaining: number;
+    
+    // Service details
     serviceName: string | null;
-    // Additional Stripe fields
-    number?: string;
-    currency?: string;
+    serviceId: string | null;
+    
+    // Timestamps
+    createdAt: string;
+    updatedAt: string;
+    dueDate: string | null;
+    paidAt: string | null;
+    
+    // URLs
     hostedInvoiceUrl?: string | null;
     invoicePdf?: string | null;
-    subscriptionId?: string | null;
+    
+    // Additional fields
+    paymentIntentId?: string | null;
+    metadata?: Record<string, any>;
 }
 
 

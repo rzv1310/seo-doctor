@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import stripe from '@/lib/stripe-server';
 import db from '@/database';
-import { orders, invoices, subscriptions } from '@/database/schema';
+import { invoices, subscriptions } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { logger, withLogging } from '@/lib/logger';
+import { syncInvoiceFromStripe } from '@/lib/invoice-sync';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -45,19 +46,7 @@ export const POST = withLogging(async (req: NextRequest) => {
                     }))
                 });
 
-                if (paymentIntent.metadata?.orderId) {
-                    await db.update(orders)
-                        .set({
-                            status: 'completed',
-                            stripePaymentId: paymentIntent.id
-                        })
-                        .where(eq(orders.id, paymentIntent.metadata.orderId));
-
-                    logger.info('Order marked as completed', {
-                        orderId: paymentIntent.metadata.orderId,
-                        paymentIntentId: paymentIntent.id
-                    });
-                }
+                // Orders table removed - payment tracking now handled through invoices
 
                 if (paymentIntent.metadata?.invoiceId) {
                     await db.update(invoices)
@@ -116,16 +105,7 @@ export const POST = withLogging(async (req: NextRequest) => {
                 const failedPaymentIntent = event.data.object as any;
                 logger.info('Payment failed', { amount: failedPaymentIntent.amount, currency: failedPaymentIntent.currency, userId: failedPaymentIntent.metadata?.userId });
 
-                if (failedPaymentIntent.metadata?.orderId) {
-                    await db.update(orders)
-                        .set({ status: 'payment_failed' })
-                        .where(eq(orders.id, failedPaymentIntent.metadata.orderId));
-
-                    logger.warn('Order payment failed', {
-                        orderId: failedPaymentIntent.metadata.orderId,
-                        paymentIntentId: failedPaymentIntent.id
-                    });
-                }
+                // Orders table removed - payment failures are now tracked through invoices
                 break;
             }
 
@@ -189,6 +169,17 @@ export const POST = withLogging(async (req: NextRequest) => {
                 const invoice = event.data.object as any;
                 logger.info('Invoice paid', { amount: invoice.amount_paid, currency: invoice.currency, userId: invoice.metadata?.userId });
 
+                // Sync invoice to database
+                try {
+                    await syncInvoiceFromStripe(invoice);
+                    logger.info('Invoice synced to database', { invoiceId: invoice.id });
+                } catch (error) {
+                    logger.error('Failed to sync invoice to database', {
+                        error: error instanceof Error ? error.message : String(error),
+                        invoiceId: invoice.id
+                    });
+                }
+
                 if (invoice.subscription) {
                     logger.info('Subscription invoice paid', {
                         invoiceId: invoice.id,
@@ -207,6 +198,17 @@ export const POST = withLogging(async (req: NextRequest) => {
                     attemptCount: invoice.attempt_count,
                     nextAttempt: invoice.next_payment_attempt
                 });
+
+                // Sync invoice to database
+                try {
+                    await syncInvoiceFromStripe(invoice);
+                    logger.info('Failed invoice synced to database', { invoiceId: invoice.id });
+                } catch (error) {
+                    logger.error('Failed to sync failed invoice to database', {
+                        error: error instanceof Error ? error.message : String(error),
+                        invoiceId: invoice.id
+                    });
+                }
                 
                 // Update subscription status to pending_payment if it exists
                 if (invoice.subscription) {
@@ -219,6 +221,34 @@ export const POST = withLogging(async (req: NextRequest) => {
                     
                     logger.info('Subscription marked as pending_payment after invoice failure', {
                         subscriptionId: invoice.subscription
+                    });
+                }
+                break;
+            }
+
+            case 'invoice.created':
+            case 'invoice.updated':
+            case 'invoice.finalized':
+            case 'invoice.voided': {
+                const invoice = event.data.object as any;
+                logger.info(`Invoice ${event.type.split('.').pop()}`, { 
+                    invoiceId: invoice.id,
+                    status: invoice.status,
+                    amount: invoice.total
+                });
+
+                // Sync invoice to database
+                try {
+                    await syncInvoiceFromStripe(invoice);
+                    logger.info('Invoice synced to database', { 
+                        invoiceId: invoice.id,
+                        eventType: event.type 
+                    });
+                } catch (error) {
+                    logger.error('Failed to sync invoice to database', {
+                        error: error instanceof Error ? error.message : String(error),
+                        invoiceId: invoice.id,
+                        eventType: event.type
                     });
                 }
                 break;

@@ -530,7 +530,7 @@ export default function MultiSubscriptionCheckout({
                 <h3 className="text-lg font-semibold mb-4">Metodă de Plată</h3>
 
                 {loadingPaymentMethods ? (
-                    <div className="text-center py-4">
+                    <div className="flex flex-col items-center justify-center py-4">
                         <Spinner size="md" />
                         <p className="text-sm text-gray-400 mt-2">Se încarcă metodele de plată...</p>
                     </div>

@@ -48,6 +48,7 @@ export default function InvoicesTable({
             case 'paid':
                 return 'Plătită';
             case 'pending':
+            case 'open':
                 return 'În așteptare';
             case 'overdue':
                 return 'Restantă';
@@ -55,6 +56,10 @@ export default function InvoicesTable({
                 return 'Anulată';
             case 'void':
                 return 'Anulată';
+            case 'draft':
+                return 'Ciornă';
+            case 'uncollectible':
+                return 'Neîncasabilă';
             default:
                 return status.charAt(0).toUpperCase() + status.slice(1);
         }
@@ -158,11 +163,13 @@ export default function InvoicesTable({
                             <td className="px-4 py-4 whitespace-nowrap text-sm">
                                 <span className={`px-2 py-1 rounded-full text-xs
                   ${invoice.status === 'paid' ? 'bg-green-900/30 text-green-300' :
-                                        invoice.status === 'pending' ? 'bg-amber-900/30 text-amber-300' :
+                                        invoice.status === 'pending' || invoice.status === 'open' ? 'bg-amber-900/30 text-amber-300' :
                                             invoice.status === 'overdue' ? 'bg-red-900/30 text-red-300' :
                                                 invoice.status === 'cancelled' ? 'bg-gray-900/30 text-gray-300' :
                                                     invoice.status === 'void' ? 'bg-gray-900/30 text-gray-300' :
-                                                        'bg-red-900/30 text-red-300'}`}>
+                                                        invoice.status === 'draft' ? 'bg-gray-900/30 text-gray-300' :
+                                                            invoice.status === 'uncollectible' ? 'bg-red-900/30 text-red-300' :
+                                                                'bg-red-900/30 text-red-300'}`}>
                                     {getStatusText(invoice.status)}
                                 </span>
                             </td>
@@ -183,7 +190,7 @@ export default function InvoicesTable({
                                             Descărcare
                                         </a>
                                     )}
-                                    {invoice.status === 'pending' && (
+                                    {(invoice.status === 'pending' || invoice.status === 'open') && (
                                         <>
                                             <Link
                                                 href="/dashboard/checkout"

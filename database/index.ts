@@ -23,7 +23,6 @@ export default database;
 export const {
     users,
     services,
-    orders,
     invoices,
     paymentMethods,
     subscriptions,

@@ -164,40 +164,251 @@ export async function POST(request: NextRequest) {
                 eq(subscriptions.serviceId, serviceId.toString())
             ));
         
-        // Check for recent subscription attempts (within last 30 seconds) to prevent rapid duplicates
-        const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
-        const recentSubscription = existingSubscriptions.find(sub => 
-            sub.createdAt && sub.createdAt > thirtySecondsAgo
-        );
-        
-        if (recentSubscription) {
-            logger.warn('Duplicate subscription attempt detected', {
-                userId: user.id,
-                serviceId,
-                recentSubscriptionId: recentSubscription.id,
-                createdAt: recentSubscription.createdAt
-            });
-            return NextResponse.json({ 
-                error: 'O cerere de abonare pentru acest serviciu este deja în procesare. Te rugăm să aștepți.' 
-            }, { status: 429 }); // 429 Too Many Requests
-        }
+        // Remove the 30-second check - we'll handle all existing subscriptions properly below
         
         const existingActiveSubscription = existingSubscriptions.find(sub => 
-            sub.status === 'active' || sub.status === 'trial' || sub.status === 'pending_payment'
+            sub.status === 'active' || sub.status === 'trial'
         );
 
         // Only prevent if there's an active or trial subscription
-        if (existingActiveSubscription && 
-            (existingActiveSubscription.status === 'active' || 
-             existingActiveSubscription.status === 'trial')) {
-            
+        if (existingActiveSubscription) {
             return NextResponse.json({ 
                 error: 'Ai deja un abonament activ pentru acest serviciu.' 
             }, { status: 400 });
         }
 
-        // Allow creating new subscriptions even with pending payments
-        // Users can manage all payments in checkout
+        // The logic for handling incomplete subscriptions has been moved below
+        // to check ALL incomplete subscriptions, not just pending_payment ones
+
+        // Check if there's any pending payment subscription we should handle
+        const pendingSubscriptions = existingSubscriptions.filter(sub => 
+            sub.status === 'pending_payment' || sub.status === 'inactive'
+        );
+        
+        logger.info('Found existing subscriptions for service', {
+            userId: user.id,
+            serviceId,
+            total: existingSubscriptions.length,
+            pending: pendingSubscriptions.length,
+            statuses: existingSubscriptions.map(s => ({ id: s.id, status: s.status, hasStripeId: !!s.stripeSubscriptionId }))
+        });
+        
+        // If there's a pending subscription without a Stripe ID, we need to clean it up
+        // This happens when payment fails during initial creation
+        for (const pendingSub of pendingSubscriptions) {
+            if (!pendingSub.stripeSubscriptionId) {
+                logger.info('Found pending subscription without Stripe ID, marking as cancelled', {
+                    localId: pendingSub.id,
+                    status: pendingSub.status
+                });
+                
+                // Mark it as cancelled so we can create a new one
+                await db.update(subscriptions)
+                    .set({ 
+                        status: 'cancelled',
+                        cancelledAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    })
+                    .where(eq(subscriptions.id, pendingSub.id));
+            }
+        }
+        
+        // Now check for subscriptions with Stripe IDs that we can retry
+        const retryableSubscriptions = existingSubscriptions.filter(sub => 
+            sub.status !== 'cancelled' && 
+            sub.stripeSubscriptionId
+        );
+        
+        // Try each subscription with a Stripe ID to see if we can pay its invoice
+        for (const existingSub of retryableSubscriptions) {
+            
+            try {
+                logger.info('Checking existing subscription for payable invoice', {
+                    subscriptionId: existingSub.stripeSubscriptionId,
+                    localId: existingSub.id,
+                    status: existingSub.status
+                });
+                
+                // Retrieve the subscription with its latest invoice
+                let stripeSubscription;
+                try {
+                    stripeSubscription = await stripe.subscriptions.retrieve(
+                        existingSub.stripeSubscriptionId,
+                        { expand: ['latest_invoice'] }
+                    );
+                } catch (retrieveError: any) {
+                    // If subscription doesn't exist in Stripe, clean up local record
+                    if (retrieveError.code === 'resource_missing') {
+                        logger.info('Stripe subscription not found, cleaning up local record', {
+                            stripeSubscriptionId: existingSub.stripeSubscriptionId,
+                            localId: existingSub.id
+                        });
+                        
+                        await db.update(subscriptions)
+                            .set({ 
+                                status: 'cancelled',
+                                cancelledAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString()
+                            })
+                            .where(eq(subscriptions.id, existingSub.id));
+                        
+                        continue; // Skip to next subscription
+                    }
+                    throw retrieveError;
+                }
+                
+                const latestInvoice = stripeSubscription.latest_invoice as any;
+                
+                // Check if the invoice is open and can be paid
+                if (latestInvoice && (latestInvoice.status === 'open' || latestInvoice.status === 'draft')) {
+                    logger.info('Found open invoice for existing subscription', {
+                        invoiceId: latestInvoice.id,
+                        invoiceStatus: latestInvoice.status,
+                        subscriptionId: stripeSubscription.id
+                    });
+                    
+                    try {
+                        // First update the payment method on the subscription
+                        await stripe.subscriptions.update(stripeSubscription.id, {
+                            default_payment_method: paymentMethodId
+                        });
+                        
+                        // Pay the existing invoice
+                        const paidInvoice = await stripe.invoices.pay(latestInvoice.id, {
+                            payment_method: paymentMethodId,
+                            expand: ['payment_intent']
+                        });
+                        
+                        logger.info('Paid existing invoice', {
+                            invoiceId: paidInvoice.id,
+                            status: paidInvoice.status,
+                            paid: paidInvoice.paid
+                        });
+                        
+                        // Handle payment intent for 3D Secure if needed
+                        if (paidInvoice.payment_intent) {
+                            let paymentIntent;
+                            
+                            if (typeof paidInvoice.payment_intent === 'string') {
+                                paymentIntent = await stripe.paymentIntents.retrieve(paidInvoice.payment_intent);
+                            } else {
+                                paymentIntent = paidInvoice.payment_intent;
+                            }
+                            
+                            if (paymentIntent.status === 'requires_action' && paymentIntent.client_secret) {
+                                logger.info('Existing invoice payment requires 3D Secure', {
+                                    paymentIntentId: paymentIntent.id
+                                });
+                                
+                                return NextResponse.json({
+                                    subscriptionId: stripeSubscription.id,
+                                    status: stripeSubscription.status,
+                                    localSubscriptionId: existingSub.id,
+                                    requiresAction: true,
+                                    clientSecret: paymentIntent.client_secret,
+                                    paymentStatus: 'requires_action',
+                                    isRetry: true
+                                });
+                            } else if (paymentIntent.status === 'succeeded') {
+                                // Payment succeeded, update local subscription
+                                await db.update(subscriptions)
+                                    .set({ 
+                                        status: 'active',
+                                        updatedAt: new Date().toISOString()
+                                    })
+                                    .where(eq(subscriptions.id, existingSub.id));
+                                
+                                logger.info('Activated existing subscription after successful payment', {
+                                    subscriptionId: stripeSubscription.id,
+                                    localSubscriptionId: existingSub.id
+                                });
+                                
+                                return NextResponse.json({
+                                    subscriptionId: stripeSubscription.id,
+                                    status: 'active',
+                                    localSubscriptionId: existingSub.id,
+                                    requiresAction: false,
+                                    clientSecret: null,
+                                    paymentStatus: 'succeeded',
+                                    isRetry: true
+                                });
+                            }
+                        }
+                    } catch (payError: any) {
+                        logger.error('Failed to pay existing invoice', {
+                            error: payError.message,
+                            code: payError.code,
+                            invoiceId: latestInvoice.id
+                        });
+                        
+                        // If it's a 3D Secure requirement, handle it
+                        if (payError.code === 'invoice_payment_intent_requires_action') {
+                            // Try to get the payment intent from the error or updated invoice
+                            const updatedInvoice = await stripe.invoices.retrieve(latestInvoice.id, {
+                                expand: ['payment_intent']
+                            });
+                            
+                            if (updatedInvoice.payment_intent) {
+                                let paymentIntent;
+                                
+                                if (typeof updatedInvoice.payment_intent === 'string') {
+                                    paymentIntent = await stripe.paymentIntents.retrieve(updatedInvoice.payment_intent);
+                                } else {
+                                    paymentIntent = updatedInvoice.payment_intent;
+                                }
+                                
+                                if (paymentIntent.status === 'requires_action' && paymentIntent.client_secret) {
+                                    return NextResponse.json({
+                                        subscriptionId: stripeSubscription.id,
+                                        status: stripeSubscription.status,
+                                        localSubscriptionId: existingSub.id,
+                                        requiresAction: true,
+                                        clientSecret: paymentIntent.client_secret,
+                                        paymentStatus: 'requires_action',
+                                        isRetry: true
+                                    });
+                                }
+                            }
+                        }
+                        // Continue to next subscription if this one fails
+                    }
+                }
+            } catch (error) {
+                logger.error('Failed to check incomplete subscription', {
+                    error: error instanceof Error ? error.message : String(error),
+                    subscriptionId: existingSub.stripeSubscriptionId
+                });
+                // Continue to next subscription
+            }
+        }
+        
+        // Only block if there's an active subscription with a Stripe ID
+        const activeSubscriptionsWithStripeId = existingSubscriptions.filter(sub => 
+            (sub.status === 'active' || sub.status === 'trial') && 
+            sub.stripeSubscriptionId
+        );
+        
+        if (activeSubscriptionsWithStripeId.length > 0) {
+            logger.error('Active subscription already exists', {
+                userId: user.id,
+                serviceId,
+                existingSubscriptions: activeSubscriptionsWithStripeId.map(s => ({ 
+                    id: s.id, 
+                    status: s.status, 
+                    stripeId: s.stripeSubscriptionId 
+                }))
+            });
+            
+            return NextResponse.json({ 
+                error: 'Ai deja un abonament activ pentru acest serviciu.' 
+            }, { status: 400 });
+        }
+        
+        // Only create a new subscription if there are NO existing subscriptions
+        logger.info('No existing subscriptions found, creating new subscription', {
+            userId: user.id,
+            serviceId
+        });
 
         // Create subscription with immediate payment
         const subscriptionParams: any = {
@@ -423,8 +634,30 @@ export async function POST(request: NextRequest) {
                 if (paymentError.code === 'invoice_payment_intent_requires_action') {
                     logger.info('Invoice payment requires action, retrieving payment intent', {
                         invoiceId: invoice.id,
-                        subscriptionId: stripeSubscription.id
+                        subscriptionId: stripeSubscription.id,
+                        errorHasPaymentIntent: !!paymentError.payment_intent,
+                        errorPaymentIntentId: paymentError.payment_intent?.id
                     });
+                    
+                    // Check if the error contains the payment intent directly
+                    if (paymentError.payment_intent) {
+                        logger.info('Payment intent found in error object', {
+                            paymentIntentId: paymentError.payment_intent.id,
+                            status: paymentError.payment_intent.status,
+                            hasClientSecret: !!paymentError.payment_intent.client_secret
+                        });
+                        
+                        if (paymentError.payment_intent.client_secret && paymentError.payment_intent.status === 'requires_action') {
+                            requiresAction = true;
+                            clientSecret = paymentError.payment_intent.client_secret;
+                            paymentStatus = paymentError.payment_intent.status;
+                            
+                            logger.info('Using payment intent from error object for 3D Secure', {
+                                subscriptionId: stripeSubscription.id,
+                                paymentIntentId: paymentError.payment_intent.id
+                            });
+                        }
+                    }
                     
                     try {
                         // First try to retrieve the updated invoice
@@ -438,99 +671,6 @@ export async function POST(request: NextRequest) {
                             hasPaymentIntent: !!updatedInvoice.payment_intent,
                             paymentIntentId: typeof updatedInvoice.payment_intent === 'object' ? updatedInvoice.payment_intent?.id : updatedInvoice.payment_intent
                         });
-                        
-                        // If the invoice still doesn't have a payment intent, try to retrieve the subscription
-                        // which might have been updated with the latest invoice
-                        if (!updatedInvoice.payment_intent) {
-                            logger.info('Invoice still has no payment intent, retrieving updated subscription');
-                            
-                            const updatedSubscription = await stripe.subscriptions.retrieve(stripeSubscription.id, {
-                                expand: ['latest_invoice.payment_intent']
-                            });
-                            
-                            logger.info('Updated subscription retrieved', {
-                                subscriptionId: updatedSubscription.id,
-                                status: updatedSubscription.status,
-                                latestInvoiceId: typeof updatedSubscription.latest_invoice === 'object' ? updatedSubscription.latest_invoice?.id : updatedSubscription.latest_invoice,
-                                hasPaymentIntent: !!(updatedSubscription.latest_invoice as any)?.payment_intent
-                            });
-                            
-                            if ((updatedSubscription.latest_invoice as any)?.payment_intent) {
-                                const latestInvoice = updatedSubscription.latest_invoice as any;
-                                let paymentIntent;
-                                
-                                if (typeof latestInvoice.payment_intent === 'string') {
-                                    paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
-                                } else {
-                                    paymentIntent = latestInvoice.payment_intent;
-                                }
-                                
-                                logger.info('Payment intent found in updated subscription', {
-                                    paymentIntentId: paymentIntent.id,
-                                    status: paymentIntent.status,
-                                    hasClientSecret: !!paymentIntent.client_secret
-                                });
-                                
-                                paymentStatus = paymentIntent.status;
-                                
-                                if (paymentIntent.client_secret && paymentIntent.status === 'requires_action') {
-                                    requiresAction = true;
-                                    clientSecret = paymentIntent.client_secret;
-                                    
-                                    logger.info('Payment confirmation required - 3D Secure needed from subscription', {
-                                        subscriptionId: stripeSubscription.id,
-                                        paymentIntentId: paymentIntent.id,
-                                        status: paymentIntent.status,
-                                        clientSecret: !!clientSecret,
-                                        nextAction: paymentIntent.next_action
-                                    });
-                                }
-                                
-                                // We found the payment intent, no need to continue processing
-                            } else {
-                                // Last resort: search for payment intents created for this customer
-                                logger.info('No payment intent found anywhere, searching recent payment intents');
-                                
-                                try {
-                                    const recentPaymentIntents = await stripe.paymentIntents.list({
-                                        customer: stripeCustomerId,
-                                        limit: 5
-                                    });
-                                    
-                                    logger.info('Recent payment intents found', {
-                                        count: recentPaymentIntents.data.length,
-                                        paymentIntents: recentPaymentIntents.data.map(pi => ({
-                                            id: pi.id,
-                                            status: pi.status,
-                                            amount: pi.amount,
-                                            created: pi.created,
-                                            hasClientSecret: !!pi.client_secret
-                                        }))
-                                    });
-                                    
-                                    // Find the most recent payment intent that requires action
-                                    const requiresActionPI = recentPaymentIntents.data.find(pi => 
-                                        pi.status === 'requires_action' && pi.client_secret
-                                    );
-                                    
-                                    if (requiresActionPI) {
-                                        logger.info('Found payment intent requiring action', {
-                                            paymentIntentId: requiresActionPI.id,
-                                            status: requiresActionPI.status,
-                                            amount: requiresActionPI.amount
-                                        });
-                                        
-                                        requiresAction = true;
-                                        clientSecret = requiresActionPI.client_secret;
-                                        paymentStatus = 'requires_action';
-                                    }
-                                } catch (searchError: any) {
-                                    logger.error('Failed to search for payment intents', {
-                                        error: searchError.message
-                                    });
-                                }
-                            }
-                        }
                         
                         if (updatedInvoice.payment_intent) {
                             let paymentIntent;
@@ -564,6 +704,83 @@ export async function POST(request: NextRequest) {
                                     nextAction: paymentIntent.next_action
                                 });
                             }
+                        } else {
+                            // The invoice might not have a payment intent immediately after pay() is called
+                            // Try to retrieve the subscription again to get the latest invoice with payment intent
+                            logger.info('Invoice has no payment intent yet, retrieving subscription again');
+                            
+                            const updatedSubscription = await stripe.subscriptions.retrieve(stripeSubscription.id, {
+                                expand: ['latest_invoice.payment_intent']
+                            });
+                            
+                            const latestInvoice = updatedSubscription.latest_invoice as any;
+                            if (latestInvoice && latestInvoice.payment_intent) {
+                                let paymentIntent;
+                                
+                                if (typeof latestInvoice.payment_intent === 'string') {
+                                    paymentIntent = await stripe.paymentIntents.retrieve(latestInvoice.payment_intent);
+                                } else {
+                                    paymentIntent = latestInvoice.payment_intent;
+                                }
+                                
+                                logger.info('Payment intent found in updated subscription', {
+                                    paymentIntentId: paymentIntent.id,
+                                    status: paymentIntent.status,
+                                    hasClientSecret: !!paymentIntent.client_secret
+                                });
+                                
+                                paymentStatus = paymentIntent.status;
+                                
+                                if (paymentIntent.client_secret && paymentIntent.status === 'requires_action') {
+                                    requiresAction = true;
+                                    clientSecret = paymentIntent.client_secret;
+                                    
+                                    logger.info('Payment confirmation required - 3D Secure needed', {
+                                        subscriptionId: stripeSubscription.id,
+                                        paymentIntentId: paymentIntent.id,
+                                        status: paymentIntent.status
+                                    });
+                                }
+                            } else {
+                                // Still no payment intent found, try to list recent payment intents
+                                logger.info('Still no payment intent found, searching for recent payment intents');
+                                
+                                const recentPaymentIntents = await stripe.paymentIntents.list({
+                                    customer: stripeCustomerId,
+                                    limit: 5,
+                                    created: {
+                                        gte: Math.floor(Date.now() / 1000) - 60 // Last 60 seconds
+                                    }
+                                });
+                                
+                                logger.info('Recent payment intents found', {
+                                    count: recentPaymentIntents.data.length,
+                                    paymentIntents: recentPaymentIntents.data.map(pi => ({
+                                        id: pi.id,
+                                        status: pi.status,
+                                        amount: pi.amount,
+                                        created: pi.created
+                                    }))
+                                });
+                                
+                                // Find the payment intent for this invoice amount
+                                const matchingPaymentIntent = recentPaymentIntents.data.find(pi => 
+                                    pi.amount === invoice.total && 
+                                    (pi.status === 'requires_action' || pi.status === 'requires_payment_method')
+                                );
+                                
+                                if (matchingPaymentIntent && matchingPaymentIntent.client_secret) {
+                                    logger.info('Found matching payment intent requiring action', {
+                                        paymentIntentId: matchingPaymentIntent.id,
+                                        status: matchingPaymentIntent.status,
+                                        amount: matchingPaymentIntent.amount
+                                    });
+                                    
+                                    requiresAction = true;
+                                    clientSecret = matchingPaymentIntent.client_secret;
+                                    paymentStatus = matchingPaymentIntent.status;
+                                }
+                            }
                         }
                     } catch (retrieveError: any) {
                         logger.error('Failed to retrieve updated invoice', {
@@ -571,18 +788,6 @@ export async function POST(request: NextRequest) {
                             invoiceId: invoice.id
                         });
                     }
-                }
-                
-                // Fallback: if the error contains payment intent directly
-                if (paymentError.payment_intent && paymentError.payment_intent.client_secret) {
-                    logger.info('Payment error contains client secret for 3D Secure', {
-                        paymentIntentId: paymentError.payment_intent.id,
-                        status: paymentError.payment_intent.status
-                    });
-                    
-                    requiresAction = true;
-                    clientSecret = paymentError.payment_intent.client_secret;
-                    paymentStatus = 'requires_action';
                 }
             }
         } else {
@@ -653,7 +858,8 @@ export async function POST(request: NextRequest) {
             localSubscriptionId: newSubscription.id,
             requiresAction,
             clientSecret,
-            paymentStatus
+            paymentStatus,
+            isRetry: false
         });
     } catch (error: any) {
         return NextResponse.json(

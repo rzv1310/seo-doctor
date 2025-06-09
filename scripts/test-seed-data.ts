@@ -6,7 +6,7 @@ import db from '../database';
 import { services } from '../database/schema/services';
 import { users } from '../database/schema/users';
 import { subscriptions } from '../database/schema/subscriptions';
-import { orders } from '../database/schema/orders';
+// Orders table removed - using invoices instead
 import { invoices } from '../database/schema/invoices';
 
 
@@ -121,14 +121,13 @@ async function seedData() {
             console.log(`${servicesList.length} services created successfully!`);
         }
 
-        // Clear existing subscriptions, orders, and invoices for the test user
-        console.log('Clearing existing subscriptions, orders, and invoices for test user...');
+        // Clear existing subscriptions and invoices for the test user
+        console.log('Clearing existing subscriptions and invoices for test user...');
         await db.delete(invoices).where(eq(invoices.userId, testUserId));
-        await db.delete(orders).where(eq(orders.userId, testUserId));
         await db.delete(subscriptions).where(eq(subscriptions.userId, testUserId));
 
-        // Create subscriptions, orders, and invoices
-        console.log('Creating subscriptions, orders, and invoices for test user...');
+        // Create subscriptions and invoices
+        console.log('Creating subscriptions and invoices for test user...');
 
         // Create active subscriptions for 3 random services
         const shuffledServices = [...serviceIds].sort(() => 0.5 - Math.random());
@@ -160,29 +159,27 @@ async function seedData() {
                 updatedAt: startDate.toISOString(),
             });
 
-            // Create order for this subscription
-            const orderId = uuidv4();
-            await db.insert(orders).values({
-                id: orderId,
-                userId: testUserId,
-                serviceId: serviceId,
-                createdAt: startDate.toISOString(),
-                price: service.price,
-                status: 'completed',
-                notes: `Initial subscription order for ${service.name}. Subscription ID: ${subscriptionId}`,
-            });
-
-            // Create invoice for this order
+            // Create invoice for this subscription
             const invoiceDueDate = addDays(startDate, 14);
             await db.insert(invoices).values({
                 id: uuidv4(),
                 userId: testUserId,
-                orderId: orderId,
-                createdAt: startDate.toISOString(),
-                dueDate: invoiceDueDate.toISOString(),
-                amount: service.price,
+                subscriptionId: subscriptionId,
+                stripeInvoiceId: `in_test_${uuidv4().substring(0, 8)}`,
+                stripeCustomerId: 'cus_test123',
+                number: `INV-${Date.now()}`,
                 status: 'paid',
-                stripeInvoiceId: null,
+                currency: 'RON',
+                amountTotal: Math.round(service.price * 100 * 5), // EUR to RON conversion (approx 5:1) in smallest unit
+                amountPaid: Math.round(service.price * 100 * 5),
+                amountRemaining: 0,
+                serviceName: service.name,
+                serviceId: serviceId,
+                billingName: 'Test User',
+                createdAt: startDate.toISOString(),
+                updatedAt: startDate.toISOString(),
+                dueDate: invoiceDueDate.toISOString(),
+                paidAt: startDate.toISOString(),
             });
         }
 
@@ -215,31 +212,31 @@ async function seedData() {
                     updatedAt: endDate.toISOString(),
                 });
 
-                // Create order for this subscription
-                const orderId = uuidv4();
-                await db.insert(orders).values({
-                    id: orderId,
-                    userId: testUserId,
-                    serviceId: serviceId,
-                    createdAt: startDate.toISOString(),
-                    price: service.price,
-                    status: 'completed',
-                    notes: `Historical subscription order for ${service.name}. Subscription ID: ${subscriptionId}`,
-                });
-
-                // Create invoice for this order with various statuses
-                const invoiceStatuses = ['paid', 'cancelled'];
+                // Create invoice for this subscription with various statuses
+                const invoiceStatuses = ['paid', 'void'] as const;
                 const invoiceStatus = invoiceStatuses[Math.floor(Math.random() * invoiceStatuses.length)];
                 const invoiceDueDate = addDays(startDate, 14);
 
                 await db.insert(invoices).values({
                     id: uuidv4(),
                     userId: testUserId,
-                    orderId: orderId,
-                    createdAt: startDate.toISOString(),
-                    dueDate: invoiceDueDate.toISOString(),
-                    amount: service.price,
+                    subscriptionId: subscriptionId,
+                    stripeInvoiceId: `in_test_${uuidv4().substring(0, 8)}`,
+                    stripeCustomerId: 'cus_test123',
+                    number: `INV-${Date.now()}-${i}`,
                     status: invoiceStatus,
+                    currency: 'RON',
+                    amountTotal: Math.round(service.price * 100 * 5), // EUR to RON conversion
+                    amountPaid: invoiceStatus === 'paid' ? Math.round(service.price * 100 * 5) : 0,
+                    amountRemaining: invoiceStatus === 'paid' ? 0 : Math.round(service.price * 100 * 5),
+                    serviceName: service.name,
+                    serviceId: serviceId,
+                    billingName: 'Test User',
+                    createdAt: startDate.toISOString(),
+                    updatedAt: endDate.toISOString(),
+                    dueDate: invoiceDueDate.toISOString(),
+                    paidAt: invoiceStatus === 'paid' ? endDate.toISOString() : null,
+                    voidedAt: invoiceStatus === 'void' ? endDate.toISOString() : null,
                     stripeInvoiceId: null,
                 });
             }
@@ -255,32 +252,30 @@ async function seedData() {
 
             const createdDate = getRandomDateInPast(12); // Past year
 
-            // Create order
-            const orderId = uuidv4();
-            await db.insert(orders).values({
-                id: orderId,
-                userId: testUserId,
-                serviceId: serviceId,
-                createdAt: createdDate.toISOString(),
-                price: service.price,
-                status: 'completed',
-                notes: `One-time purchase of ${service.name}`,
-            });
-
             // Create invoice
             const invoiceDueDate = addDays(createdDate, 14);
-            const invoiceStatuses = ['paid', 'paid', 'paid', 'pending', 'overdue']; // Mostly paid, few others
+            const invoiceStatuses = ['paid', 'paid', 'paid', 'open', 'open'] as const; // Mostly paid, few open
             const invoiceStatus = invoiceStatuses[Math.floor(Math.random() * invoiceStatuses.length)];
 
             await db.insert(invoices).values({
                 id: uuidv4(),
                 userId: testUserId,
-                orderId: orderId,
-                createdAt: createdDate.toISOString(),
-                dueDate: invoiceDueDate.toISOString(),
-                amount: service.price,
+                subscriptionId: null, // One-time purchase, no subscription
+                stripeInvoiceId: `in_test_${uuidv4().substring(0, 8)}`,
+                stripeCustomerId: 'cus_test123',
+                number: `INV-${Date.now()}-${i}`,
                 status: invoiceStatus,
-                stripeInvoiceId: null,
+                currency: 'RON',
+                amountTotal: Math.round(service.price * 100 * 5), // EUR to RON
+                amountPaid: invoiceStatus === 'paid' ? Math.round(service.price * 100 * 5) : 0,
+                amountRemaining: invoiceStatus === 'paid' ? 0 : Math.round(service.price * 100 * 5),
+                serviceName: service.name,
+                serviceId: serviceId,
+                billingName: 'Test User',
+                createdAt: createdDate.toISOString(),
+                updatedAt: createdDate.toISOString(),
+                dueDate: invoiceDueDate.toISOString(),
+                paidAt: invoiceStatus === 'paid' ? createdDate.toISOString() : null,
             });
         }
 
