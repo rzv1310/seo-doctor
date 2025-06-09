@@ -49,8 +49,15 @@ export function calculateDiscountedPrice(
             discountedPrice = Math.max(0, discountedPrice - discountAmount);
             totalPercentOff += coupon.percent_off;
         } else if (coupon.amount_off && coupon.amount_off > 0) {
-            // Apply fixed amount discount (convert from cents to euros)
-            const amountOffEur = coupon.amount_off / 100;
+            // Apply fixed amount discount - convert from coupon currency to EUR if needed
+            let amountOffEur: number;
+            if (coupon.currency === 'ron') {
+                // Convert RON to EUR using the conversion rate (5 RON = 1 EUR)
+                amountOffEur = convertRONtoEUR(coupon.amount_off) / 100;
+            } else {
+                // Assume it's already in EUR or convert to cents
+                amountOffEur = coupon.amount_off / 100;
+            }
             discountedPrice = Math.max(0, discountedPrice - amountOffEur);
             totalAmountOff += amountOffEur;
         }
@@ -60,7 +67,11 @@ export function calculateDiscountedPrice(
             id: coupon.id,
             name: coupon.name,
             percentOff: coupon.percent_off,
-            amountOff: coupon.amount_off ? coupon.amount_off / 100 : null,
+            amountOff: coupon.amount_off ? (
+                coupon.currency === 'ron' 
+                    ? convertRONtoEUR(coupon.amount_off) / 100 
+                    : coupon.amount_off / 100
+            ) : null,
             currency: coupon.currency,
             duration: coupon.duration,
             durationInMonths: coupon.duration_in_months,

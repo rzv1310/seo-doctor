@@ -3,7 +3,8 @@ export type Service = {
     name: string;
     description: string;
     price: string;
-    priceValue: number; // Price in cents for calculations
+    priceValue: number; // Price in RON bani for Stripe
+    priceValueEUR: number; // Price in EUR cents for calculations
     status?: string;
     renewalDate?: string;
     usage?: number;

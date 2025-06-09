@@ -50,9 +50,9 @@ export default function MultiSubscriptionCheckout({
     const [stripe, setStripe] = useState<any>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Calculate total price
-    const totalPrice = items.reduce((sum, item) => sum + item.priceValue, 0);
-    const discountedPrice = totalPrice - (totalPrice * discount / 100);
+    // Use cart context values which already handle currency conversion
+    const { finalPrice, totalPrice: cartTotal } = useCart();
+    const discountedPrice = finalPrice;
 
     // Initialize Stripe and fetch payment methods on mount
     useEffect(() => {
@@ -75,7 +75,7 @@ export default function MultiSubscriptionCheckout({
         try {
             const response = await fetch('/api/payment-methods');
             const data = await response.json();
-            
+
             if (response.ok) {
                 setPaymentMethods(data.cards || []);
                 // Auto-select default payment method
@@ -144,7 +144,7 @@ export default function MultiSubscriptionCheckout({
 
         setProcessing3DS(true);
         setError(null);
-        
+
         logger.info('Starting 3D Secure authentication process', {
             subscriptionCount: subscriptionsRequiring3DS.length,
             subscriptions: subscriptionsRequiring3DS.map(s => ({
@@ -172,7 +172,7 @@ export default function MultiSubscriptionCheckout({
                 const confirmResult = await stripe.confirmCardPayment(
                     subscription.clientSecret
                 );
-                
+
                 logger.info('Stripe confirmCardPayment result', {
                     subscriptionId: subscription.subscriptionId,
                     hasError: !!confirmResult.error,
@@ -207,11 +207,11 @@ export default function MultiSubscriptionCheckout({
 
             // All payment confirmations successful
             logger.info('All payment confirmations completed successfully');
-            
+
             // Check payment status to ensure subscription is activated
             logger.info('Verifying payment completion with Stripe');
             await verifyPaymentCompletion(subscriptionsRequiring3DS);
-            
+
             // Update local subscription state to reflect successful payments
             const updatedSubscriptions = subscriptions.map(sub => {
                 if (subscriptionsRequiring3DS.find(s => s.subscriptionId === sub.subscriptionId)) {
@@ -220,7 +220,7 @@ export default function MultiSubscriptionCheckout({
                 return sub;
             });
             setSubscriptions(updatedSubscriptions);
-            
+
             // Now all payments are complete, call success
             if (onSuccess) {
                 onSuccess(subscriptionsRequiring3DS.map(sub => sub.subscriptionId));
@@ -297,30 +297,30 @@ export default function MultiSubscriptionCheckout({
         const createdSubscriptions = [];
 
         try {
-            logger.info('Creating subscriptions', { 
+            logger.info('Creating subscriptions', {
                 paymentMethodId: selectedPaymentMethod,
-                itemCount: items.length 
+                itemCount: items.length
             });
-            
+
             for (const item of items) {
-                logger.info('Creating subscription for service', { 
-                    serviceId: item.id, 
-                    serviceName: item.name 
+                logger.info('Creating subscription for service', {
+                    serviceId: item.id,
+                    serviceName: item.name
                 });
-                
+
                 const requestBody = {
                     serviceId: item.id,
                     paymentMethodId: selectedPaymentMethod,
                     coupon: couponValid && !couponData?.promotionCodeId ? localCouponCode.toUpperCase() : undefined,
                     promotionCodeId: couponData?.promotionCodeId,
                 };
-                
+
                 logger.info('Making subscription creation request', {
                     serviceId: item.id,
                     serviceName: item.name,
                     requestBody
                 });
-                
+
                 const response = await fetch('/api/subscriptions/create-stripe-subscription', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -328,7 +328,7 @@ export default function MultiSubscriptionCheckout({
                 });
 
                 const data = await response.json();
-                
+
                 logger.info('Subscription creation response received', {
                     serviceId: item.id,
                     serviceName: item.name,
@@ -351,7 +351,7 @@ export default function MultiSubscriptionCheckout({
                     ...data,
                     serviceName: item.name,
                 };
-                
+
                 logger.info('Subscription created successfully', {
                     serviceId: item.id,
                     serviceName: item.name,
@@ -361,7 +361,7 @@ export default function MultiSubscriptionCheckout({
                     hasClientSecret: !!subscriptionResult.clientSecret,
                     paymentStatus: subscriptionResult.paymentStatus
                 });
-                
+
                 createdSubscriptions.push(subscriptionResult);
             }
 
@@ -371,14 +371,14 @@ export default function MultiSubscriptionCheckout({
             const allActive = createdSubscriptions.every(sub => sub.status === 'active');
             const requiresAction = createdSubscriptions.some(sub => sub.requiresAction);
             const hasIncomplete = createdSubscriptions.some(sub => sub.status === 'incomplete');
-            
+
             logger.info('Subscriptions created', {
                 count: createdSubscriptions.length,
                 allActive,
                 requiresAction,
                 hasIncomplete,
-                statuses: createdSubscriptions.map(s => ({ 
-                    id: s.subscriptionId, 
+                statuses: createdSubscriptions.map(s => ({
+                    id: s.subscriptionId,
                     status: s.status,
                     requiresAction: s.requiresAction,
                     hasClientSecret: !!s.clientSecret,
@@ -390,7 +390,7 @@ export default function MultiSubscriptionCheckout({
                 logger.info('Payment requires additional action - 3D Secure needed');
                 // Handle 3D Secure authentication for subscriptions that require it
                 const subscriptionsRequiring3DS = createdSubscriptions.filter(sub => sub.requiresAction && sub.clientSecret);
-                
+
                 if (subscriptionsRequiring3DS.length > 0) {
                     logger.info('Processing 3D Secure for subscriptions', {
                         count: subscriptionsRequiring3DS.length,
@@ -399,7 +399,7 @@ export default function MultiSubscriptionCheckout({
                             serviceName: s.serviceName
                         }))
                     });
-                    
+
                     // Process 3D Secure authentication
                     await handle3DSecureAuthentication(subscriptionsRequiring3DS);
                     setIsSubmitting(false); // Reset after 3D Secure handling
@@ -444,7 +444,7 @@ export default function MultiSubscriptionCheckout({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Only submit if we're not showing the add card form
         if (!showAddCard) {
             await createSubscriptions();
@@ -480,8 +480,8 @@ export default function MultiSubscriptionCheckout({
                 {couponValid && (
                     <div className="flex items-center justify-between text-sm">
                         <p className="text-green-400">
-                            ✓ Cod promoțional aplicat cu succes! 
-                            {discountType === 'percent' ? ` (${discount}% discount)` : ` (-${formatCurrency(discount)})`}
+                            ✓ Cod promoțional aplicat cu succes!
+                            {discountType === 'percent' ? ` (${discount}% reducere)` : ` (-${formatCurrency(discountType === 'amount' && couponData?.currency === 'ron' ? discount / 5 : discount)})`}
                         </p>
                         <button
                             type="button"
@@ -505,7 +505,7 @@ export default function MultiSubscriptionCheckout({
             {/* Payment Method Selection */}
             <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Metodă de Plată</h3>
-                
+
                 {loadingPaymentMethods ? (
                     <div className="text-center py-4">
                         <Spinner size="md" />
@@ -533,7 +533,7 @@ export default function MultiSubscriptionCheckout({
                                         e.stopPropagation();
                                         setShowAddCard(true);
                                     }}
-                                    className="text-sm text-primary hover:text-primary-hover transition-colors"
+                                    className="text-sm text-text-primary hover:text-primary-hover transition-colors"
                                 >
                                     + Adaugă card nou
                                 </button>

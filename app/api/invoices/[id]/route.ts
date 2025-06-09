@@ -63,27 +63,21 @@ export const GET = withLogging(async (
                 name: item.description || 'Service',
                 description: item.metadata?.description || '',
                 quantity: item.quantity || 1,
-                unitPrice: item.amount / (item.quantity || 1) / 100, // Calculate unit price from amount
-                total: item.amount / 100 // Convert from cents
+                unitPrice: item.amount / (item.quantity || 1), // Keep in smallest unit
+                total: item.amount // Keep in smallest unit
             }));
 
             // Get discount/coupon information
-            const discounts = invoice.discounts?.map(discount => {
-                if (typeof discount === 'string') {
-                    return;
-                }
-
-                return {
-                    couponId: discount.coupon?.id,
-                    couponName: discount.coupon?.name,
-                    percentOff: discount.coupon?.percent_off,
-                    amountOff: discount.coupon?.amount_off ? discount.coupon.amount_off / 100 : null,
-                    currency: discount.coupon?.currency
-                }
-            }) || [];
+            const discounts = invoice.discounts?.filter(discount => typeof discount !== 'string').map(discount => ({
+                couponId: discount.coupon?.id,
+                couponName: discount.coupon?.name,
+                percentOff: discount.coupon?.percent_off,
+                amountOff: discount.coupon?.amount_off || null,
+                currency: discount.coupon?.currency
+            })) || [];
 
             // Calculate actual discount amount from subtotal vs total (includes tax consideration)
-            const actualDiscountAmount = Math.max(0, (invoice.subtotal - invoice.total + (invoice.tax || 0)) / 100);
+            const actualDiscountAmount = Math.max(0, (invoice.subtotal - invoice.total + (invoice.tax || 0)));
 
             // Get billing address from Stripe customer or use database values
             const billingDetails = invoice.customer_address as any || {};
@@ -94,7 +88,7 @@ export const GET = withLogging(async (
                 orderId: null,
                 createdAt: new Date(invoice.created * 1000).toISOString(),
                 dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
-                amount: (invoice.amount_paid || invoice.amount_due) / 100, // Convert from cents
+                amount: invoice.total, // Keep in smallest unit
                 status: invoice.status === 'paid' ? 'paid' :
                         invoice.status === 'open' ? 'pending' :
                         invoice.status === 'uncollectible' ? 'cancelled' : 'pending',
@@ -117,9 +111,9 @@ export const GET = withLogging(async (
                 currency: invoice.currency,
                 hostedInvoiceUrl: invoice.hosted_invoice_url,
                 invoicePdf: invoice.invoice_pdf,
-                subtotal: invoice.subtotal / 100,
-                tax: invoice.tax ? invoice.tax / 100 : 0,
-                total: invoice.total / 100,
+                subtotal: invoice.subtotal,
+                tax: invoice.tax || 0,
+                total: invoice.total,
                 discountTotal: actualDiscountAmount
             };
 

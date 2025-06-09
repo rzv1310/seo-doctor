@@ -20,7 +20,7 @@ export default function Dashboard() {
                 // Use discounted price if available (already in EUR), otherwise use service's EUR display price
                 const priceInEur = sub.discountInfo?.discountedPrice ? 
                     sub.discountInfo.discountedPrice : 
-                    ((sub.service as any)?.priceValue ? (sub.service as any).priceValue / 100 : 1000); // Convert cents to EUR
+                    ((sub.service as any)?.priceValueEUR ? (sub.service as any).priceValueEUR / 100 : 1000); // Convert EUR cents to EUR
                 return total + priceInEur;
             }, 0);
     };
@@ -112,7 +112,7 @@ export default function Dashboard() {
                                                     {new Intl.NumberFormat('ro-RO', {
                                                         style: 'currency',
                                                         currency: 'EUR'
-                                                    }).format(1000)}
+                                                    }).format((subscription.service as any)?.priceValueEUR ? (subscription.service as any).priceValueEUR / 100 : 1000)}
                                                     <span className="text-xs text-text-primary">/lună</span>
                                                 </div>
                                             )}

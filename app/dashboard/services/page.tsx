@@ -120,6 +120,7 @@ export default function ServicesPage() {
             description: service.description,
             price: service.price,
             priceValue: service.priceValue,
+            priceValueEUR: service.priceValueEUR,
             features: service.features,
         };
         addItem(cartService);

@@ -40,6 +40,7 @@ export function BuyNowButton({ serviceName, size = 'lg', fullRounded = false, sh
             description: service.description,
             price: service.price,
             priceValue: service.priceValue,
+            priceValueEUR: service.priceValueEUR,
             features: service.features,
             period: service.period
         });

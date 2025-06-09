@@ -61,7 +61,7 @@ export const GET = withLogging(async (request: NextRequest) => {
                 orderId: null, // Stripe invoices don't have orderId
                 createdAt: new Date(invoice.created * 1000).toISOString(),
                 dueDate: invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null,
-                amount: invoice.amount_paid / 100, // Keep in original currency (RON)
+                amount: invoice.total, // Keep in original currency smallest unit (RON bani)
                 status: invoice.status === 'paid' ? 'paid' : 
                         invoice.status === 'open' ? 'pending' : 
                         invoice.status === 'uncollectible' ? 'cancelled' : 

@@ -1,6 +1,7 @@
 // Currency conversion utilities
-// Exchange rate RON to EUR (you should update this from a reliable source)
-const RON_TO_EUR_RATE = 0.2; // 1 RON = 0.2 EUR (approximate rate, update as needed)
+// Exchange rate: 5 RON = 1 EUR
+export const RON_TO_EUR_RATE = 0.2; // 1 RON = 0.2 EUR (5:1 conversion rate)
+export const EUR_TO_RON_RATE = 5; // 1 EUR = 5 RON
 
 
 
@@ -66,4 +67,13 @@ export function formatEUR(amountInCents: number): string {
 export function getDisplayPriceInEUR(amountInRON: number): string {
     const eurInCents = convertRONtoEUR(amountInRON);
     return formatEUR(eurInCents);
+}
+
+/**
+ * Convert RON bani to EUR cents (alias for convertRONtoEUR)
+ * @param ronBani - Amount in RON bani (smallest unit)
+ * @returns Amount in EUR cents (smallest unit)
+ */
+export function convertRONBaniToEURCents(ronBani: number): number {
+    return convertRONtoEUR(ronBani);
 }

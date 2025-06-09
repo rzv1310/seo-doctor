@@ -29,8 +29,8 @@ export default function InvoicesTable({
     const formatPrice = (price: number, currency?: string) => {
         return new Intl.NumberFormat('ro-RO', {
             style: 'currency',
-            currency: currency?.toUpperCase() || 'EUR'
-        }).format(price);
+            currency: currency?.toUpperCase() || 'RON'
+        }).format(price / 100);
     };
 
     const getStatusText = (status: string) => {

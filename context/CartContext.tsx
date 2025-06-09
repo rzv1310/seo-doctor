@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useLogger } from '@/lib/client-logger';
+import { convertRONBaniToEURCents } from '@/lib/currency-utils';
 import type { CartService, CouponData, CartContextType } from '@/types/cart';
 
 // Create the context with default values
@@ -109,8 +110,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const itemCount = items.length;
 
     const totalPrice = items.reduce((sum, item) => {
-        const priceValue = item.priceValue;
-        return sum + priceValue;
+        // Fallback to convert priceValue if priceValueEUR is missing (for existing cart items)
+        const priceValue = item.priceValueEUR || convertRONBaniToEURCents(item.priceValue || 0);
+        return sum + (priceValue || 0);
     }, 0);
 
     const formattedTotalPrice = new Intl.NumberFormat('ro-RO', {
@@ -124,8 +126,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (data.percentOff) {
             return Math.round((price * data.percentOff) / 100);
         } else if (data.amountOff) {
-            // amountOff is in cents
-            return Math.min(data.amountOff, price);
+            // amountOff is in RON bani from Stripe, convert to EUR cents for display
+            const discountInEURCents = convertRONBaniToEURCents(data.amountOff);
+            return Math.min(discountInEURCents, price);
         }
 
         return 0;

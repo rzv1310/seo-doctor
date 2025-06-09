@@ -10,7 +10,8 @@ export const services: Service[] = [
         tag: 'Premium',
         tagClass: 'bg-green-900/30 text-green-300',
         price: '1.000 €', // Display price in EUR
-        priceValue: 100000, // 1000 EUR in cents for display
+        priceValue: 500000, // 5000 RON in bani for Stripe (1000 EUR * 5)
+        priceValueEUR: 100000, // 1000 EUR in cents for calculations
         period: '/lună',
         description: 'GARANTAT TOP 3 ÎN GOOGLE MAPS - SAU NU PLĂTEȘTI NIMIC!',
         status: 'available',
@@ -43,7 +44,8 @@ export const services: Service[] = [
         tag: 'Premium',
         tagClass: 'bg-green-900/30 text-green-300',
         price: '1.000 €', // Display price in EUR
-        priceValue: 100000, // 1000 EUR in cents for display
+        priceValue: 500000, // 5000 RON in bani for Stripe (1000 EUR * 5)
+        priceValueEUR: 100000, // 1000 EUR in cents for calculations
         period: '/lună',
         description: 'GARANTAT TOP 3 ÎN REZULTATELE GOOGLE - SAU NU PLĂTEȘTI NIMIC!',
         status: 'available',

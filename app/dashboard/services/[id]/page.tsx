@@ -234,7 +234,7 @@ export default function ServiceDetailPage() {
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
                     <h3 className="text-lg font-semibold mb-3">Preț</h3>
                     <div className="text-2xl font-bold text-green-400">
-                        {formatCurrency(service.priceValue)}
+                        {formatCurrency(service.priceValueEUR)}
                         <span className="text-sm text-gray-400">{service.period}</span>
                     </div>
                     {service.offers && service.offers.length > 0 && (
@@ -314,7 +314,7 @@ export default function ServiceDetailPage() {
                                 <SubscriptionCheckout
                                     serviceId={serviceId}
                                     serviceName={service.name}
-                                    price={service.priceValue}
+                                    price={service.priceValueEUR}
                                     onSuccess={handleSubscriptionSuccess}
                                     onCancel={() => setShowCheckout(false)}
                                 />

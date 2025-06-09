@@ -2,8 +2,9 @@ export type CartService = {
     id: number;
     name: string;
     description: string;
-    price: string; // Price in display format "$XX.XX"
-    priceValue: number; // Price in cents for calculations
+    price: string; // Price in display format "X.XXX €"
+    priceValue: number; // Price in RON bani for Stripe
+    priceValueEUR: number; // Price in EUR cents for calculations
     features: string[];
     period?: string;
 };

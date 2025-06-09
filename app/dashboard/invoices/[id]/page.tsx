@@ -16,8 +16,8 @@ export default function InvoiceDetailsPage() {
     const formatPrice = (price: number, currency?: string) => {
         return new Intl.NumberFormat('ro-RO', {
             style: 'currency',
-            currency: currency?.toUpperCase() || 'EUR',
-        }).format(price);
+            currency: currency?.toUpperCase() || 'RON',
+        }).format(price / 100);
     };
 
     // Format date
@@ -87,6 +87,7 @@ export default function InvoiceDetailsPage() {
         );
     }
 
+
     return (
         <>
             <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -130,14 +131,18 @@ export default function InvoiceDetailsPage() {
                     <h3 className="text-sm font-semibold mb-1 text-text-secondary">Sumă</h3>
                     <div className="text-xl font-bold text-text-primary">{formatPrice(invoice.amount, invoice.currency)}</div>
                 </div>
-                {invoice.discounts && invoice.discounts.length > 0 && (
+                {(invoice.discountTotal && invoice.discountTotal > 0) && (
                     <div className="dashboard-card p-4 border-green-500/20 bg-green-900/10">
                         <h3 className="text-sm font-semibold mb-1 text-text-secondary">Discount</h3>
                         <div className="text-green-400 font-semibold">
-                            {invoice.discounts[0].percentOff ? `${invoice.discounts[0].percentOff}%` : formatPrice(invoice.discountTotal || 0, invoice.currency)}
+                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]?.percentOff 
+                                ? `${invoice.discounts[0].percentOff}%` 
+                                : formatPrice(invoice.discountTotal || 0, invoice.currency)}
                         </div>
                         <div className="text-xs text-green-300 mt-1">
-                            {invoice.discounts[0].couponName || invoice.discounts[0].couponId}
+                            {(invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]) 
+                                ? (invoice.discounts[0].couponName || invoice.discounts[0].couponId)
+                                : 'Discount aplicat'}
                         </div>
                     </div>
                 )}
@@ -173,13 +178,20 @@ export default function InvoiceDetailsPage() {
                                 <p>{formatDate(invoice.createdAt)}</p>
                                 <p className="font-medium">Data Scadentă:</p>
                                 <p>{formatDate(invoice.dueDate)}</p>
-                                {invoice.discounts && invoice.discounts.length > 0 && (
+                                {(invoice.discountTotal && invoice.discountTotal > 0) && (
                                     <>
-                                        <p className="font-medium">Cod Promoțional:</p>
+                                        <p className="font-medium">Discount:</p>
                                         <p className="text-green-400">
-                                            {invoice.discounts[0].couponName || invoice.discounts[0].couponId}
-                                            {invoice.discounts[0].percentOff && ` (${invoice.discounts[0].percentOff}% reducere)`}
-                                            {invoice.discounts[0].amountOff && ` (${formatPrice(invoice.discounts[0].amountOff, invoice.discounts[0].currency)} reducere)`}
+                                            {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0] 
+                                                ? (
+                                                    <>
+                                                        {invoice.discounts[0].couponName || invoice.discounts[0].couponId}
+                                                        {invoice.discounts[0].percentOff && ` (${invoice.discounts[0].percentOff}% reducere)`}
+                                                        {invoice.discounts[0].amountOff && ` (${formatPrice(invoice.discounts[0].amountOff, invoice.discounts[0].currency)} reducere)`}
+                                                    </>
+                                                )
+                                                : `${formatPrice(invoice.discountTotal, invoice.currency)} reducere`
+                                            }
                                         </p>
                                     </>
                                 )}
@@ -233,11 +245,12 @@ export default function InvoiceDetailsPage() {
                                 <span className="text-text-secondary">Subtotal</span>
                                 <span>{formatPrice(invoice.subtotal || invoice.amount, invoice.currency)}</span>
                             </div>
-                            {invoice.discounts && invoice.discounts.length > 0 && (
+                            {(invoice.discountTotal && invoice.discountTotal > 0) && (
                                 <div className="flex justify-between py-2 border-b border-border-color">
                                     <span className="text-text-secondary">
-                                        Discount {invoice.discounts[0].couponName && `(${invoice.discounts[0].couponName})`}
-                                        {invoice.discounts[0].percentOff && ` - ${invoice.discounts[0].percentOff}%`}
+                                        Discount
+                                        {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]?.couponName && ` (${invoice.discounts[0].couponName})`}
+                                        {invoice.discounts && invoice.discounts.length > 0 && invoice.discounts[0]?.percentOff && ` - ${invoice.discounts[0].percentOff}%`}
                                     </span>
                                     <span className="text-green-500">-{formatPrice(invoice.discountTotal || 0, invoice.currency)}</span>
                                 </div>
