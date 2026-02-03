@@ -15,7 +15,8 @@
         "test:seed-user": "dotenv -e .env -- tsx scripts/test-seed-user.ts",
         "test:seed-data": "dotenv -e .env -- tsx scripts/test-seed-data.ts",
         "test:seed-admin": "dotenv -e .env -- tsx scripts/test-seed-admin.ts",
-        "db:drop": "dotenv -e .env -- tsx scripts/drop-database.ts"
+        "db:drop": "dotenv -e .env -- tsx scripts/drop-database.ts",
+        "db:fix-indexes": "dotenv -e .env -- tsx scripts/fix-indexes.ts"
     },
     "dependencies": {
         "@libsql/client": "^0.15.5",
