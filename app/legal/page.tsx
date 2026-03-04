@@ -13,10 +13,9 @@ function LegalPage() {
     const { isAuthenticated } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const tab = searchParams.get('tab') || 'privacy';
+    const tab = searchParams.get('tab') || 'terms';
 
     const tabs = [
-        { id: 'privacy', label: 'Politici de confidențialitate' },
         { id: 'terms', label: 'Termeni și condiții' },
         { id: 'gdpr', label: 'GDPR' },
         { id: 'cookies', label: 'Cookies' },
@@ -55,91 +54,6 @@ function LegalPage() {
 
                 {/* Tab Content */}
                 <div className="bg-dark-blue-lighter rounded-lg p-6 border border-border-color">
-                    {tab === 'privacy' && (
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-4">Politici de confidențialitate</h2>
-
-                            <div className="space-y-4">
-                                <h3 className="text-xl font-semibold">1. Introducere</h3>
-                                <p>
-                                    Această Politică de Confidențialitate descrie modul în care SEO Doctor SRL colectează, utilizează și divulgă informațiile dumneavoastră atunci când utilizați serviciul nostru.
-                                </p>
-                                <p>
-                                    Colectăm și utilizăm datele dumneavoastră personale pentru a furniza și îmbunătăți Serviciul. Prin utilizarea Serviciului, sunteți de acord cu colectarea și utilizarea informațiilor în conformitate cu această politică.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">2. Informațiile pe care le colectăm</h3>
-                                <p>
-                                    <strong>Date personale</strong>: În timp ce utilizați Serviciul nostru, este posibil să vă solicităm să ne furnizați anumite informații de identificare personală care pot fi utilizate pentru a vă contacta sau identifica.
-                                </p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Informații de contact (nume, adresă de email, număr de telefon)</li>
-                                    <li>Informații de utilizare și preferințe</li>
-                                    <li>Informații despre dispozitivul și browser-ul dumneavoastră</li>
-                                    <li>Adresa IP și date de localizare aproximative</li>
-                                </ul>
-
-                                <h3 className="text-xl font-semibold">3. Cum utilizăm datele dumneavoastră</h3>
-                                <p>Utilizăm informațiile colectate pentru:</p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Furnizarea și menținerea Serviciului nostru</li>
-                                    <li>Notificarea despre modificări ale Serviciului nostru</li>
-                                    <li>Oferirea de asistență pentru clienți</li>
-                                    <li>Analizarea datelor pentru îmbunătățirea Serviciului</li>
-                                    <li>Monitorizarea utilizării Serviciului</li>
-                                    <li>Detectarea, prevenirea și rezolvarea problemelor tehnice</li>
-                                </ul>
-
-                                <h3 className="text-xl font-semibold">4. Cookie-uri și tehnologii de urmărire</h3>
-                                <p>
-                                    Utilizăm cookie-uri și tehnologii similare pentru a urmări activitatea pe Serviciul nostru și pentru a stoca anumite informații. Cookie-urile sunt fișiere cu o cantitate mică de date care pot include un identificator unic anonim.
-                                </p>
-                                <p>
-                                    Puteți instrui browser-ul dumneavoastră să refuze toate cookie-urile sau să indice când este trimis un cookie. Cu toate acestea, dacă nu acceptați cookie-urile, este posibil să nu puteți utiliza unele părți ale Serviciului nostru.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">5. Transferul datelor</h3>
-                                <p>
-                                    Informațiile dumneavoastră, inclusiv Datele Personale, pot fi transferate către și menținute pe computere localizate în afara statului, provinciei, țării sau altei jurisdicții guvernamentale unde legile de protecție a datelor pot diferi de cele din jurisdicția dumneavoastră.
-                                </p>
-                                <p>
-                                    Consimțământul dumneavoastră la această Politică de Confidențialitate urmat de trimiterea unor astfel de informații reprezintă acordul dumneavoastră pentru acel transfer.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">6. Dezvăluirea datelor</h3>
-                                <p>Putem dezvălui informațiile dumneavoastră personale în următoarele situații:</p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Pentru a respecta o obligație legală</li>
-                                    <li>Pentru a proteja și apăra drepturile sau proprietatea SEO Doctor SRL</li>
-                                    <li>Pentru a preveni sau investiga posibile abateri în legătură cu Serviciul</li>
-                                    <li>Pentru a proteja siguranța personală a utilizatorilor Serviciului sau a publicului</li>
-                                    <li>Pentru a proteja împotriva răspunderii legale</li>
-                                </ul>
-
-                                <h3 className="text-xl font-semibold">7. Securitatea datelor</h3>
-                                <p>
-                                    Securitatea datelor dumneavoastră este importantă pentru noi, dar rețineți că nicio metodă de transmitere pe Internet sau metodă de stocare electronică nu este 100% sigură. În timp ce ne străduim să folosim mijloace comercial acceptabile pentru a proteja Datele dumneavoastră Personale, nu putem garanta securitatea absolută a acestora.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">8. Modificări ale acestei Politici de Confidențialitate</h3>
-                                <p>
-                                    Este posibil să actualizăm Politica noastră de Confidențialitate din când în când. Vă vom notifica cu privire la orice modificări prin postarea noii Politici de Confidențialitate pe această pagină.
-                                </p>
-                                <p>
-                                    Vă sfătuim să revizuiți periodic această Politică de Confidențialitate pentru orice modificări. Modificările acestei Politici de Confidențialitate sunt efective atunci când sunt postate pe această pagină.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">9. Contactați-ne</h3>
-                                <p>
-                                    Dacă aveți întrebări despre această Politică de Confidențialitate, vă rugăm să ne contactați:
-                                </p>
-                                <div className="pl-6">
-                                    <p>Telefon: <PhoneLink /></p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {tab === 'terms' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-4">Termeni și condiții</h2>
@@ -228,6 +142,60 @@ function LegalPage() {
                                 <div className="pl-6">
                                     <p>Telefon: <PhoneLink /></p>
                                 </div>
+
+                                <h3 className="text-xl font-semibold">12. Descrierea serviciilor și obligațiile clientului</h3>
+                                <p>
+                                    SEO Doctor SRL oferă servicii de optimizare pentru motoarele de căutare (SEO) și marketing digital, incluzând, dar fără a se limita la:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>Optimizare SEO on-page și off-page</li>
+                                    <li>Marketing digital și strategie de conținut</li>
+                                    <li>Audituri tehnice SEO</li>
+                                    <li>Consultanță și cercetare de cuvinte cheie</li>
+                                    <li>Creare de conținut optimizat</li>
+                                    <li>Link building și promovare online</li>
+                                    <li>Raportare și analiză de performanță</li>
+                                </ul>
+                                <p>
+                                    Clientul se obligă să furnizeze accesul necesar la website-ul propriu, contul Google Analytics și Google Search Console pentru implementarea serviciilor contractate. Întârzierile cauzate de client în furnizarea accesului sau a materialelor solicitate nu constituie responsabilitatea companiei și pot afecta termenele de livrare.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">13. Condiții de plată</h3>
+                                <p>
+                                    Plata serviciilor se efectuează prin transfer bancar sau prin platforma Stripe, în moneda RON sau EUR, conform ofertei acceptate de client. Facturile sunt emise în conformitate cu legislația fiscală din România și sunt scadente în termen de 5 zile lucrătoare de la emitere.
+                                </p>
+                                <p>
+                                    Neplata la termen poate duce la suspendarea serviciilor fără a constitui o reziliere a contractului. Reluarea serviciilor se face după efectuarea plății restante.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">14. Forță majoră</h3>
+                                <p>
+                                    Niciuna dintre părți nu va fi răspunzătoare pentru neexecutarea sau executarea cu întârziere a obligațiilor contractuale în cazul unui eveniment de forță majoră. Sunt considerate evenimente de forță majoră: dezastre naturale, pandemii, modificări legislative semnificative, întreruperi majore ale serviciului de internet și atacuri cibernetice de amploare.
+                                </p>
+                                <p>
+                                    Partea afectată de forța majoră trebuie să notifice cealaltă parte în termen de 5 zile lucrătoare de la producerea evenimentului și să depună eforturi rezonabile pentru a minimiza impactul asupra obligațiilor contractuale.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">15. Confidențialitate</h3>
+                                <p>
+                                    Ambele părți se obligă să păstreze confidențialitatea informațiilor sensibile obținute în cadrul colaborării, incluzând, dar fără a se limita la: date de acces la website-uri și platforme, strategii de marketing, date financiare și informații despre clienți.
+                                </p>
+                                <p>
+                                    Obligația de confidențialitate se menține pe toată durata colaborării și încă 2 ani după încetarea acesteia. Încălcarea obligației de confidențialitate atrage răspunderea civilă conform legislației române în vigoare.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">16. Legătura cu alte politici</h3>
+                                <p>
+                                    Acești Termeni și Condiții trebuie citiți împreună cu celelalte politici ale noastre:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>
+                                        <Link href="/legal?tab=cookies" variant="primary" underline inline>Politica de Cookies</Link> — informații despre cookie-urile utilizate pe site-ul nostru
+                                    </li>
+                                    <li>
+                                        <Link href="/legal?tab=gdpr" variant="primary" underline inline>Politica GDPR</Link> — informații despre protecția datelor personale și drepturile dumneavoastră
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     )}
@@ -320,7 +288,75 @@ function LegalPage() {
                                     <li>Website: <Link href="https://www.dataprotection.ro/" variant="primary" underline inline>https://www.dataprotection.ro/</Link></li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold">9. Contactați-ne</h3>
+                                <h3 className="text-xl font-semibold">9. Datele personale pe care le colectăm</h3>
+                                <p>
+                                    În cadrul furnizării serviciilor noastre, colectăm următoarele categorii de date personale:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>Nume și prenume</li>
+                                    <li>Adresă de email</li>
+                                    <li>Număr de telefon</li>
+                                    <li>Adresă IP</li>
+                                    <li>Date de navigare (paginile vizitate, durata vizitei, tipul browser-ului și dispozitivului)</li>
+                                    <li>Date de facturare (nume, adresă, CUI pentru persoane juridice)</li>
+                                    <li>Date furnizate voluntar prin formulare de contact</li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">10. Scopurile prelucrării datelor</h3>
+                                <p>
+                                    Datele dumneavoastră personale sunt prelucrate pentru următoarele scopuri:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>Furnizarea serviciilor de optimizare SEO și marketing digital</li>
+                                    <li>Comunicarea cu dumneavoastră privind serviciile contractate</li>
+                                    <li>Facturare și gestionarea plăților</li>
+                                    <li>Analiza traficului prin Google Analytics</li>
+                                    <li>Măsurarea campaniilor și remarketing prin Google Ads</li>
+                                    <li>Conformitate legală și fiscală</li>
+                                    <li>Prevenirea fraudelor prin Stripe</li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">11. Servicii terțe care prelucrează date</h3>
+                                <p>
+                                    Utilizăm următoarele servicii terțe pentru prelucrarea datelor:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li><strong>Google Analytics</strong> — analiza traficului pe site (temei juridic: interes legitim)</li>
+                                    <li><strong>Google Ads</strong> — măsurarea conversiilor din campanii publicitare și remarketing (temei juridic: consimțământ)</li>
+                                    <li><strong>Stripe</strong> — procesarea plăților online (temei juridic: executarea contractului)</li>
+                                </ul>
+                                <p>
+                                    <strong>Nu vindem și nu partajăm datele dumneavoastră personale cu alte terțe părți</strong> în afara celor menționate mai sus.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">12. Perioada de retenție a datelor</h3>
+                                <p>
+                                    Păstrăm datele dumneavoastră personale pentru perioade diferite, în funcție de scopul prelucrării:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li><strong>Date de cont și facturare</strong>: pe durata relației contractuale + 5 ani (conform legislației fiscale din România)</li>
+                                    <li><strong>Date Google Analytics</strong>: maximum 26 de luni</li>
+                                    <li><strong>Date Google Ads</strong>: până la retragerea consimțământului sau maximum 540 de zile</li>
+                                    <li><strong>Date din formulare de contact</strong>: maximum 12 luni</li>
+                                </ul>
+                                <p>
+                                    La expirarea perioadei de retenție, datele sunt șterse sau anonimizate.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">13. Legătura cu alte politici</h3>
+                                <p>
+                                    Această politică GDPR trebuie citită împreună cu celelalte politici ale noastre:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>
+                                        <Link href="/legal?tab=cookies" variant="primary" underline inline>Politica de Cookies</Link> — informații despre cookie-urile utilizate pe site-ul nostru
+                                    </li>
+                                    <li>
+                                        <Link href="/legal?tab=terms" variant="primary" underline inline>Termeni și Condiții</Link> — termenii de utilizare a serviciilor noastre
+                                    </li>
+                                </ul>
+
+                                <h3 className="text-xl font-semibold">14. Contactați-ne</h3>
                                 <p>
                                     Dacă aveți întrebări sau preocupări despre modul în care prelucrăm datele dumneavoastră personale sau doriți să vă exercitați drepturile GDPR, vă rugăm să ne contactați:
                                 </p>
@@ -353,7 +389,7 @@ function LegalPage() {
 
                                 <h4 className="text-lg font-semibold mt-4">Cookie-uri de la terți</h4>
                                 <p>
-                                    Utilizăm doar două servicii terțe care pot seta cookie-uri:
+                                    Utilizăm trei servicii terțe care pot seta cookie-uri:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
                                     <li>
@@ -362,14 +398,29 @@ function LegalPage() {
                                     <li>
                                         <strong>Google Analytics</strong> - pentru a înțelege cum utilizatorii interacționează cu site-ul nostru. Aceste cookie-uri colectează informații în mod anonim, inclusiv numărul de vizitatori ai site-ului, de unde au venit vizitatorii și paginile pe care le-au vizitat.
                                     </li>
+                                    <li>
+                                        <strong>Google Ads</strong> - pentru măsurarea conversiilor din campaniile publicitare și pentru remarketing. Aceste cookie-uri ne permit să evaluăm eficiența campaniilor noastre de publicitate și să afișăm reclame relevante utilizatorilor care au vizitat site-ul nostru.
+                                    </li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold">3. Nu utilizăm alte cookie-uri de la terți</h3>
+                                <h3 className="text-xl font-semibold">3. Utilizarea cookie-urilor de publicitate</h3>
                                 <p>
-                                    <strong>Important:</strong> În afara cookie-urilor Stripe și Google Analytics menționate mai sus, nu utilizăm niciun alt cookie de la terți. Nu folosim cookie-uri pentru publicitate, remarketing sau tracking în scopuri de marketing. Nu vindem și nu partajăm datele dumneavoastră cu alte companii.
+                                    Utilizăm Google Ads ca unic serviciu de publicitate pentru măsurarea eficienței campaniilor publicitare și pentru remarketing. Cookie-urile Google Ads ne permit să:
+                                </p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    <li>Măsurăm conversiile generate de campaniile noastre publicitare</li>
+                                    <li>Afișăm reclame relevante utilizatorilor care au vizitat anterior site-ul nostru (remarketing)</li>
+                                </ul>
+                                <p>
+                                    <strong>Nu vindem și nu partajăm datele dumneavoastră personale cu alte companii.</strong> Google Ads este singurul serviciu de publicitate pe care îl utilizăm.
                                 </p>
 
-                                <h3 className="text-xl font-semibold">4. Gestionarea cookie-urilor</h3>
+                                <h3 className="text-xl font-semibold">4. Nu utilizăm alte cookie-uri de la terți</h3>
+                                <p>
+                                    <strong>Important:</strong> În afara cookie-urilor Stripe, Google Analytics și Google Ads menționate mai sus, nu utilizăm niciun alt cookie de la terți. Nu vindem și nu partajăm datele dumneavoastră cu alte companii.
+                                </p>
+
+                                <h3 className="text-xl font-semibold">5. Gestionarea cookie-urilor</h3>
                                 <p>
                                     Majoritatea browser-elor web vă permit să controlați cookie-urile prin setările lor. Puteți seta browser-ul să vă avertizeze atunci când primiți cookie-uri sau să le refuze complet. Totuși, rețineți că:
                                 </p>
@@ -377,9 +428,10 @@ function LegalPage() {
                                     <li>Dacă dezactivați cookie-urile esențiale, este posibil să nu puteți utiliza anumite funcții ale site-ului nostru, cum ar fi conectarea la contul dumneavoastră.</li>
                                     <li>Dacă dezactivați cookie-urile Stripe, nu veți putea efectua plăți pe site-ul nostru.</li>
                                     <li>Dacă dezactivați cookie-urile Google Analytics, nu vom putea înțelege cum să îmbunătățim experiența dumneavoastră pe site.</li>
+                                    <li>Dacă dezactivați cookie-urile Google Ads, reclamele afișate nu vor fi personalizate în funcție de vizitele dumneavoastră anterioare pe site-ul nostru.</li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold">5. Mai multe informații</h3>
+                                <h3 className="text-xl font-semibold">6. Mai multe informații</h3>
                                 <p>
                                     Pentru mai multe informații despre cookie-uri și cum să le gestionați, puteți vizita:
                                 </p>
@@ -389,7 +441,7 @@ function LegalPage() {
                                     <li><Link href="https://policies.google.com/privacy" variant="primary" underline inline>Politica de confidențialitate Google</Link></li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold">6. Contactați-ne</h3>
+                                <h3 className="text-xl font-semibold">7. Contactați-ne</h3>
                                 <p>
                                     Dacă aveți întrebări despre utilizarea cookie-urilor pe site-ul nostru, vă rugăm să ne contactați:
                                 </p>
