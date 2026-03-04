@@ -9,7 +9,7 @@ import { syncInvoiceFromStripe } from '@/lib/invoice-sync';
 
 
 
-export const GET = withLogging(async (
+export const GET: (request: NextRequest, context: { params: Promise<{ id: string }> }) => Promise<NextResponse> = withLogging(async (
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -108,8 +108,8 @@ export const GET = withLogging(async (
                         company: localInvoice.billingCompany || user?.billingCompany || ''
                     },
                     // These fields would need to be stored separately or fetched from Stripe
-                    items: [],
-                    discounts: [],
+                    items: [] as { name: string; description: string; quantity: number; unitPrice: number; total: number }[],
+                    discounts: [] as { couponId: string; couponName: string | null; percentOff: number | null; amountOff: number | null; currency: string | null }[],
                     subtotal: localInvoice.amountTotal,
                     tax: 0,
                     total: localInvoice.amountTotal,

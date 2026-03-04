@@ -139,25 +139,27 @@ export const POST = withLogging(async (
         await database.insert(invoices).values({
             id: invoiceId,
             userId: session.user.id,
-            orderId,
+            subscriptionId: newSubscription[0].id,
+            stripeInvoiceId: `pending_${invoiceId}`,
+            stripeCustomerId: '',
             createdAt: startDate,
+            updatedAt: startDate,
             dueDate: dueDate.toISOString(),
-            amount: subscriptionPrice,
+            amountTotal: subscriptionPrice,
+            amountPaid: invoiceStatus === 'paid' ? subscriptionPrice : 0,
+            amountRemaining: invoiceStatus === 'paid' ? 0 : subscriptionPrice,
             status: invoiceStatus,
-            stripeInvoiceId: null
         });
 
         logger.info('Subscription created successfully', {
             subscriptionId: newSubscription[0].id,
             userId: session.user.id,
             serviceId,
-            orderId,
             invoiceId
         });
 
         return NextResponse.json({
             subscription: newSubscription[0],
-            orderId,
             invoiceId,
             service: {
                 id: service.id,

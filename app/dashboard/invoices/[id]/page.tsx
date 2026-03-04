@@ -248,16 +248,6 @@ export default function InvoiceDetailsPage() {
                                         </p>
                                     </>
                                 )}
-                                {invoice.orderId && (
-                                    <>
-                                        <p className="font-medium">ID Comandă:</p>
-                                        <p>
-                                            <Link href={`/dashboard/orders/${invoice.orderId}`} className="text-text-primary hover:text-primary-dark transition-colors">
-                                                {invoice.orderId}
-                                            </Link>
-                                        </p>
-                                    </>
-                                )}
                             </div>
                         </div>
                     </div>

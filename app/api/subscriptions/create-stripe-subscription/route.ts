@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
                 let stripeSubscription;
                 try {
                     stripeSubscription = await stripe.subscriptions.retrieve(
-                        existingSub.stripeSubscriptionId,
+                        existingSub.stripeSubscriptionId!,
                         { expand: ['latest_invoice'] }
                     );
                 } catch (retrieveError: any) {

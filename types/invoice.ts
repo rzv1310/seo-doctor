@@ -7,7 +7,7 @@ export interface Invoice {
     
     // Invoice details
     number: string | null;
-    status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
+    status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible' | 'pending' | 'cancelled' | 'overdue';
     currency: string;
     amount: number; // For backward compatibility
     amountTotal: number;

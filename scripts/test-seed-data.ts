@@ -237,7 +237,6 @@ async function seedData() {
                     dueDate: invoiceDueDate.toISOString(),
                     paidAt: invoiceStatus === 'paid' ? endDate.toISOString() : null,
                     voidedAt: invoiceStatus === 'void' ? endDate.toISOString() : null,
-                    stripeInvoiceId: null,
                 });
             }
         }
