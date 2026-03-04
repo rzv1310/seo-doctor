@@ -90,14 +90,15 @@ export async function POST(request: NextRequest) {
         }
 
         const metadata = JSON.parse(subscription.metadata || '{}');
+        const currentPeriodEnd = updatedSubscription.items.data[0]?.current_period_end;
         let updateData;
 
         if (reactivate) {
             updateData = {
                 status: 'active',
                 cancelledAt: null,
-                endDate: updatedSubscription.current_period_end 
-                    ? new Date(updatedSubscription.current_period_end * 1000).toISOString()
+                endDate: currentPeriodEnd
+                    ? new Date(currentPeriodEnd * 1000).toISOString()
                     : subscription.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // fallback to 30 days
                 metadata: JSON.stringify({
                     ...metadata,
@@ -138,8 +139,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
                 success: true,
                 message: 'Subscription reactivated successfully',
-                endDate: updatedSubscription.current_period_end 
-                    ? new Date(updatedSubscription.current_period_end * 1000)
+                endDate: currentPeriodEnd
+                    ? new Date(currentPeriodEnd * 1000)
                     : null,
             });
         } else {

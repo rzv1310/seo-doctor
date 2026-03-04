@@ -276,23 +276,25 @@ export async function POST(request: NextRequest) {
                         // Pay the existing invoice
                         const paidInvoice = await stripe.invoices.pay(latestInvoice.id, {
                             payment_method: paymentMethodId,
-                            expand: ['payment_intent']
+                            expand: ['payments.data.payment.payment_intent']
                         });
-                        
+
                         logger.info('Paid existing invoice', {
                             invoiceId: paidInvoice.id,
                             status: paidInvoice.status,
-                            paid: paidInvoice.paid
+                            isPaid: paidInvoice.status === 'paid'
                         });
-                        
+
                         // Handle payment intent for 3D Secure if needed
-                        if (paidInvoice.payment_intent) {
+                        const paidPayment = (paidInvoice as any).payments?.data?.[0]?.payment;
+                        const paidPaymentIntent = paidPayment?.payment_intent;
+                        if (paidPaymentIntent) {
                             let paymentIntent;
-                            
-                            if (typeof paidInvoice.payment_intent === 'string') {
-                                paymentIntent = await stripe.paymentIntents.retrieve(paidInvoice.payment_intent);
+
+                            if (typeof paidPaymentIntent === 'string') {
+                                paymentIntent = await stripe.paymentIntents.retrieve(paidPaymentIntent);
                             } else {
-                                paymentIntent = paidInvoice.payment_intent;
+                                paymentIntent = paidPaymentIntent;
                             }
                             
                             if (paymentIntent.status === 'requires_action' && paymentIntent.client_secret) {
@@ -345,16 +347,18 @@ export async function POST(request: NextRequest) {
                         if (payError.code === 'invoice_payment_intent_requires_action') {
                             // Try to get the payment intent from the error or updated invoice
                             const updatedInvoice = await stripe.invoices.retrieve(latestInvoice.id, {
-                                expand: ['payment_intent']
+                                expand: ['payments.data.payment.payment_intent']
                             });
-                            
-                            if (updatedInvoice.payment_intent) {
+
+                            const updPayment = (updatedInvoice as any).payments?.data?.[0]?.payment;
+                            const updPaymentIntent = updPayment?.payment_intent;
+                            if (updPaymentIntent) {
                                 let paymentIntent;
-                                
-                                if (typeof updatedInvoice.payment_intent === 'string') {
-                                    paymentIntent = await stripe.paymentIntents.retrieve(updatedInvoice.payment_intent);
+
+                                if (typeof updPaymentIntent === 'string') {
+                                    paymentIntent = await stripe.paymentIntents.retrieve(updPaymentIntent);
                                 } else {
-                                    paymentIntent = updatedInvoice.payment_intent;
+                                    paymentIntent = updPaymentIntent;
                                 }
                                 
                                 if (paymentIntent.status === 'requires_action' && paymentIntent.client_secret) {
@@ -415,7 +419,7 @@ export async function POST(request: NextRequest) {
             customer: stripeCustomerId,
             items: [{ price: priceId }],
             default_payment_method: paymentMethodId,
-            expand: ['latest_invoice.payment_intent', 'latest_invoice', 'pending_setup_intent'],
+            expand: ['latest_invoice.payments.data.payment.payment_intent', 'latest_invoice', 'pending_setup_intent'],
             payment_behavior: 'default_incomplete',
             payment_settings: {
                 save_default_payment_method: 'on_subscription',
@@ -463,11 +467,11 @@ export async function POST(request: NextRequest) {
             status: stripeSubscription.status,
             hasLatestInvoice: !!stripeSubscription.latest_invoice,
             invoiceStatus: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.status : 'string_id',
-            invoicePaymentIntentId: typeof stripeSubscription.latest_invoice === 'object' ? (typeof stripeSubscription.latest_invoice?.payment_intent === 'object' ? stripeSubscription.latest_invoice?.payment_intent?.id : stripeSubscription.latest_invoice?.payment_intent) : null,
-            invoicePaymentIntentType: typeof stripeSubscription.latest_invoice === 'object' ? typeof stripeSubscription.latest_invoice?.payment_intent : 'string',
+            invoicePaymentIntentId: typeof stripeSubscription.latest_invoice === 'object' ? (stripeSubscription.latest_invoice as any)?.payments?.data?.[0]?.payment?.payment_intent?.id : null,
+            hasPayments: typeof stripeSubscription.latest_invoice === 'object' ? !!(stripeSubscription.latest_invoice as any)?.payments?.data?.length : false,
             hasPendingSetupIntent: !!stripeSubscription.pending_setup_intent,
-            currentPeriodStart: stripeSubscription.current_period_start,
-            currentPeriodEnd: stripeSubscription.current_period_end,
+            currentPeriodStart: stripeSubscription.items.data[0]?.current_period_start,
+            currentPeriodEnd: stripeSubscription.items.data[0]?.current_period_end,
             trialStart: stripeSubscription.trial_start,
             trialEnd: stripeSubscription.trial_end,
             canceledAt: stripeSubscription.canceled_at,
@@ -561,25 +565,28 @@ export async function POST(request: NextRequest) {
                 // Pay the invoice directly, which will create the payment intent
                 const paidInvoice = await stripe.invoices.pay(invoice.id, {
                     payment_method: paymentMethodId,
-                    expand: ['payment_intent']
+                    expand: ['payments.data.payment.payment_intent']
                 });
-                
+
+                const directPayment = (paidInvoice as any).payments?.data?.[0]?.payment;
+                const directPaymentIntent = directPayment?.payment_intent;
+
                 logger.info('Invoice payment attempted', {
                     invoiceId: paidInvoice.id,
                     status: paidInvoice.status,
-                    paid: paidInvoice.paid,
-                    hasPaymentIntent: !!paidInvoice.payment_intent,
-                    paymentIntentId: typeof paidInvoice.payment_intent === 'object' ? paidInvoice.payment_intent?.id : paidInvoice.payment_intent
+                    isPaid: paidInvoice.status === 'paid',
+                    hasPaymentIntent: !!directPaymentIntent,
+                    paymentIntentId: typeof directPaymentIntent === 'object' ? directPaymentIntent?.id : directPaymentIntent
                 });
-                
-                if (paidInvoice.payment_intent) {
+
+                if (directPaymentIntent) {
                     let paymentIntent;
-                    
+
                     // If payment_intent is a string, retrieve it
-                    if (typeof paidInvoice.payment_intent === 'string') {
-                        paymentIntent = await stripe.paymentIntents.retrieve(paidInvoice.payment_intent);
+                    if (typeof directPaymentIntent === 'string') {
+                        paymentIntent = await stripe.paymentIntents.retrieve(directPaymentIntent);
                     } else {
-                        paymentIntent = paidInvoice.payment_intent;
+                        paymentIntent = directPaymentIntent;
                     }
                     
                     paymentStatus = paymentIntent.status;
@@ -662,24 +669,27 @@ export async function POST(request: NextRequest) {
                     try {
                         // First try to retrieve the updated invoice
                         const updatedInvoice = await stripe.invoices.retrieve(invoice.id, {
-                            expand: ['payment_intent']
+                            expand: ['payments.data.payment.payment_intent']
                         });
-                        
+
+                        const errPayment = (updatedInvoice as any).payments?.data?.[0]?.payment;
+                        const errPaymentIntent = errPayment?.payment_intent;
+
                         logger.info('Updated invoice retrieved after payment attempt', {
                             invoiceId: updatedInvoice.id,
                             status: updatedInvoice.status,
-                            hasPaymentIntent: !!updatedInvoice.payment_intent,
-                            paymentIntentId: typeof updatedInvoice.payment_intent === 'object' ? updatedInvoice.payment_intent?.id : updatedInvoice.payment_intent
+                            hasPaymentIntent: !!errPaymentIntent,
+                            paymentIntentId: typeof errPaymentIntent === 'object' ? errPaymentIntent?.id : errPaymentIntent
                         });
-                        
-                        if (updatedInvoice.payment_intent) {
+
+                        if (errPaymentIntent) {
                             let paymentIntent;
-                            
+
                             // If payment_intent is a string, retrieve it
-                            if (typeof updatedInvoice.payment_intent === 'string') {
-                                paymentIntent = await stripe.paymentIntents.retrieve(updatedInvoice.payment_intent);
+                            if (typeof errPaymentIntent === 'string') {
+                                paymentIntent = await stripe.paymentIntents.retrieve(errPaymentIntent);
                             } else {
-                                paymentIntent = updatedInvoice.payment_intent;
+                                paymentIntent = errPaymentIntent;
                             }
                             
                             logger.info('Payment intent retrieved from updated invoice', {
@@ -813,12 +823,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Create local subscription record
-        const currentPeriodStart = stripeSubscription.current_period_start 
-            ? new Date(stripeSubscription.current_period_start * 1000).toISOString()
+        const itemPeriodStart = stripeSubscription.items.data[0]?.current_period_start;
+        const itemPeriodEnd = stripeSubscription.items.data[0]?.current_period_end;
+        const currentPeriodStart = itemPeriodStart
+            ? new Date(itemPeriodStart * 1000).toISOString()
             : new Date().toISOString();
-        
-        const currentPeriodEnd = stripeSubscription.current_period_end
-            ? new Date(stripeSubscription.current_period_end * 1000).toISOString()
+
+        const currentPeriodEnd = itemPeriodEnd
+            ? new Date(itemPeriodEnd * 1000).toISOString()
             : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days from now
         
         const [newSubscription] = await db

@@ -71,27 +71,30 @@ export const POST = withLogging(async (req: NextRequest) => {
                     // Retrieve the invoice to get the subscription ID
                     const invoice = await stripe.invoices.retrieve(paymentIntent.invoice as string);
                     
+                    const invoiceParentSub = invoice.parent?.subscription_details?.subscription;
+                    const invoiceSubId = typeof invoiceParentSub === 'string' ? invoiceParentSub : invoiceParentSub?.id ?? null;
+
                     logger.info('Invoice details retrieved', {
                         invoiceId: invoice.id,
-                        subscriptionId: invoice.subscription,
+                        subscriptionId: invoiceSubId,
                         status: invoice.status,
-                        paid: invoice.paid,
+                        isPaid: invoice.status === 'paid',
                         amountPaid: invoice.amount_paid,
                         total: invoice.total
                     });
-                    
-                    if (invoice.subscription) {
+
+                    if (invoiceSubId) {
                         // Update subscription status from pending_payment to active
                         const updateResult = await db.update(subscriptions)
                             .set({
                                 status: 'active',
                                 updatedAt: new Date().toISOString()
                             })
-                            .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string))
+                            .where(eq(subscriptions.stripeSubscriptionId, invoiceSubId))
                             .returning();
 
                         logger.info('Subscription activated after successful payment', {
-                            subscriptionId: invoice.subscription,
+                            subscriptionId: invoiceSubId,
                             paymentIntentId: paymentIntent.id,
                             updatedRecords: updateResult.length,
                             localSubscriptionId: updateResult[0]?.id
@@ -124,9 +127,9 @@ export const POST = withLogging(async (req: NextRequest) => {
                            subscription.status === 'trialing' ? 'trial' : 
                            subscription.status === 'incomplete' || subscription.status === 'past_due' ? 'pending_payment' :
                            subscription.status === 'canceled' ? 'cancelled' : 'inactive',
-                    startDate: new Date(subscription.current_period_start * 1000).toISOString(),
-                    endDate: new Date(subscription.current_period_end * 1000).toISOString(),
-                    renewalDate: new Date(subscription.current_period_end * 1000).toISOString(),
+                    startDate: new Date((subscription.items.data[0]?.current_period_start ?? subscription.created) * 1000).toISOString(),
+                    endDate: new Date((subscription.items.data[0]?.current_period_end ?? subscription.created) * 1000).toISOString(),
+                    renewalDate: new Date((subscription.items.data[0]?.current_period_end ?? subscription.created) * 1000).toISOString(),
                     price: subscription.items.data[0]?.price.unit_amount || 0,
                     updatedAt: new Date().toISOString(),
                 };

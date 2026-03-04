@@ -135,24 +135,28 @@ export async function fetchSubscriptionDiscounts(
             : originalPriceInSmallestUnit / 100; // Already in EUR or other currency
             
         const discounts = stripeSubscription.discounts
-            .filter((discount): discount is Stripe.Discount => 
-                typeof discount === 'object' && discount !== null
+            .filter((discount): discount is Stripe.Discount =>
+                typeof discount === 'object' && discount !== null && !('deleted' in discount && discount.deleted)
             )
-            .map((discount): StripeDiscountData => ({
-                id: discount.id,
-                coupon: {
-                    id: discount.coupon.id,
-                    name: discount.coupon.name,
-                    percent_off: discount.coupon.percent_off,
-                    amount_off: discount.coupon.amount_off,
-                    currency: discount.coupon.currency,
-                    duration: discount.coupon.duration,
-                    duration_in_months: discount.coupon.duration_in_months,
-                    valid: discount.coupon.valid
-                },
-                start: discount.start,
-                end: discount.end
-            }));
+            .filter(discount => typeof discount.source?.coupon === 'object' && discount.source.coupon !== null)
+            .map((discount): StripeDiscountData => {
+                const coupon = discount.source.coupon as Stripe.Coupon;
+                return {
+                    id: discount.id,
+                    coupon: {
+                        id: coupon.id,
+                        name: coupon.name,
+                        percent_off: coupon.percent_off,
+                        amount_off: coupon.amount_off,
+                        currency: coupon.currency,
+                        duration: coupon.duration,
+                        duration_in_months: coupon.duration_in_months,
+                        valid: coupon.valid
+                    },
+                    start: discount.start,
+                    end: discount.end
+                };
+            });
 
         return calculateDiscountedPrice(originalPriceForCalculation, discounts);
     } catch (error) {

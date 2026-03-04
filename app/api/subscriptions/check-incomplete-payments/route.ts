@@ -103,20 +103,23 @@ export async function GET(request: NextRequest) {
             const openInvoices = await stripe.invoices.list({
                 customer: userRecord.stripeCustomerId,
                 status: 'open',
-                expand: ['data.payment_intent'],
+                expand: ['data.payments.data.payment.payment_intent'],
             });
-            
-            logger.info('Found open invoices', { 
-                count: openInvoices.data.length 
+
+            logger.info('Found open invoices', {
+                count: openInvoices.data.length
             });
 
             for (const invoice of openInvoices.data) {
-                const paymentIntent = invoice.payment_intent as any;
-                
+                const payment = invoice.payments?.data?.[0]?.payment as any;
+                const paymentIntent = payment?.payment_intent;
+                const parentSub = invoice.parent?.subscription_details?.subscription;
+                const subscriptionId = typeof parentSub === 'string' ? parentSub : parentSub?.id ?? null;
+
                 if (paymentIntent && (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_payment_method')) {
                     // Check if we already added this from subscriptions
                     const alreadyAdded = incompletePayments.some(p => p.paymentIntentId === paymentIntent.id);
-                    
+
                     if (!alreadyAdded) {
                         incompletePayments.push({
                             type: 'invoice',
@@ -127,7 +130,7 @@ export async function GET(request: NextRequest) {
                             amount: invoice.amount_due,
                             currency: invoice.currency,
                             created: new Date(invoice.created * 1000).toISOString(),
-                            subscriptionId: invoice.subscription
+                            subscriptionId
                         });
                     }
                 }

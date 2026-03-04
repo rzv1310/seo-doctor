@@ -81,7 +81,7 @@ async function generateStripeProducts() {
 
         try {
             const promoCode70 = await stripe.promotionCodes.create({
-                coupon: coupon70.id,
+                promotion: { coupon: coupon70.id, type: 'coupon' },
                 code: 'SEO70',
                 active: true,
             });
@@ -109,7 +109,7 @@ async function generateStripeProducts() {
 
         try {
             const promoCodeFull = await stripe.promotionCodes.create({
-                coupon: couponFull.id,
+                promotion: { coupon: couponFull.id, type: 'coupon' },
                 code: 'SEOFULL',
                 active: true,
             });

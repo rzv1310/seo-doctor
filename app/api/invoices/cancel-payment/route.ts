@@ -58,8 +58,9 @@ export async function POST(request: NextRequest) {
             });
 
             // If the invoice has a subscription, also cancel it and clean up database
-            if (invoice.subscription) {
-                const stripeSubscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id;
+            const parentSub = invoice.parent?.subscription_details?.subscription;
+            if (parentSub) {
+                const stripeSubscriptionId = typeof parentSub === 'string' ? parentSub : parentSub.id;
                 
                 try {
                     const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);

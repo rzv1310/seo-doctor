@@ -26,7 +26,11 @@ export async function POST(request: NextRequest) {
 
             if (promotionCodes.data.length > 0) {
                 const promotionCode = promotionCodes.data[0];
-                const coupon = promotionCode.coupon;
+                const sourceCoupon = promotionCode.promotion?.coupon;
+                const coupon = typeof sourceCoupon === 'object' && sourceCoupon !== null ? sourceCoupon : null;
+                if (!coupon) {
+                    return NextResponse.json({ error: 'Cupon invalid' }, { status: 400 });
+                }
 
                 // Check if the coupon is valid
                 if (!coupon.valid) {

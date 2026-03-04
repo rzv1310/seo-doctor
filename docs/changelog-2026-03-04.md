@@ -72,15 +72,91 @@ status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible' | 'pending' | 'canc
 **Fix:** Removed the duplicate `stripeInvoiceId: null` line.
 
 
+## Stripe SDK v14 → v20 Migration
+
+All breaking type changes from the major Stripe SDK upgrade.
+
+### `discount.coupon` → `discount.source.coupon`
+In v20, the `coupon` property moved from the Discount object to `discount.source.coupon`. Additionally, `source.coupon` can be `string | Stripe.Coupon | null`, so it needs a type guard.
+
+**Files fixed:**
+- `app/api/invoices/[id]/route.ts` — Both discount mapping blocks (lines ~134 and ~219)
+- `lib/discount-utils.ts` — `fetchSubscriptionDiscounts()` discount mapping
+
+### `promotionCode.coupon` → `promotionCode.promotion.coupon`
+PromotionCode objects now access the coupon via `.promotion.coupon` instead of `.coupon` directly.
+
+**Files fixed:**
+- `app/api/validate-coupon/route.ts` — Coupon validation endpoint
+
+### `promotionCodes.create({ coupon })` → `promotionCodes.create({ promotion: { coupon, type: 'coupon' } })`
+The create params for promotion codes now nest the coupon inside a `promotion` object.
+
+**Files fixed:**
+- `scripts/required-generate-stripe.ts` — Both SEO70 and SEOFULL promo code creation
+
+### `invoice.subscription` → `invoice.parent.subscription_details.subscription`
+The `subscription` property was removed from Invoice. Access it via the `parent` object.
+
+**Files fixed:**
+- `app/api/invoices/cancel-payment/route.ts` — Subscription cancellation on invoice cancel
+- `app/api/webhook/route.ts` — `payment_intent.succeeded` handler
+- `app/api/subscriptions/check-incomplete-payments/route.ts` — Open invoice listing
+
+### `invoice.payment_intent` → `invoice.payments.data[0].payment.payment_intent`
+The `payment_intent` property was removed from Invoice. Access it through the `payments` list.
+
+**Files fixed:**
+- `app/api/subscriptions/create-stripe-subscription/route.ts` — Multiple blocks: initial invoice pay, error handling invoice retrieve, direct invoice pay
+- `app/api/subscriptions/check-payment-status/route.ts` — Payment status checking
+- `app/api/subscriptions/retry-payment/route.ts` — Payment retry logic
+- `app/api/subscriptions/check-incomplete-payments/route.ts` — Incomplete payment detection
+
+All `expand` paths updated from `['payment_intent']` or `['latest_invoice.payment_intent']` to `['payments.data.payment.payment_intent']` or `['latest_invoice.payments.data.payment.payment_intent']`.
+
+### `invoice.paid` removed
+Replaced all `invoice.paid` checks with `invoice.status === 'paid'`.
+
+**Files fixed:**
+- `app/api/subscriptions/create-stripe-subscription/route.ts`
+- `app/api/subscriptions/check-payment-status/route.ts`
+- `app/api/subscriptions/retry-payment/route.ts`
+- `app/api/webhook/route.ts`
+
+### `invoice.tax` → `invoice.total_taxes`
+The `tax` number property was removed. Tax is now an array of `total_taxes` objects, each with an `amount`. Computed as: `invoice.total_taxes?.reduce((sum, t) => sum + t.amount, 0) ?? 0`.
+
+**Files fixed:**
+- `app/api/invoices/[id]/route.ts` — Both formatted invoice blocks
+
+### `subscription.current_period_start/end` → `subscription.items.data[0].current_period_start/end`
+Period timestamps moved from the subscription object to individual subscription items.
+
+**Files fixed:**
+- `app/api/subscriptions/cancel-stripe-subscription/route.ts` — End date calculation on cancel/reactivate
+- `app/api/subscriptions/check-payment-status/route.ts` — Period dates for DB update
+- `app/api/subscriptions/create-stripe-subscription/route.ts` — Logger and local subscription record creation
+- `app/api/webhook/route.ts` — Subscription update handler
+
+
 ## Files Modified
 
 | File | Change |
 |------|--------|
 | `app/legal/page.tsx` | Removed privacy tab, added sections to terms/gdpr/cookies |
 | `data/layout.ts` | Updated footer infoLinks |
-| `app/api/invoices/[id]/route.ts` | Fixed circular type inference, typed empty arrays |
+| `app/api/invoices/[id]/route.ts` | Fixed circular type inference, typed empty arrays, Stripe v20 discount/tax migration |
+| `app/api/invoices/cancel-payment/route.ts` | Stripe v20: invoice.subscription → parent.subscription_details |
 | `app/api/subscriptions/[id]/route.ts` | Fixed invoice insert to match schema, removed orderId |
-| `app/api/subscriptions/create-stripe-subscription/route.ts` | Non-null assertion on stripeSubscriptionId |
+| `app/api/subscriptions/create-stripe-subscription/route.ts` | Non-null assertion, Stripe v20: payment_intent/period migration |
+| `app/api/subscriptions/cancel-stripe-subscription/route.ts` | Stripe v20: current_period_end migration |
+| `app/api/subscriptions/check-payment-status/route.ts` | Stripe v20: payment_intent/paid/period migration |
+| `app/api/subscriptions/check-incomplete-payments/route.ts` | Stripe v20: payment_intent/subscription migration |
+| `app/api/subscriptions/retry-payment/route.ts` | Stripe v20: payment_intent/paid migration |
+| `app/api/validate-coupon/route.ts` | Stripe v20: promotionCode.coupon → promotion.coupon |
+| `app/api/webhook/route.ts` | Stripe v20: invoice.subscription/paid, subscription period migration |
+| `lib/discount-utils.ts` | Stripe v20: discount.coupon → source.coupon |
+| `scripts/required-generate-stripe.ts` | Stripe v20: promotionCodes.create params |
 | `types/invoice.ts` | Added pending/cancelled/overdue to status type |
 | `app/dashboard/invoices/[id]/page.tsx` | Removed stale orderId reference |
 | `scripts/test-seed-data.ts` | Removed duplicate null stripeInvoiceId |

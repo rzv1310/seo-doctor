@@ -131,19 +131,23 @@ export const GET: (request: NextRequest, context: { params: Promise<{ id: string
                         }));
 
                         // Add discounts
-                        formattedInvoice.discounts = stripeInvoice.discounts?.filter(discount => typeof discount !== 'string').map(discount => ({
-                            couponId: discount.coupon?.id,
-                            couponName: discount.coupon?.name,
-                            percentOff: discount.coupon?.percent_off,
-                            amountOff: discount.coupon?.amount_off || null,
-                            currency: discount.coupon?.currency
-                        })) || [];
+                        formattedInvoice.discounts = stripeInvoice.discounts?.filter(discount => typeof discount !== 'string').map(discount => {
+                            const coupon = typeof discount.source?.coupon === 'object' ? discount.source.coupon : null;
+                            return {
+                                couponId: coupon?.id ?? '',
+                                couponName: coupon?.name ?? null,
+                                percentOff: coupon?.percent_off ?? null,
+                                amountOff: coupon?.amount_off ?? null,
+                                currency: coupon?.currency ?? null
+                            };
+                        }) || [];
 
                         // Update totals
+                        const tax = stripeInvoice.total_taxes?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
                         formattedInvoice.subtotal = stripeInvoice.subtotal;
-                        formattedInvoice.tax = stripeInvoice.tax || 0;
+                        formattedInvoice.tax = tax;
                         formattedInvoice.total = stripeInvoice.total;
-                        formattedInvoice.discountTotal = Math.max(0, (stripeInvoice.subtotal - stripeInvoice.total + (stripeInvoice.tax || 0)));
+                        formattedInvoice.discountTotal = Math.max(0, (stripeInvoice.subtotal - stripeInvoice.total + tax));
                     } catch (detailError) {
                         logger.warn('Failed to fetch invoice details from Stripe', {
                             invoiceId,
@@ -216,15 +220,19 @@ export const GET: (request: NextRequest, context: { params: Promise<{ id: string
                 total: item.amount
             }));
 
-            const discounts = stripeInvoice.discounts?.filter(discount => typeof discount !== 'string').map(discount => ({
-                couponId: discount.coupon?.id,
-                couponName: discount.coupon?.name,
-                percentOff: discount.coupon?.percent_off,
-                amountOff: discount.coupon?.amount_off || null,
-                currency: discount.coupon?.currency
-            })) || [];
+            const discounts = stripeInvoice.discounts?.filter(discount => typeof discount !== 'string').map(discount => {
+                const coupon = typeof discount.source?.coupon === 'object' ? discount.source.coupon : null;
+                return {
+                    couponId: coupon?.id ?? '',
+                    couponName: coupon?.name ?? null,
+                    percentOff: coupon?.percent_off ?? null,
+                    amountOff: coupon?.amount_off ?? null,
+                    currency: coupon?.currency ?? null
+                };
+            }) || [];
 
-            const actualDiscountAmount = Math.max(0, (stripeInvoice.subtotal - stripeInvoice.total + (stripeInvoice.tax || 0)));
+            const fallbackTax = stripeInvoice.total_taxes?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
+            const actualDiscountAmount = Math.max(0, (stripeInvoice.subtotal - stripeInvoice.total + fallbackTax));
             const billingDetails = stripeInvoice.customer_address as any || {};
 
             const formattedInvoice = {
@@ -254,7 +262,7 @@ export const GET: (request: NextRequest, context: { params: Promise<{ id: string
                 hostedInvoiceUrl: stripeInvoice.hosted_invoice_url,
                 invoicePdf: stripeInvoice.invoice_pdf,
                 subtotal: stripeInvoice.subtotal,
-                tax: stripeInvoice.tax || 0,
+                tax: fallbackTax,
                 total: stripeInvoice.total,
                 discountTotal: actualDiscountAmount
             };

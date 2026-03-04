@@ -41,29 +41,33 @@ export async function POST(request: NextRequest) {
 
         // Retrieve the latest subscription status from Stripe
         const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId, {
-            expand: ['latest_invoice.payment_intent']
+            expand: ['latest_invoice.payments.data.payment.payment_intent']
         });
+
+        const latestInvoice = typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice : null;
+        const invoiceIsPaid = latestInvoice?.status === 'paid';
 
         logger.info('Stripe subscription status retrieved', {
             subscriptionId: stripeSubscription.id,
             status: stripeSubscription.status,
-            invoiceStatus: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.status : 'string_id',
-            invoicePaid: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.paid : false,
-            hasPaymentIntent: !!(stripeSubscription.latest_invoice as any)?.payment_intent
+            invoiceStatus: latestInvoice?.status ?? 'string_id',
+            invoicePaid: invoiceIsPaid,
+            hasPayments: !!(latestInvoice?.payments?.data?.length)
         });
 
         let paymentStatus = 'unknown';
         let paymentIntentStatus = null;
 
         // Check payment intent status if available
-        if ((stripeSubscription.latest_invoice as any)?.payment_intent) {
-            const invoice = stripeSubscription.latest_invoice as any;
+        const invoicePayment = latestInvoice?.payments?.data?.[0]?.payment as any;
+        const invoicePaymentIntent = invoicePayment?.payment_intent;
+        if (invoicePaymentIntent) {
             let paymentIntent;
 
-            if (typeof invoice.payment_intent === 'string') {
-                paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
+            if (typeof invoicePaymentIntent === 'string') {
+                paymentIntent = await stripe.paymentIntents.retrieve(invoicePaymentIntent);
             } else {
-                paymentIntent = invoice.payment_intent;
+                paymentIntent = invoicePaymentIntent;
             }
 
             paymentIntentStatus = paymentIntent.status;
@@ -103,12 +107,14 @@ export async function POST(request: NextRequest) {
         }
 
         if (shouldUpdate) {
-            const currentPeriodStart = stripeSubscription.current_period_start 
-                ? new Date(stripeSubscription.current_period_start * 1000).toISOString()
+            const itemPeriodStart = stripeSubscription.items.data[0]?.current_period_start;
+            const itemPeriodEnd = stripeSubscription.items.data[0]?.current_period_end;
+            const currentPeriodStart = itemPeriodStart
+                ? new Date(itemPeriodStart * 1000).toISOString()
                 : localSubscription.startDate;
-            
-            const currentPeriodEnd = stripeSubscription.current_period_end
-                ? new Date(stripeSubscription.current_period_end * 1000).toISOString()
+
+            const currentPeriodEnd = itemPeriodEnd
+                ? new Date(itemPeriodEnd * 1000).toISOString()
                 : localSubscription.endDate;
 
             await db.update(subscriptions)
@@ -137,7 +143,7 @@ export async function POST(request: NextRequest) {
             paymentStatus,
             paymentIntentStatus,
             updated: shouldUpdate,
-            invoicePaid: typeof stripeSubscription.latest_invoice === 'object' ? stripeSubscription.latest_invoice?.paid || false : false
+            invoicePaid: invoiceIsPaid
         });
 
     } catch (error: any) {

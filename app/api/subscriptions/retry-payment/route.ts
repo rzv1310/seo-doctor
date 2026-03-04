@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
         // Get the current Stripe subscription
         const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId, {
-            expand: ['latest_invoice.payment_intent']
+            expand: ['latest_invoice.payments.data.payment.payment_intent']
         });
 
         logger.info('Retrieved Stripe subscription for retry', {
@@ -243,22 +243,25 @@ export async function POST(request: NextRequest) {
                 try {
                     const paidInvoice = await stripe.invoices.pay(invoice.id, {
                         payment_method: paymentMethodId,
-                        expand: ['payment_intent']
+                        expand: ['payments.data.payment.payment_intent']
                     });
+
+                    const retryPayment = (paidInvoice as any).payments?.data?.[0]?.payment;
+                    const retryPaymentIntent = retryPayment?.payment_intent;
 
                     logger.info('Invoice payment attempted', {
                         invoiceId: paidInvoice.id,
                         status: paidInvoice.status,
-                        paid: paidInvoice.paid
+                        isPaid: paidInvoice.status === 'paid'
                     });
 
-                    if (paidInvoice.payment_intent) {
+                    if (retryPaymentIntent) {
                         let paymentIntent;
-                        
-                        if (typeof paidInvoice.payment_intent === 'string') {
-                            paymentIntent = await stripe.paymentIntents.retrieve(paidInvoice.payment_intent);
+
+                        if (typeof retryPaymentIntent === 'string') {
+                            paymentIntent = await stripe.paymentIntents.retrieve(retryPaymentIntent);
                         } else {
-                            paymentIntent = paidInvoice.payment_intent;
+                            paymentIntent = retryPaymentIntent;
                         }
                         
                         paymentStatus = paymentIntent.status;
