@@ -262,5 +262,9 @@ export const layoutMetadata: Metadata = {
     },
     alternates: {
         canonical: baseUrl
+    },
+    robots: {
+        index: false,
+        follow: false
     }
 };
